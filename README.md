@@ -1,24 +1,18 @@
-# Dragões Relâmpago
+# Honey Troop
 
-Jogo de navegador no estilo Dragon City, feito para caber numa sessão: crie, cruze, evolua e batalhe com dragões em partidas de 10 ou 20 minutos, até o Dragão Ancestral despertar e invadir a ilha. Não há salvamento: fechou a aba, a partida acaba.
+Jogo de navegador sobre abelhas, feito para caber numa sessão. Você cria, cruza, alimenta e treina um enxame até a Vespa Rainha atacar a colmeia. As abelhas que defenderem bem o seu lar viram uma nova Tropa do Mel. Não há salvamento: se fechar a aba, a partida acaba.
 
 ## Como jogar
-- Abra `index.html` direto no navegador (duplo clique). Não precisa instalar nada nem rodar servidor.
-- Ou sirva a pasta, se preferir: `python3 -m http.server` e acesse `http://localhost:8000`.
+Abra `index.html` no navegador. No celular o jogo roda deitado, e um botão abre a tela cheia na horizontal.
 
-## Arquivos
-- `index.html`: o jogo inteiro (HTML, CSS e JavaScript puro, com o three.js e os modelos 3D embutidos; funciona sem internet).
-- `DESIGN-NOTAS.md`: mecânicas, fórmulas, números de balanceamento e conquistas implementados.
-- `docs/`: documentação completa.
+- Modos: Rápida (10 min), Padrão (20 min), Longa (30 min) e Infinito (um ataque a cada 15 min).
+- Colmeias produzem mel. As flores (Margarida, Girassol, Rosa e Lótus) dão néctar para alimentar as abelhas.
+- Tipos de abelha: Fogo, Água, Flor, Deserto, Elétrica, Gelo, Veneno, Sombra e Luz. Cada tipo tem seu mel.
+- As formas mudam com a raridade: Operária, Guardiã, Guerreira e Soberana. A chefe é a Vespa Rainha.
 
-## Primeiros passos no jogo
-1. Clique no habitat para coletar ouro.
-2. Plante trigo nas fazendas e colha a comida.
-3. Alimente os dragões até o nível 3 e cruze dois deles na aba Cruzar.
-4. Monte um time de até 3 dragões e suba as 8 ligas da Arena.
-5. Quando o tempo acabar, defenda a ilha do Dragão Ancestral na Invasão Final.
+## Cada partida é única
+- **Prado sorteado:** 3 tipos nascem no prado. Eles ficam liberados desde o início e produzem 25% mais mel. A flor nativa dá 50% mais néctar.
+- **Rainha:** você escolhe 1 entre 3 rainhas, cada uma com uma vantagem e uma desvantagem.
+- **Relíquias:** a cada 150 s o relógio para e você escolhe 1 relíquia entre 3. Os efeitos se somam.
 
-## Créditos
-- Modelos 3D CC0: construções do KayKit Medieval Hexagon Pack de [Kay Lousberg](https://kaylousberg.com). Os dragões são modelos próprios do jogo.
-- Ícones: [game-icons.net](https://game-icons.net) (CC BY 3.0), autores listados em `CREDITOS.md`.
-- [three.js](https://threejs.org) (MIT).
+Lore e cutscenes ficam em `lore/`. Os créditos estão em `CREDITOS.md`.

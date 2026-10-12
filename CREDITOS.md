@@ -1,6 +1,6 @@
 # Icon credits
 
-Icons from [game-icons.net](https://game-icons.net) (source: https://github.com/game-icons/icons), licensed under [CC BY 3.0](https://creativecommons.org/licenses/by/3.0/). Recolored, outlined and given gradients for "Dragões Relâmpago".
+Icons from [game-icons.net](https://game-icons.net) (source: https://github.com/game-icons/icons), licensed under [CC BY 3.0](https://creativecommons.org/licenses/by/3.0/). Recolored, outlined and given gradients for "Honey Troop". Bee-themed icons: honeycomb, bee, pollen-dust, daisy, lotus, rose, flowers, poison-bottle, drop by Lorc; honey-jar, beehive, jelly, sunflower, desert by Delapouite.
 
 - **carl-olsen**: flame
 - **caro-asercion**: round-potion
