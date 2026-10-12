@@ -881,6 +881,64 @@ body { background: #7a420c; }
   background-size: 230px 190px, 170px 260px, 310px 240px; background-position: 0 0, 60px 90px, 140px 30px; animation: pollen 18s linear infinite; opacity: .7; }
 @keyframes pollen { to { background-position: 40px -190px, 100px -170px, 180px -240px; } }
 @media (prefers-reduced-motion: reduce) { .mapwrap::after { animation: none; } .float { animation: rise .9s ease-out forwards; } }
+
+/* Batalha na Arena do Favo: palco com torcida de abelhas, bandeiras e chão de mel */
+.bstage { position: relative; border: 4px solid var(--ink); border-radius: 22px; overflow: hidden; margin: 6px 0 10px; padding: 8px 10px 14px; isolation: isolate;
+  background:
+    radial-gradient(ellipse 70% 22% at 50% 92%, rgba(255,214,110,.55), transparent 70%),
+    linear-gradient(180deg, transparent 0 58%, #e8a43a 58%, #f6c25a 72%, #d98a1a 100%),
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='42' height='72' viewBox='0 0 42 72'%3E%3Cpath d='M21 2 L39 12 L39 34 L21 44 L3 34 L3 12 Z M21 44 L21 72 M0 0 L3 12 M42 0 L39 12' fill='none' stroke='%23ffe39a' stroke-opacity='.35' stroke-width='2.5'/%3E%3C/svg%3E") 0 0 / 42px 72px,
+    linear-gradient(180deg, #ffe7a6 0%, #f6b94a 30%, #c8761a 58%);
+  box-shadow: inset 0 0 0 3px #ffd968, inset 0 -10px 30px rgba(120,50,0,.35), 0 5px 0 var(--ink); }
+.bstage.boss { background-color: #6a1a2a; filter: saturate(1.05); }
+.bstage.boss::before { content: ""; position: absolute; inset: 0; z-index: -1; background: radial-gradient(ellipse at 70% 30%, rgba(160,20,60,.45), transparent 60%); }
+.bcrowd { position: absolute; left: 0; right: 0; top: 34%; height: 46px; display: flex; justify-content: space-around; align-items: end; z-index: -1; pointer-events: none;
+  background: linear-gradient(180deg, transparent 0 40%, #a85a10 40% 100%); border-bottom: 4px solid #7a3e08; }
+.bcrowd i { width: 22px; height: 20px; border-radius: 50% 50% 45% 45%; border: 2px solid #3a1d06; position: relative; animation: cheer 1.1s ease-in-out infinite;
+  background: repeating-linear-gradient(90deg, #ffcc2a 0 5px, #3a1d06 5px 8px); }
+.bcrowd i:nth-child(3n) { background: repeating-linear-gradient(90deg, #ff9ec8 0 5px, #3a1d06 5px 8px); animation-delay: .2s; }
+.bcrowd i:nth-child(4n) { background: repeating-linear-gradient(90deg, #9be7ff 0 5px, #3a1d06 5px 8px); animation-delay: .45s; }
+.bcrowd i:nth-child(5n) { animation-delay: .7s; }
+.bcrowd i::before { content: ""; position: absolute; top: -9px; left: 3px; width: 12px; height: 8px; border-radius: 50%; background: rgba(255,255,255,.75); }
+@keyframes cheer { 50% { transform: translateY(-7px); } }
+.bflags { position: absolute; inset: 0; z-index: -1; pointer-events: none; }
+.bflags i { position: absolute; top: 8px; width: 4px; height: 70px; background: #6a3606; }
+.bflags i::after { content: ""; position: absolute; left: 4px; top: 2px; width: 34px; height: 22px; background: linear-gradient(180deg, #ff6a4a, #c2301c); clip-path: polygon(0 0, 100% 50%, 0 100%); animation: flag 1.4s ease-in-out infinite; transform-origin: left; }
+.bflags i:nth-child(1) { left: 4%; } .bflags i:nth-child(2) { left: 30%; } .bflags i:nth-child(3) { left: 68%; } .bflags i:nth-child(4) { left: 94%; }
+.bflags i:nth-child(even)::after { background: linear-gradient(180deg, #ffd968, #e09a10); animation-delay: .5s; }
+@keyframes flag { 50% { transform: scaleX(.75) skewY(6deg); } }
+.bstage .battle { align-items: end; }
+.bstage .side .plate { margin: 0 auto; position: relative; z-index: 2; }
+.bstage .stand { margin-top: 26px; animation: idlebob 1.8s ease-in-out infinite; }
+.bstage .side[data-side="foe"] .stand { animation-delay: .6s; }
+.bstage .stand::before { background: radial-gradient(ellipse at 50% 35%, #fff3c4, #f6b733 55%, #c2740e); border-color: var(--ink); height: 34px; box-shadow: 0 5px 0 var(--ink), 0 0 22px rgba(255,200,80,.6); }
+.bstage .stand.down { animation: none; opacity: .45; filter: grayscale(.8); transform: rotate(-12deg) translateY(10px); }
+@keyframes idlebob { 50% { transform: translateY(-8px); } }
+.bstage .vs { align-self: center; margin-top: 60px; }
+.fight-ctl { background: linear-gradient(180deg, rgba(122,72,24,.95), rgba(74,40,10,.95)); }
+.fight-ctl .btn { font-size: 1.1rem; padding: 10px 18px; border-radius: 16px; }
+.log { max-height: 120px; overflow-y: auto; background: #fff4d6; color: #4a2a0c; border: 3px solid var(--ink); box-shadow: inset 0 0 0 2px #e8c27a, 0 4px 0 var(--ink); }
+.log .cr { color: #b85a00; font-weight: 800; } .log .se { color: #1f8a46; font-weight: 800; } .log .ne { color: #8a6a4a; } .log .ko { color: #c2301c; font-weight: 900; }
+.proj.orb { width: 44px; height: 44px; display: grid; place-items: center; border-radius: 50%; font-size: 22px; line-height: 1;
+  background: radial-gradient(circle at 35% 30%, #fff, var(--oc) 45%, color-mix(in srgb, var(--oc) 60%, #000) 100%); box-shadow: 0 0 18px 6px color-mix(in srgb, var(--oc) 70%, transparent), 0 0 0 3px rgba(255,255,255,.6); }
+.hitring { position: absolute; width: 30px; height: 30px; margin: -15px 0 0 -15px; border-radius: 50%; border: 5px solid var(--oc); box-shadow: 0 0 14px var(--oc); animation: hitring .45s ease-out forwards; }
+@keyframes hitring { from { transform: scale(.3); opacity: 1; } to { transform: scale(4.2); opacity: 0; } }
+.fxword { position: absolute; transform: translate(-50%, -100%); font-family: var(--font-display); font-size: 1.8rem; color: #8dff7a; white-space: nowrap;
+  text-shadow: 0 3px 0 var(--ink), 2px 0 0 var(--ink), -2px 0 0 var(--ink), 0 -2px 0 var(--ink); animation: fxword 1.1s cubic-bezier(.2,.8,.3,1) forwards; }
+@keyframes fxword { 0% { transform: translate(-50%, -100%) scale(.3); } 20% { transform: translate(-50%, -100%) scale(1.25); } 35%, 80% { transform: translate(-50%, -100%) scale(1); opacity: 1; } 100% { transform: translate(-50%, -160%); opacity: 0; } }
+@media (max-width: 560px) { .bstage .stand { margin-top: 6px; } .bstage .vs { margin-top: 0; } .bcrowd { top: 18%; } }
+@media (prefers-reduced-motion: reduce) { .bcrowd i, .bflags i::after, .bstage .stand { animation: none; } }
+@media (max-height: 520px) {
+  .fight-head { padding: 4px 10px; } .fight-head h2 { font-size: 1.05rem; }
+  .bstage { padding: 4px 8px 8px; margin: 4px 0 6px; }
+  .bstage .side .plate { padding: 3px 8px 5px; gap: 2px; } .bstage .side .who, .bstage .side .plate > .muted { display: none; }
+  .bstage .side .hpw .bar { height: 16px; }
+  .bstage .dic.xl { width: 128px; height: 107px; } .bstage .stand { margin-top: 2px; } .bstage .stand::before { height: 22px; }
+  .bstage .vs { width: 44px; height: 44px; font-size: 1.1rem; margin-top: 20px; }
+  .bcrowd { top: 40%; height: 30px; } .bcrowd i { width: 16px; height: 15px; } .bflags i { height: 44px; }
+  .bstage .side .bench { display: none; }
+  .fight-ctl { padding: 6px; } .fight-ctl .btn { font-size: .9rem; padding: 6px 10px; }
+}
 /* UI-END */
 </style>
 
@@ -9533,7 +9591,7 @@ function playFx(fx) {
   const dx = b.left - a.left, dy = b.top - a.top;
   src.animate([{ transform: 'none' }, { transform: `translate(${dx * 0.12}px, ${-10}px) rotate(${dx > 0 ? 6 : -6}deg)` }, { transform: 'none' }], { duration: 320, easing: 'ease-out' });
   const p = document.createElement('div');
-  p.className = 'proj'; p.textContent = fx.el ? EL[fx.el].i : '✨';
+  p.className = 'proj orb'; p.textContent = fx.el ? EL[fx.el].i : '✨'; p.style.setProperty('--oc', fx.el ? EL[fx.el].c : '#ffd968');
   p.style.left = (a.left + a.width / 2 - 15) + 'px'; p.style.top = (a.top + a.height / 3) + 'px';
   document.body.appendChild(p);
   const fly = p.animate([{ transform: 'translate(0,0) scale(.6)' }, { transform: `translate(${dx / 2}px, ${dy / 2 - 40}px) scale(1.2)` }, { transform: `translate(${dx}px, ${dy}px) scale(1.4)`, opacity: .9 }], { duration: 300, easing: 'ease-in' });
@@ -9541,6 +9599,12 @@ function playFx(fx) {
     p.remove(); fxSound(fx, 'hit');
     dst.animate([{ transform: 'none', filter: 'none' }, { transform: 'translateX(-8px)', filter: 'brightness(2.2)' }, { transform: 'translateX(7px)', filter: 'brightness(1.5)' }, { transform: 'none', filter: 'none' }], { duration: 360 });
     floatText(`${fx.crit ? 'CRÍTICO ' : ''}-${fx.dmg}`, b.left + b.width / 2, b.top + b.height / 3, fx.m > 1 ? 'var(--good)' : fx.crit ? 'var(--gold)' : 'var(--bad)');
+    const hx = b.left + b.width / 2, hy = b.top + b.height / 2, ec = fx.el ? EL[fx.el].c : '#ffd968';
+    fxSpark(hx, hy, fx.crit ? 22 : 12, [ec, '#fff3c4', '#ffd968'], fx.crit ? 120 : 80, fx.crit ? 'star' : 'dot');
+    const ring = document.createElement('i'); ring.className = 'hitring'; ring.style.left = hx + 'px'; ring.style.top = hy + 'px'; ring.style.setProperty('--oc', ec); fxLayer().appendChild(ring); setTimeout(() => ring.remove(), 500);
+    const st = document.querySelector('.bstage');
+    if (st && (fx.crit || fx.ko || fx.m > 1)) st.animate([{ transform: 'none' }, { transform: 'translate(-7px,3px)' }, { transform: 'translate(6px,-4px)' }, { transform: 'translate(-4px,2px)' }, { transform: 'none' }], { duration: 320 });
+    if (fx.m > 1) { const t = document.createElement('div'); t.className = 'fxword'; t.textContent = 'Super eficaz!'; t.style.left = hx + 'px'; t.style.top = (b.top - 6) + 'px'; fxLayer().appendChild(t); setTimeout(() => t.remove(), 1100); }
   };
 }
 function bestMove(f, foe) {
@@ -11076,7 +11140,7 @@ function fighterView(f, side, bench, active, B) {
       <span class="muted" style="font-size:.8rem">${f.boss ? 'Ataca com elementos aleatórios' : elTags(f.els)}</span>
       <div class="hpw"><div class="bar hp ${f.hp / f.hpMax < 0.3 ? 'low' : ''}"><i style="width:${pct(f.hp, f.hpMax)}%"></i></div><span class="hpn num">❤️ ${f.hp} / ${f.hpMax}</span></div>
     </div>
-    <div class="stand">${dIcon(disp, f.rar, f.boss ? 'xl' : 'l', side === 'foe' ? 'flip' : '', f.did || 3, f.skin)}</div>
+    <div class="stand${f.hp <= 0 ? ' down' : ''}">${dIcon(disp, f.rar, 'xl', side === 'foe' ? 'flip' : '', f.did || 3, f.skin)}</div>
     <div class="bench">${bench.map((x, i) => i === active ? '' : `<span class="${x.hp <= 0 ? 'ko' : ''}">${dIcon(x.disp || x.els, x.rar, 's')}</span>`).join('')}</div>
   </div>`;
 }
@@ -11101,7 +11165,8 @@ function viewBattle() {
   }
   return `<section class="panel fight">
     <div class="fight-head"><h2>${B.kind === 'final' ? `Ataque de ${bossName()}` : B.kind === 'boss' ? `${bossName()} no ninho` : B.kind === 'wild' ? 'Abelha selvagem' : B.kind === 'raid' ? `${RIVALS[S.rival].i} Invasão das ${RIVALS[S.rival].n}` : `${B.node && B.node !== 'luta' ? `${NODES[B.node].i} ${NODES[B.node].n} · ` : ''}Liga ${LEAGUES[S.league - 1] || 'Campeões'} · luta ${S.leagueFight + 1} de 3`}</h2><span class="turn num">Turno ${B.turn}</span></div>
-    <div class="battle">${fighterView(p, 'me', B.team, B.pi, B)}<div class="vs">VS</div>${fighterView(e, 'foe', B.foes, B.ei, B)}</div>
+    <div class="bstage${B.kind === 'final' || B.kind === 'boss' ? ' boss' : ''}"><div class="bcrowd" aria-hidden="true">${'<i></i>'.repeat(26)}</div><div class="bflags" aria-hidden="true"><i></i><i></i><i></i><i></i></div>
+    <div class="battle">${fighterView(p, 'me', B.team, B.pi, B)}<div class="vs">VS</div>${fighterView(e, 'foe', B.foes, B.ei, B)}</div></div>
     ${controls}
     <div class="log">${B.log.map(l => `<div class="${l.cls}">${l.txt}</div>`).join('')}</div>
   </section>`;
