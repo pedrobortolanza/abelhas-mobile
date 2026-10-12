@@ -75,6 +75,12 @@ O jogo **pausa sozinho** quando a aba fica oculta. Botão Pausar e tecla `P` tam
 - **Vila da colmeia:** o chão virou cera lisa, sem o desenho de alvéolos. No meio fica uma praça com a fonte de mel, de onde saem caminhos curvos. As construções ficam num arco no fundo: Arena no topo, Mercado e Chocadeira dos lados, Mural de Missões e Jardim do Amor nas pontas. São até 9 colmeias, dos dois lados e embaixo da praça. O jardim fica na frente, um canteiro de terra com borda de cera e 12 vagas em 2 fileiras. Enfeites: poças de mel, potes, colunas de cera e flores do prado.
 - **Relíquias:** agora a cada 300 s (antes, 150 s).
 
+## Novidades da v6.4 a v6.7: polimento visual (12/10/2026), um commit por parte para dar para reverter
+- Interface no estilo mel (commits d206caa e b158fbf): barras e janelas de favo dourado com mel escorrendo, botões de mel brilhante, tela inicial com névoa dourada.
+- Efeitos e sons (3aca559): gotas de mel voando até o pote, estrelinhas em compras/níveis, brilho de "Nível X!", pólen no ar, números saltando, sons gota e zumbido.
+- Batalha na Arena (0595bae): palco de favo com torcida e bandeiras, abelhas grandes em pedestais de mel, golpes em bola do elemento, anel de impacto, tremor no crítico.
+- Construções: castelo com telhados de mel (atlas repintado em honeyAtlas), mercado com 3 barracas listradas, mural de madeira com bilhetes e favo.
+
 ## Novidades da v6.3: abelhas no estilo fofinho (12/10/2026)
 - Referências do Pedro: abelhas/referencias/abelha-ref-amarela.png e abelha-ref-rosa.png.
 - Cabeça grande e redonda virada para a frente, olhos enormes escuros com brilhos e a cor do elemento embaixo (beeEye), bochechas rosadas, sorriso com linguinha e topetinho.
