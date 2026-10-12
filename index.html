@@ -301,6 +301,26 @@ body { padding-bottom: calc(76px + env(safe-area-inset-bottom, 0px)); }
 .hero { text-align: center; display: flex; flex-direction: column; gap: 10px; align-items: center; }
 .hero h1 { font-size: clamp(2rem, 6vw, 3.2rem); line-height: 1.05; background: linear-gradient(180deg, var(--ember-2), var(--ember)); -webkit-background-clip: text; background-clip: text; color: transparent; }
 .hero p { max-width: 56ch; margin: 0; color: var(--muted); }
+.play-btn { min-width: 220px; font-size: 1.35rem !important; padding: 14px 30px !important; }
+.run-chips { display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; margin-top: 8px; }
+.run-chip { flex: 1 1 220px; max-width: 360px; text-align: left; font-size: .82rem; padding: 8px 10px; border-radius: 12px; background: rgba(255, 210, 110, .14); border: 1px solid rgba(255, 210, 110, .4); }
+.run-chip b { display: block; font-size: .92rem; }
+.run-chip.bad { background: rgba(255, 90, 70, .12); border-color: rgba(255, 110, 90, .45); }
+.run-box { flex-direction: column; align-items: flex-start; gap: 2px; }
+.mut-tag { color: #c9f27a; font-weight: 700; }
+.mut-line { margin: 0; color: #c9f27a; font-weight: 800; }
+.route { display: grid; grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); gap: 8px; width: min(560px, 100%); margin: 0 auto; }
+.node { display: flex; flex-direction: column; align-items: center; gap: 3px; padding: 10px 8px; border-radius: 14px; border: 2px solid rgba(255, 220, 140, .55); background: linear-gradient(#5a3a1a, #3a2410); color: #fff3d6; cursor: pointer; box-shadow: 0 4px 0 #24160a; font: inherit; text-align: center; }
+.node:hover { transform: translateY(-2px); }
+.node:active { transform: translateY(2px); box-shadow: 0 1px 0 #24160a; }
+.node .ric { font-size: 26px; line-height: 1; }
+.node b { font-size: 1rem; }
+.node small { font-size: .7rem; opacity: .85; line-height: 1.2; }
+.node-elite { border-color: #ff6a5a; background: linear-gradient(#6a2418, #3a120c); }
+.node-tesouro { border-color: #ffd23f; }
+.node-treino { border-color: #8fe36a; }
+.node-misterio { border-color: #c79bff; background: linear-gradient(#3e2a62, #22163a); }
+@media (max-height: 500px) { .node { padding: 6px; flex-direction: row; gap: 6px; } .node small { display: none; } .node .ric { font-size: 20px; } }
 .modes { display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 10px; }
 .mode { background: var(--panel-2); border: 2px solid var(--line); border-radius: 14px; padding: 14px; text-align: left; display: flex; flex-direction: column; gap: 4px; }
 .mode:hover { border-color: var(--ember); }
@@ -7852,6 +7872,38 @@ const MAX_DLVL = 15;
 const MAX_PLVL = 30;
 const HAB_CAP = 3;
 const HATCH_COSTS = [300, 1500, 6000]; // custo do 2º, 3º e 4º alvéolo da chocadeira
+// Novidades da run: estação, inimigo, mutações e caminho da Arena
+const SEASONS = {
+  primavera: { n: 'Primavera', i: '🌻', el: 'planta', d: 'Néctar +25% e flores 20% mais rápidas.', mods: { food: 1.25, farm: 1.2 }, tint: ['#ff9ad0', 0.07] },
+  verao:     { n: 'Verão', i: '🔥', el: 'fogo', d: 'Mel +25%, mas o néctar rende 20% menos.', mods: { gold: 1.25, food: 0.8 }, tint: ['#ff7a1a', 0.1] },
+  chuvas:    { n: 'Estação das Chuvas', i: '🌧️', el: 'agua', d: 'Chuva de Mel duas vezes mais frequente; ovos 15% mais lentos.', mods: { hatch: 0.85 }, tint: ['#3a6aa0', 0.12] },
+  inverno:   { n: 'Inverno', i: '❄️', el: 'gelo', d: 'Ovos 25% e flores 15% mais lentos; +2 de geleia real por nível.', mods: { hatch: 0.75, farm: 0.85, lvlGems: 2 }, tint: ['#cfefff', 0.2] },
+};
+const SEASON_BOOST = 1.2; // abelhas do tipo da estação: +20% de vida e ataque
+const RIVALS = {
+  formigas:  { n: 'Formigas Ladras', u: 'Formiga Ladra', i: '🗡️', els: ['terra', 'metal'], d: 'Se vencerem, levam 30% do seu mel.' },
+  vespas:    { n: 'Vespas Batedoras', u: 'Vespa Batedora', i: '🔥', els: ['fogo', 'trevas'], d: 'Se vencerem, queimam as flores de todos os canteiros.' },
+  besouros:  { n: 'Besouros Blindados', u: 'Besouro Blindado', i: '🛡️', els: ['terra', 'gelo'], hp: 1.4, d: 'Têm 40% mais vida. Se vencerem, esfriam os ovos.' },
+  mariposas: { n: 'Mariposas da Noite', u: 'Mariposa da Noite', i: '🔮', els: ['trevas', 'luz'], d: 'Se vencerem, levam metade do seu néctar.' },
+};
+const RAID_AT = [0.33, 0.66], RAID_WAIT = 60;
+const MUTS = {
+  gulosa:     { n: 'Gulosa', d: '+40% de mel', gold: 1.4, w: 20 },
+  robusta:    { n: 'Robusta', d: '+25% de vida', hp: 1.25, w: 20 },
+  aco:        { n: 'Ferrão de Aço', d: '+20% de ataque', atk: 1.2, w: 20 },
+  brilhante:  { n: 'Brilhante', d: '+15% de mel, vida e ataque', gold: 1.15, hp: 1.15, atk: 1.15, w: 10 },
+  preguicosa: { n: 'Preguiçosa', d: '-25% de mel, +35% de ataque', gold: 0.75, atk: 1.35, w: 15 },
+  sortuda:    { n: 'Sortuda', d: '+15% de chance de crítico', crit: 0.15, w: 15 },
+};
+const MUT_CHANCE = 0.35;
+const NODES = {
+  luta:     { n: 'Luta', i: '⚔️', d: 'Uma luta normal da liga.', w: 40, fight: true },
+  elite:    { n: 'Elite', i: '☠️', d: 'Inimigos mais fortes. Mel x2, +5 de geleia real e uma relíquia.', w: 20, fight: true },
+  tesouro:  { n: 'Tesouro', i: '💰', d: 'Mel e geleia real na hora, sem lutar.', w: 15 },
+  treino:   { n: 'Treino', i: '⬆️', d: 'As abelhas do time sobem 1 nível.', w: 15 },
+  misterio: { n: 'Mistério', i: '💫', d: 'Pode ser um ovo, um pote de mel ou uma emboscada.', w: 10 },
+};
+const wpick = obj => { const ks = Object.keys(obj), tot = ks.reduce((a, k) => a + obj[k].w, 0); let r = Math.random() * tot; for (const k of ks) { r -= obj[k].w; if (r < 0) return k; } return ks[0]; };
 const EVENTS = {
   chuva:    { n: 'Chuva de Mel',     i: '🌧️', d: 'Mel das colmeias em dobro por 30s.', dur: 30 },
   colheita: { n: 'Florada',          i: '🌻', d: 'As flores crescem 3x mais rápido por 30s.', dur: 30 },
@@ -8065,11 +8117,13 @@ const ALL_SPECIES = allSpecies();
 const MOD = k => (S && S.mods ? S.mods[k] : MODS0[k]);
 const isNative = d => !!(S && S.meadow && d.els && d.els.some(e => S.meadow.includes(e)));
 const unlockLvl = k => (S && S.unlock ? S.unlock[k] : EL[k].unlock);
-const gpsOf = d => RARITY[d.rar].gps * (1 + 0.4 * (d.lvl - 1)) * MOD('gold') * (isNative(d) ? MEADOW_GOLD : 1) * (d.key === BETMEL.key ? 2 : 1);
+const mutOf = (d, k) => (d && d.mut && MUTS[d.mut] && MUTS[d.mut][k]) || (k === 'crit' ? 0 : 1);
+const seasonOf = d => (S && S.season && d && d.els && d.els.includes(SEASONS[S.season].el) ? SEASON_BOOST : 1);
+const gpsOf = d => RARITY[d.rar].gps * (1 + 0.4 * (d.lvl - 1)) * MOD('gold') * (isNative(d) ? MEADOW_GOLD : 1) * (d.key === BETMEL.key ? 2 : 1) * mutOf(d, 'gold');
 const hpOf = d => Math.round(RARITY[d.rar].hp * (1 + 0.2 * (d.lvl - 1)));
 const atkOf = d => Math.round(RARITY[d.rar].atk * (1 + 0.16 * (d.lvl - 1)));
-const myHp = d => Math.round(hpOf(d) * MOD('hp'));
-const myAtk = d => Math.round(atkOf(d) * MOD('atk') * (1 + (d.atkUp || 0)));
+const myHp = d => Math.round(hpOf(d) * MOD('hp') * mutOf(d, 'hp') * seasonOf(d));
+const myAtk = d => Math.round(atkOf(d) * MOD('atk') * (1 + (d.atkUp || 0)) * mutOf(d, 'atk') * seasonOf(d));
 const powerOf = d => Math.round(hpOf(d) / 4 + atkOf(d) * 2);
 const feedCost = lvl => Math.round(10 * Math.pow(1.5, lvl - 1) * MOD('feed'));
 const sellValue = d => Math.round(25 * RARITY[d.rar].rv * d.lvl);
@@ -8094,7 +8148,7 @@ function ownedElements() { const s = new Set(); S.dragons.forEach(d => d.els.for
 let S = null;
 function newStats() {
   return {
-    clicks: 0, goldEarned: 0, goldSpent: 0, collects: 0, bestCollect: 0, peakGps: 0,
+    clicks: 0, raidsWon: 0, raidsLost: 0, mutants: 0, routeNodes: 0, elites: 0, goldEarned: 0, goldSpent: 0, collects: 0, bestCollect: 0, peakGps: 0,
     foodHarvested: 0, foodSpent: 0, cropsPlanted: 0, cropsHarvested: 0,
     dragonsBought: 0, dragonsSold: 0, feeds: 0, maxDragonLvl: 1,
     breeds: 0, eggsHatched: 0, eggsSpedUp: 0, byRarity: { C: 1, R: 0, E: 0, L: 0 }, firstLegendT: null,
@@ -8124,6 +8178,11 @@ function newState(modeKey) {
   shuffled.slice(MEADOW_N).forEach((k, i) => { st.unlock[k] = 2 + i; });
   st.nativeFlower = pick(Object.keys(CROPS));
   st.farms.forEach(f => { f.pick = CROPS[st.nativeFlower].lvl <= 1 ? st.nativeFlower : 'trigo'; });
+  st.season = pick(Object.keys(SEASONS));
+  st.rival = pick(Object.keys(RIVALS));
+  const dur = MODES[modeKey].dur || 1200;
+  st.raids = RAID_AT.map(p => Math.round(dur * p)); st.raidIdx = 0; st.raid = null; st.raidWarned = -1;
+  st.route = null; st.bonusRelic = false;
   return st;
 }
 function addDragon(sp, lvl = 1) {
@@ -8419,7 +8478,9 @@ function hatch(id) {
   if (S.dragons.length >= capacity()) { toast('Sem espaço', 'Compre outra colmeia para chocar este ovo.', 'bad'); return; }
   S.eggs.splice(i, 1);
   const isNew = !S.dex[egg.sp.key];
-  addDragon(egg.sp);
+  const nd = addDragon(egg.sp);
+  if (Math.random() < MUT_CHANCE) { nd.mut = wpick(MUTS); S.stats.mutants++; }
+  const mutTxt = nd.mut ? `🧬 Mutação: ${MUTS[nd.mut].n} (${MUTS[nd.mut].d})` : '';
   S.stats.eggsHatched++; S.stats.byRarity[egg.sp.rar]++;
   if (egg.sp.rar === 'L' && S.stats.firstLegendT === null) S.stats.firstLegendT = S.t;
   addXp(10 * RARITY[egg.sp.rar].rv + (isNew ? 15 : 0));
@@ -8427,9 +8488,9 @@ function hatch(id) {
   if (isNew || RARITY[egg.sp.rar].rv >= 3) {
     overlay(`<div class="card hero"><span class="cat">${isNew ? 'Espécie nova no Abelhário' : 'Nasceu uma abelha'}</span>
       ${dIcon(egg.sp.els, egg.sp.rar, 'xl', 'pop', S.nextId)}
-      <h1>${egg.sp.name}</h1><p><span class="rar-${egg.sp.rar}">${RARITY[egg.sp.rar].n}</span> · ${RARITY[egg.sp.rar].f} · ${elTags(egg.sp.els)}</p>
+      <h1>${egg.sp.name}</h1><p><span class="rar-${egg.sp.rar}">${RARITY[egg.sp.rar].n}</span> · ${RARITY[egg.sp.rar].f} · ${elTags(egg.sp.els)}</p>${mutTxt ? `<p class="mut-line">${mutTxt}</p>` : ''}
       <button class="btn primary" data-a="cancelEnd">Continuar</button></div>`);
-  } else toast(`Nasceu: ${egg.sp.name}!`, RARITY[egg.sp.rar].n);
+  } else toast(`Nasceu: ${egg.sp.name}!`, RARITY[egg.sp.rar].n + (mutTxt ? ' · ' + mutTxt : ''), nd.mut ? 'ach' : '');
 }
 const speedCost = egg => Math.max(1, Math.ceil((egg.dur - egg.prog) / 8));
 function speedEgg(id) {
@@ -8443,7 +8504,7 @@ function speedEgg(id) {
 // ARENA
 // ============================================================
 function fighterFromDragon(d) {
-  return { name: d.name, els: d.els, rar: d.rar, lvl: d.lvl, hpMax: hpOf(d), hp: hpOf(d), atk: atkOf(d), cd: 0, xcd: 0, move: d.move || null, did: d.id, skin: d.skin };
+  return { name: d.name, els: d.els, rar: d.rar, lvl: d.lvl, hpMax: hpOf(d), hp: hpOf(d), atk: atkOf(d), cd: 0, xcd: 0, move: d.move || null, did: d.id, skin: d.skin, critB: mutOf(d, 'crit') };
 }
 function randomSpeciesOfRarity(r) {
   return pick(ALL_SPECIES.filter(s => s.rar === r));
@@ -8459,6 +8520,80 @@ function enemyTeam(league, fight, bonus = 0) {
     team.push(f);
   }
   return team;
+}
+// Invasão do inimigo da run: tipos do rival, mais forte a cada invasão e conforme a liga
+function raidTeam() {
+  const R = RIVALS[S.rival], n = S.raid.n;
+  const lvl = clamp(Math.min(S.league, 8) * 2 + n, 1, MAX_DLVL);
+  const pool = [[R.els[0]], [R.els[1]], R.els];
+  return Array.from({ length: n === 1 ? 2 : 3 }, (_, k) => {
+    const sp = speciesFromEls(k === 2 ? R.els : pick(pool));
+    const f = fighterFromDragon({ ...sp, lvl });
+    f.name = R.u; f.hp = f.hpMax = Math.round(f.hpMax * (R.hp || 1)); f.atk = Math.round(f.atk * 0.95);
+    return f;
+  });
+}
+function raidStart() {
+  const R = RIVALS[S.rival];
+  S.raid = { n: S.raidIdx + 1, until: S.t + RAID_WAIT }; S.raidIdx++;
+  sfx('tremor', { intensidade: 0.5 });
+  overlay(`<div class="card hero"><span class="cat">Inimigo da partida · invasão ${S.raid.n} de ${RAID_AT.length}</span>
+    <div class="row" style="justify-content:center">${dIcon(R.els, 'E', 'xl', 'flip', 9)}</div>
+    <h1>${R.i} ${R.n} atacam!</h1><p>${R.d} Você tem ${RAID_WAIT}s para defender. Vencer rende mel, geleia real e uma relíquia.</p>
+    <div class="row" style="justify-content:center"><button class="btn primary big" data-a="raidGo">🛡️ Defender</button><button class="btn" data-a="raidSkip">Deixar</button></div></div>`);
+}
+function raidPenalty() {
+  const R = RIVALS[S.rival];
+  let txt = '';
+  if (S.rival === 'formigas') { const n = Math.floor(S.gold * 0.3); S.gold -= n; txt = `Levaram ${fmt(n)} de mel.`; }
+  else if (S.rival === 'vespas') { let n = 0; S.farms.forEach(f => { if (f.crop) { f.crop = null; f.prog = 0; n++; } }); txt = n ? `Queimaram ${n} canteiro(s) de flores.` : 'Não acharam flores para queimar.'; }
+  else if (S.rival === 'besouros') { S.eggs.forEach(e => { e.prog = Math.max(0, e.prog - e.dur * 0.5); e.rang = false; }); txt = S.eggs.length ? 'Os ovos esfriaram e voltaram metade do caminho.' : 'Não havia ovos para esfriar.'; }
+  else { const n = Math.floor(S.food * 0.5); S.food -= n; txt = `Levaram ${fmt(n)} de néctar.`; }
+  S.raid = null; S.stats.raidsLost++;
+  toast(`${R.i} ${R.n} saquearam a colmeia`, txt, 'bad');
+}
+// Caminho da Arena: 3 caminhos para cada luta; o último da liga é sempre uma luta
+function ensureRoute() {
+  if (S.route && S.route.league === S.league && S.route.fight === S.leagueFight) return S.route.choices;
+  let choices;
+  if (S.leagueFight >= 2) choices = ['luta', 'elite'];
+  else {
+    const set = new Set();
+    while (set.size < 3) set.add(wpick(NODES));
+    choices = [...set];
+    if (!choices.some(k => NODES[k].fight)) choices[0] = 'luta';
+  }
+  S.route = { league: S.league, fight: S.leagueFight, choices };
+  return choices;
+}
+function advanceRoute(text) {
+  S.route = null; S.stats.routeNodes++;
+  S.leagueFight++;
+  if (S.leagueFight >= 3) {
+    S.leagueFight = 0; S.league++;
+    return S.league > LEAGUES.length ? 'Você venceu a liga dos Campeões! A Vespa Rainha aguarda.' : `Promovido para a liga ${LEAGUES[S.league - 1]}!`;
+  }
+  return text || `Etapa ${S.leagueFight} de 3 da liga ${LEAGUES[S.league - 1]} concluída.`;
+}
+function takeNode(k) {
+  if (S.battle || S.finalPhase || S.league > LEAGUES.length || !ensureRoute().includes(k)) return;
+  const L = Math.min(S.league, 8), base = 90 * Math.pow(L, 1.9);
+  if (k === 'luta' || k === 'elite') { S.battleNode = k; startBattle('arena'); return; }
+  if (k === 'misterio') {
+    const r = Math.random();
+    if (r < 0.3) { S.battleNode = 'elite'; toast('💫 Emboscada!', 'Era uma abelha de elite escondida. Lute!', 'bad'); startBattle('arena'); return; }
+    if (r < 0.65) { layEgg(pick(ALL_SPECIES.filter(s => s.rar === 'R' || s.rar === 'E')), true); toast('💫 Um ovo!', advanceRoute('O mistério era um ovo raro. Foi para a chocadeira.'), 'ach'); }
+    else { const g = Math.round(base * 2.5); addGold(g); toast('💫 Pote de mel!', `+${fmt(g)} de mel. ` + advanceRoute(), 'ach'); }
+  } else if (k === 'tesouro') {
+    const g = Math.round(base * 1.5), m = 2 + L; addGold(g); addGems(m); sfx('gemas');
+    toast('💰 Tesouro', `+${fmt(g)} de mel e +${m} de geleia real. ` + advanceRoute(), 'ach');
+  } else if (k === 'treino') {
+    const ups = teamDragons().filter(d => d.lvl < MAX_DLVL);
+    ups.forEach(d => { d.lvl++; S.stats.maxDragonLvl = Math.max(S.stats.maxDragonLvl, d.lvl); });
+    sfx('nivelJogador');
+    toast('⬆️ Treino', `${ups.length ? ups.map(d => d.name).join(', ') + ' subiram 1 nível.' : 'O time já está no nível máximo.'} ` + advanceRoute(), 'ach');
+  }
+  addXp(10 * L);
 }
 function bossTeam(final) {
   const b = MODES[S.mode].boss, k = S.mode === 'infinito' ? Math.pow(1.35, S.wave) : 1;
@@ -8484,11 +8619,17 @@ function startBattle(kind) {
     if (!(S.event && S.event.type === 'selvagem' && S.event.until > S.t)) return;
     foes = enemyTeam(Math.min(S.league, 8), 2, 1).slice(0, 1).map(f => { f.hp = f.hpMax = Math.round(f.hpMax * 1.6); f.name += ' Selvagem'; return f; });
     S.event.until = S.t; // consome o evento
+  } else if (kind === 'raid') {
+    if (!S.raid) return;
+    foes = raidTeam();
   } else {
     if (S.league > LEAGUES.length) return;
-    foes = enemyTeam(S.league, S.leagueFight);
+    const elite = S.battleNode === 'elite';
+    foes = enemyTeam(S.league, S.leagueFight, elite ? 2 : 0);
+    if (elite) foes.forEach(f => { f.hp = f.hpMax = Math.round(f.hpMax * 1.3); f.name += ' Elite'; });
   }
-  S.battle = { kind, team, foes, pi: 0, ei: 0, log: [], over: false, turn: 0, lost: 0 };
+  S.battle = { kind, team, foes, pi: 0, ei: 0, log: [], over: false, turn: 0, lost: 0, node: kind === 'arena' ? (S.battleNode || 'luta') : null };
+  S.battleNode = null;
   S.lastResult = null;
   logB(`A batalha começou! ${team[0].name} contra ${foes[0].name}.`);
   sfx('batalhaInicio'); if (kind !== 'final') music('batalha');
@@ -8506,7 +8647,7 @@ function doAttack(a, d, kind, isPlayer) {
   const A = kind === 'x' ? ATTACKS[a.move] : null;
   let m = el ? eff(el, d.els) : 1;
   if (isPlayer && m > 1) m *= MOD('eff') / 1.5;
-  const crit = Math.random() < (isPlayer ? MOD('crit') + (A && A.crit || 0) : 0.12);
+  const crit = Math.random() < (isPlayer ? MOD('crit') + (A && A.crit || 0) + (a.critB || 0) : 0.12);
   const dmg = Math.max(1, Math.round(a.atk * movePower(a, kind) * m * (crit ? 1.5 : 1) * rnd(0.9, 1.1)));
   d.hp = Math.max(0, d.hp - dmg);
   if (kind === 'sp') a.cd = 3; else if (a.cd > 0) a.cd--;
@@ -8619,18 +8760,21 @@ function endBattle(win) {
       r.gold = Math.round(90 * Math.pow(L, 1.9) * (1 + f * 0.5));
       r.gems = L; r.xp = 15 * L + 5 * f;
       if (B.kind === 'wild') { r.gold *= 3; r.gems *= 3; r.xp *= 2; st.wildWins++; r.text = 'A abelha selvagem foi derrotada!'; }
-      else {
-        S.leagueFight++;
-        if (S.leagueFight >= 3) {
-          S.leagueFight = 0; S.league++;
-          r.text = S.league > LEAGUES.length ? 'Você venceu a liga dos Campeões! A Vespa Rainha aguarda.' : `Promovido para a liga ${LEAGUES[S.league - 1]}!`;
-        } else r.text = `Luta ${S.leagueFight} de 3 da liga ${LEAGUES[S.league - 1]} vencida.`;
+      else if (B.kind === 'raid') {
+        const R = RIVALS[S.rival];
+        r.gold = Math.round(Math.max(totalGps() * 60, 400) + r.gold); r.gems = 5 + 3 * S.raid.n; r.xp *= 2;
+        r.text = `As ${R.n} fugiram! Você ganha uma relíquia ao fechar a batalha.`;
+        S.raid = null; st.raidsWon++; S.bonusRelic = true;
+      } else {
+        if (B.node === 'elite') { r.gold *= 2; r.gems += 5; st.elites++; S.bonusRelic = true; }
+        r.text = advanceRoute(`Luta ${S.leagueFight + 1} de 3 da liga ${LEAGUES[S.league - 1]} vencida.`) + (B.node === 'elite' ? ' Elite vencida: uma relíquia espera por você.' : '');
       }
     }
     addGold(r.gold); addGems(r.gems); addXp(r.xp);
   } else {
     st.battlesLost++; st.streak = 0;
     r.xp = 5; addXp(5);
+    if (B.kind === 'raid' && S.raid) raidPenalty();
     r.text = B.kind === 'final' ? 'A Vespa Rainha tomou a colmeia. Suas abelhas lutaram até o fim.' : 'Suas abelhas precisam ficar mais fortes. Alimente-as ou cruze espécies com vantagem de tipo.';
   }
   if (B.kind === 'final' && S.mode === 'infinito' && win) {
@@ -8680,7 +8824,7 @@ function claimMission(i) {
   toast('Missão concluída!', `+${fmt(m.gold)} de mel · +${m.gems} de geleia real`);
 }
 function triggerEvent() {
-  const type = pick(Object.keys(EVENTS));
+  const type = S.season === 'chuvas' && Math.random() < 0.3 ? 'chuva' : pick(Object.keys(EVENTS));
   const ev = EVENTS[type];
   S.event = { type, until: S.t + ev.dur };
   S.stats.eventsSeen++;
@@ -8729,6 +8873,7 @@ function score() {
       : S.finalResult ? (S.finalResult.win ? 12000 + (S.finalResult.lost === 0 ? 3000 : 0) : Math.round(S.finalResult.dmgPct * 6000)) * modeFactor() : 0,
     'Nível do jogador': S.level * 200,
     'Missões': st.missionsDone * 100,
+    'Invasões repelidas': st.raidsWon * 1500,
   };
   return { parts, total: Object.values(parts).reduce((a, b) => a + b, 0) };
 }
@@ -8792,7 +8937,13 @@ function tick() {
     if (S.history.length > 800) S.history.splice(1, 1);
   }
   if (S.t >= S.nextEvent) triggerEvent();
-  if (S.t >= S.nextRelic && !S.battle && !S.relicOffer) offerRelics();
+  if (S.raidIdx < S.raids.length) {
+    const at = S.raids[S.raidIdx];
+    if (S.t >= at - 30 && S.raidWarned < S.raidIdx) { S.raidWarned = S.raidIdx; toast(`${RIVALS[S.rival].i} ${RIVALS[S.rival].n} a caminho`, 'Elas invadem em 30s. Deixe o time pronto.', 'bad warn'); }
+    if (S.t >= at && !S.raid && !S.battle && !S.relicOffer) raidStart();
+  }
+  if (S.raid && S.t > S.raid.until && !(S.battle && S.battle.kind === 'raid')) { overlay(''); raidPenalty(); }
+  if ((S.t >= S.nextRelic || S.bonusRelic) && !S.battle && !S.relicOffer && !S.raid) offerRelics();
   if (S.lostEgg && S.t > S.lostEgg.until) S.lostEgg = null;
   if (S.battle && !S.battle.over && S.autoBattle && S.tab === 'arena') {
     autoAcc += dt;
@@ -8817,7 +8968,7 @@ function startFinal() {
   S.finalPhase = true; S.t = invadeAt();
   const despertar = cena(S.mode === 'infinito' && S.wave > 0 ? 'despertarOnda' : 'despertar', { modo: S.mode, vars: { onda: S.wave + 1 } });
   if (S.battle && !S.battle.over) S.stats.battles--;
-  S.battle = null; S.lastResult = null; S.lostEgg = null; S.event = null; S.buffs = {}; S.tab = 'arena'; S.autoBattle = false;
+  S.battle = null; S.lastResult = null; S.lostEgg = null; S.event = null; S.buffs = {}; S.tab = 'arena'; S.autoBattle = false; S.raid = null; S.bonusRelic = false;
   render(true);
   despertar.then(r => { if (r && r.semCena) { sfx('despertar'); music('invasao'); } if (S && !S.ended) overlay(`<div class="card hero">${dIcon(['trevas', 'fogo'], 'L', 'xl', 'pop', 5)}
     <h1>A Vespa Rainha chegou com o enxame!</h1>
@@ -8844,8 +8995,9 @@ function startGame(mode) {
 function renderQueens() {
   const qs = S.queenOffer.map(k => QUEENS.find(q => q.k === k));
   overlay(`<div class="card pick">
-    <div class="hero"><span class="cat">Nova partida · ${MODES[S.mode].n}</span><h1>Seu prado</h1>
-      <p>Nesta partida nascem no prado: <b>${S.meadow.map(e => `${EL[e].i} ${EL[e].n}`).join(', ')}</b>. Essas abelhas ficam liberadas desde o início e produzem 25% mais mel. A flor nativa é a <b>${CROPS[S.nativeFlower].i} ${CROPS[S.nativeFlower].n}</b>, que dá 50% mais néctar.</p></div>
+    <div class="hero"><span class="cat">Nova partida</span><h1>Seu prado</h1>
+      <p>Nesta partida nascem no prado: <b>${S.meadow.map(e => `${EL[e].i} ${EL[e].n}`).join(', ')}</b>. Essas abelhas ficam liberadas desde o início e produzem 25% mais mel. A flor nativa é a <b>${CROPS[S.nativeFlower].i} ${CROPS[S.nativeFlower].n}</b>, que dá 50% mais néctar.</p>
+      <div class="run-chips"><span class="run-chip"><b>${SEASONS[S.season].i} ${SEASONS[S.season].n}</b> ${SEASONS[S.season].d} Abelhas de ${EL[SEASONS[S.season].el].n} ganham +20% de vida e ataque.</span><span class="run-chip bad"><b>${RIVALS[S.rival].i} Inimigo: ${RIVALS[S.rival].n}</b> Invadem duas vezes na partida. ${RIVALS[S.rival].d}</span></div></div>
     <span class="cat">Escolha a rainha da sua colmeia</span>
     <div class="choices">${qs.map(q => `<button class="choice" data-a="queen" data-k="${q.k}">${dIcon([q.el], 'L', 'l', '', q.k.length)}<b>${q.n}</b><span class="pro">${q.b}</span><span class="con">${q.m}</span></button>`).join('')}</div>
   </div>`);
@@ -8853,7 +9005,7 @@ function renderQueens() {
 function chooseQueen(k) {
   const q = QUEENS.find(x => x.k === k);
   if (!S || !S.choosing || S.queen || !q) return;
-  S.queen = k; applyMods(q.mods);
+  S.queen = k; applyMods(q.mods); applyMods(SEASONS[S.season].mods);
   if (S.mods.startGold !== 1) S.gold = Math.round(S.gold * S.mods.startGold);
   S.choosing = false;
   overlay('');
@@ -8869,6 +9021,7 @@ function applyMods(mods, add, set) {
 // Relíquias: a cada RELIC_EVERY segundos, o relógio para e o jogador escolhe 1 entre 3
 function offerRelics() {
   const pool = RELICS.filter(r => !(r.once && S.relics.includes(r.k)));
+  S.relicBonus = S.bonusRelic && S.t < S.nextRelic; S.bonusRelic = false;
   S.relicOffer = pool.sort(() => Math.random() - 0.5).slice(0, 3).map(r => r.k);
   S.choosing = true;
   sfx('evento');
@@ -8890,7 +9043,7 @@ function chooseRelic(k) {
   if (r.now === 'pote') addGold(Math.max(500, totalGps() * 90));
   if (r.now === 'geleia') addGems(15);
   if (r.now === 'ovo') layEgg(pick(ALL_SPECIES.filter(s => s.rar === 'R' || s.rar === 'E')), true);
-  S.relicOffer = null; S.choosing = false; S.nextRelic = S.t + RELIC_EVERY;
+  S.relicOffer = null; S.choosing = false; if (!S.relicBonus) S.nextRelic = S.t + RELIC_EVERY; S.relicBonus = false;
   overlay(''); last = performance.now();
   sfx('conquista'); toast(`${r.i} ${r.n}`, r.d, 'ach');
 }
@@ -9227,6 +9380,7 @@ function renderTop() {
   const buffs = [];
   if (S.buffs.chuva > S.t) buffs.push(`🌧️ Mel x2 · ${Math.ceil(S.buffs.chuva - S.t)}s`);
   if (S.buffs.colheita > S.t) buffs.push(`🌻 Flores x3 · ${Math.ceil(S.buffs.colheita - S.t)}s`);
+  if (S.raid) buffs.push(`${RIVALS[S.rival].i} Invasão · ${Math.max(0, Math.ceil(S.raid.until - S.t))}s`);
   if (S.event && S.event.until > S.t && ['selvagem', 'mercador'].includes(S.event.type)) buffs.push(`${EVENTS[S.event.type].i} ${EVENTS[S.event.type].n} · ${Math.ceil(S.event.until - S.t)}s`);
   return `<div class="wrap">
     <div class="brand">🐉 Honey Troop</div>
@@ -9555,8 +9709,9 @@ const isoInv = (X, Y) => { const a = (X - OX) * 2 / TW, b = (Y - OY) * 2 / TH; r
 // Chão de cera, praça, caminhos e o jardim viram uma única imagem (gerada uma vez), para o mapa continuar leve.
 let groundURI = null, groundMeadow = null;
 function groundImage() {
-  if (groundURI && groundMeadow === (S && S.meadow ? S.meadow.join() : '')) return groundURI;
-  groundMeadow = S && S.meadow ? S.meadow.join() : '';
+  const gkey = S && S.meadow ? S.meadow.join() + (S.season || '') : '';
+  if (groundURI && groundMeadow === gkey) return groundURI;
+  groundMeadow = gkey;
   let seed = 7;
   const rnd = () => { seed = (seed * 16807) % 2147483647; return (seed - 1) / 2147483646; };
   const P2 = arr => arr.map(p => p.map(v => v.toFixed(1)).join(',')).join(' ');
@@ -9602,6 +9757,19 @@ function groundImage() {
   const drip = (A, B, n) => { let o = ''; for (let i = 0; i <= n; i++) { const t = i / n, X = A[0] + (B[0] - A[0]) * t, Y = A[1] + (B[1] - A[1]) * t, w = 4 + rnd() * 5, h = rnd() < .3 ? 12 + rnd() * 20 : 3 + rnd() * 5; o += `<path d="M${(X - w).toFixed(1)},${(Y - 1).toFixed(1)} Q${(X - w).toFixed(1)},${(Y + h * .6).toFixed(1)} ${X.toFixed(1)},${(Y + h).toFixed(1)} Q${(X + w).toFixed(1)},${(Y + h * .6).toFixed(1)} ${(X + w).toFixed(1)},${(Y - 1).toFixed(1)}Z" fill="${rnd() < .5 ? '#ffb52e' : '#f29a1c'}"/>`; } return o; };
   g += `<polyline points="${P2([HEX[0], HEX[5], HEX[4], HEX[3]])}" fill="none" stroke="#ffd77a" stroke-width="5" stroke-linejoin="round"/>`;
   g += drip(HEX[0], HEX[5], 34) + drip(HEX[5], HEX[4], 52) + drip(HEX[4], HEX[3], 34);
+  // estação: um véu de cor e detalhes próprios (geada, pétalas, poças)
+  const sea = S && S.season && SEASONS[S.season];
+  if (sea) {
+    g += `<polygon points="${P2(HEX)}" fill="${sea.tint[0]}" opacity="${sea.tint[1]}"/>`;
+    for (let i = 0; i < 70; i++) {
+      const X = 80 + rnd() * 840, Y = 70 + rnd() * 460;
+      if (!inHex(X, Y, 30)) continue;
+      if (S.season === 'inverno') g += `<ellipse cx="${X.toFixed(1)}" cy="${Y.toFixed(1)}" rx="${(10 + rnd() * 22).toFixed(1)}" ry="${(4 + rnd() * 8).toFixed(1)}" fill="#ffffff" opacity=".6"/>`;
+      else if (S.season === 'primavera') g += `<ellipse cx="${X.toFixed(1)}" cy="${Y.toFixed(1)}" rx="3" ry="1.8" fill="${rnd() < .5 ? '#ff6fb8' : '#ffffff'}" opacity=".9" transform="rotate(${(rnd() * 180).toFixed(0)} ${X.toFixed(1)} ${Y.toFixed(1)})"/>`;
+      else if (S.season === 'chuvas' && i % 2) g += `<ellipse cx="${X.toFixed(1)}" cy="${Y.toFixed(1)}" rx="${(8 + rnd() * 14).toFixed(1)}" ry="${(3 + rnd() * 5).toFixed(1)}" fill="#8ec4ff" opacity=".35"/>`;
+      else if (S.season === 'verao' && i % 3 === 0) g += `<ellipse cx="${X.toFixed(1)}" cy="${Y.toFixed(1)}" rx="${(14 + rnd() * 20).toFixed(1)}" ry="${(6 + rnd() * 8).toFixed(1)}" fill="#fff3b0" opacity=".25"/>`;
+    }
+  }
   g += '</svg>';
   groundURI = 'data:image/svg+xml,' + encodeURIComponent(g);
   return groundURI;
@@ -9695,7 +9863,8 @@ function viewHud() {
   const acts = (S.level >= 3 ? '<button class="btn small primary" data-a="harvestAll">🧺 Colher e replantar</button>' : '')
     + (S.level >= 5 ? '<button class="btn small primary" data-a="collectAll">🪙 Coletar tudo</button>' : '');
   const ready = S.farms.filter(f => f.crop && f.prog >= CROPS[f.crop].dur).length;
-  return `<div class="box"><button class="btn small go" data-a="tab" data-k="jardim">🌱 Jardim${ready ? ` <span class="badge">${ready}</span>` : ''}</button>${S.gardener ? '<span class="hint hud-lbl">👩‍🌾 Jardineira trabalhando</span>' : ''}</div>${acts ? `<div class="box">${acts}</div>` : ''}`;
+  const se = SEASONS[S.season], rv = RIVALS[S.rival], nextRaid = S.raidIdx < S.raids.length ? S.raids[S.raidIdx] - S.t : null;
+  return `<div class="box run-box"><span class="hud-lbl" title="${se.d}">${se.i} ${se.n}</span><span class="hud-lbl" title="${rv.d}">${rv.i} ${S.raid ? '<b>Invasão agora!</b>' : nextRaid !== null ? `Invasão em ${fmtTime(Math.max(0, nextRaid))}` : 'Sem mais invasões'}</span></div><div class="box"><button class="btn small go" data-a="tab" data-k="jardim">🌱 Jardim${ready ? ` <span class="badge">${ready}</span>` : ''}</button>${S.gardener ? '<span class="hint hud-lbl">👩‍🌾 Jardineira trabalhando</span>' : ''}</div>${acts ? `<div class="box">${acts}</div>` : ''}`;
 }
 function dragonCard(d) {
   const maxed = d.lvl >= MAX_DLVL;
@@ -9704,7 +9873,7 @@ function dragonCard(d) {
     <div class="info">
       <span class="name">${d.name} <span class="muted">Nv ${d.lvl}</span> <button class="ren" data-a="rename" data-id="${d.id}" title="Renomear" aria-label="Renomear ${d.name}">🏷️</button></span>
       <span class="meta"><span class="rar-${d.rar}">${RARITY[d.rar].f}</span> · ${elTags(d.els)}</span>
-      <span class="meta num">🪙 ${gpsOf(d).toFixed(1).replace('.', ',')}/s${isNative(d) ? ' 🌻' : ''} · ❤️ ${myHp(d)} · 🗡️ ${myAtk(d)}</span>${d.move && ATTACKS[d.move] ? `<span class="meta">${ATTACKS[d.move].i} ${ATTACKS[d.move].n}</span>` : ''}
+      <span class="meta num">🪙 ${gpsOf(d).toFixed(1).replace('.', ',')}/s${isNative(d) ? ' 🌻' : ''} · ❤️ ${myHp(d)} · 🗡️ ${myAtk(d)}</span>${d.move && ATTACKS[d.move] ? `<span class="meta">${ATTACKS[d.move].i} ${ATTACKS[d.move].n}</span>` : ''}${d.mut ? `<span class="meta mut-tag" title="${MUTS[d.mut].d}">🧬 ${MUTS[d.mut].n} · ${MUTS[d.mut].d}</span>` : ''}${seasonOf(d) > 1 ? `<span class="meta">${SEASONS[S.season].i} Forte no ${SEASONS[S.season].n}: +20% vida e ataque</span>` : ''}
       <div class="row">
         <button class="btn small" data-a="feed" data-id="${d.id}" ${maxed ? 'disabled' : ''}>${maxed ? 'Nível máximo' : `Alimentar ${costTag(fc, 'f')}`}</button>
         <button class="btn small" data-a="sell" data-id="${d.id}">${d._confirm ? 'Confirmar venda?' : `Vender ${costTag(sellValue(d))}`}</button>
@@ -9793,7 +9962,7 @@ function viewBattle() {
       <button class="btn danger" data-a="surrender">🏳️ Desistir</button></div>`;
   }
   return `<section class="panel fight">
-    <div class="fight-head"><h2>${B.kind === 'final' ? 'Ataque da Vespa Rainha' : B.kind === 'boss' ? 'Vespa Rainha adormecida' : B.kind === 'wild' ? 'Abelha selvagem' : `Liga ${LEAGUES[S.league - 1] || 'Campeões'} · luta ${S.leagueFight + 1} de 3`}</h2><span class="turn num">Turno ${B.turn}</span></div>
+    <div class="fight-head"><h2>${B.kind === 'final' ? 'Ataque da Vespa Rainha' : B.kind === 'boss' ? 'Vespa Rainha adormecida' : B.kind === 'wild' ? 'Abelha selvagem' : B.kind === 'raid' ? `${RIVALS[S.rival].i} Invasão das ${RIVALS[S.rival].n}` : `${B.node === 'elite' ? '☠️ Elite · ' : ''}Liga ${LEAGUES[S.league - 1] || 'Campeões'} · luta ${S.leagueFight + 1} de 3`}</h2><span class="turn num">Turno ${B.turn}</span></div>
     <div class="battle">${fighterView(p, 'me', B.team, B.pi, B)}<div class="vs">VS</div>${fighterView(e, 'foe', B.foes, B.ei, B)}</div>
     ${controls}
     <div class="log">${B.log.map(l => `<div class="${l.cls}">${l.txt}</div>`).join('')}</div>
@@ -9821,20 +9990,20 @@ function viewArena() {
     + '<div class="stand empty-stand"><span>Vaga</span></div>'.repeat(Math.max(0, 3 - team.length));
   return `<div class="grid">
     <div class="arena-stage">
-      <div class="lg-banner lg-${Math.min(S.league, 9)}"><b>${champion ? '👑 Campeão' : '🏅 Liga ' + LEAGUES[S.league - 1]}</b><small>${champion ? 'Todas as ligas vencidas' : `Luta ${S.leagueFight + 1} de 3`}</small></div>
+      <div class="lg-banner lg-${Math.min(S.league, 9)}"><b>${champion ? '👑 Campeão' : '🏅 Liga ' + LEAGUES[S.league - 1]}</b><small>${champion ? 'Todas as ligas vencidas' : `Etapa ${S.leagueFight + 1} de 3 · escolha o caminho`}</small></div>
       <div class="arena-team">${stands}</div>
       ${champion
         ? '<button class="btn danger big" data-a="fight" data-k="boss">☠️ Entrar no Ninho de Papel</button>'
-        : '<button class="btn primary big pulse-go" data-a="fight" data-k="arena">⚔️ Lutar!</button>'}
+        : `<div class="route">${ensureRoute().map(k => `<button class="node node-${k}" data-a="node" data-k="${k}"><span class="ric">${NODES[k].i}</span><b>${NODES[k].n}</b><small>${NODES[k].d}</small></button>`).join('')}</div>`}
     </div>
     <section class="panel" style="grid-column:1/-1">
-      <div class="panel-head"><h2>Arena</h2><span class="muted">${champion ? 'Todas as ligas vencidas' : `Liga ${LEAGUES[S.league - 1]} · luta ${S.leagueFight + 1} de 3`}</span></div>
+      <div class="panel-head"><h2>Arena</h2><span class="muted">${champion ? 'Todas as ligas vencidas' : `Liga ${LEAGUES[S.league - 1]} · etapa ${S.leagueFight + 1} de 3`}</span></div>
       <div class="ladder">${ladder}</div>
-      ${wild ? `<div class="row"><button class="btn primary" data-a="fight" data-k="wild">🐲 Enfrentar o dragão selvagem (recompensa x3)</button><span class="hint">${Math.ceil(S.event.until - S.t)}s restantes</span></div>` : ''}
+      ${wild ? `<div class="row"><button class="btn primary" data-a="fight" data-k="wild">🐲 Enfrentar a abelha selvagem (recompensa x3)</button><span class="hint">${Math.ceil(S.event.until - S.t)}s restantes</span></div>` : ''}
       <div class="row">
         ${champion
           ? `<span class="hint">${S.weakened ? 'Já ferida. Lutar de novo rende mel e geleia real.' : 'Vencer agora tira 30% da vida dela no próximo ataque.'}</span>`
-          : `<span class="hint">Próxima luta: ${nextFoes}</span>`}
+          : `<span class="hint">Luta da etapa: ${nextFoes}. A Elite tem 2 níveis e 30% de vida a mais.${S.leagueFight >= 2 ? ' A última etapa da liga é sempre uma luta.' : ''}</span>`}
       </div>
     </section>
     <section class="panel" style="grid-column:1/-1">
@@ -10095,9 +10264,9 @@ function renderStart() {
     <div class="hero">
       <div class="row" style="justify-content:center">${dIcon(['fogo'], 'R', 'l', '', 1)}${dIcon(['luz', 'trevas'], 'L', 'xl', '', 4)}${dIcon(['agua', 'planta'], 'E', 'l', 'flip', 2)}</div>
       <h1>Honey Troop</h1>
-      <p>A Vespa Rainha está a caminho da Ilha Favo e ataca quando o relógio zerar. Até lá, crie, cruze, alimente e treine um enxame de abelhas. Se elas defenderem a colmeia, viram uma nova Tropa do Mel. Cada partida sorteia o prado, a rainha e as relíquias. Ao fechar a aba, a partida se perde.</p>
+      <p>A Vespa Rainha está a caminho da Ilha Favo e ataca quando o relógio zerar. Até lá, crie, cruze, alimente e treine um enxame de abelhas. Se elas defenderem a colmeia, viram uma nova Tropa do Mel. Cada partida sorteia a estação, o inimigo que invade a colmeia, o prado, a rainha, as relíquias e os caminhos da Arena. Ao fechar a aba, a partida se perde.</p>
     </div>
-    <div class="modes">${Object.entries(MODES).map(([k, m]) => `<button class="mode" data-a="start" data-k="${k}"><b>${m.n}</b><span class="muted">${m.d}</span></button>`).join('')}</div>
+    <div class="row" style="justify-content:center"><button class="btn primary big play-btn" data-a="start" data-k="padrao">Jogar</button></div>
     <p class="hint" style="margin:0;text-align:center">Dica: colete mel das colmeias, plante flores para ter néctar, alimente abelhas até o nível 3 e cruze para descobrir as ${ALL_SPECIES.length} espécies.</p>
   </div>`);
 }
@@ -10106,9 +10275,9 @@ function renderEnd() {
   const r = rankFor(sc.total);
   const got = ACH.filter(a => S.ach[a.id] !== undefined);
   overlay(`<div class="card">
-    <div class="hero"><span class="muted" style="font-weight:800">FIM DA PARTIDA · ${MODES[S.mode].n.toUpperCase()} · ${fmtTime(S.t)}</span>
+    <div class="hero"><span class="muted" style="font-weight:800">FIM DA PARTIDA · ${fmtTime(S.t)}</span>
       <div class="rank">${r}</div><h1 class="num">${fmt(sc.total)} pontos</h1>
-      <p>${S.mode === 'infinito' ? `Você repeliu ${S.stats.finalWins} ataque(s) da Vespa Rainha em ${fmtTime(S.t)}.${S.finalResult && !S.finalResult.win ? ` No último, ela levou ${Math.round(S.finalResult.dmgPct * 100)}% de dano.` : ''}` : !S.finalResult ? 'Você deixou a ilha antes do ataque. A Vespa Rainha encontrou as colmeias vazias.' : S.finalResult.win ? '🛡️ A colmeia resistiu! Sua colmeia agora é da Tropa do Mel.' : `☠️ A Vespa Rainha tomou a ilha, mas leva uma ferroada de ${Math.round(S.finalResult.dmgPct * 100)}%. A próxima colmeia vai saber onde mirar.`}</p>${S.queen ? `<p class="muted">${QUEENS.find(q => q.k === S.queen).n} · prado de ${S.meadow.map(e => EL[e].n).join(', ')} · ${S.relics.length} relíquia(s)</p>` : ''}</div>
+      <p>${S.mode === 'infinito' ? `Você repeliu ${S.stats.finalWins} ataque(s) da Vespa Rainha em ${fmtTime(S.t)}.${S.finalResult && !S.finalResult.win ? ` No último, ela levou ${Math.round(S.finalResult.dmgPct * 100)}% de dano.` : ''}` : !S.finalResult ? 'Você deixou a ilha antes do ataque. A Vespa Rainha encontrou as colmeias vazias.' : S.finalResult.win ? '🛡️ A colmeia resistiu! Sua colmeia agora é da Tropa do Mel.' : `☠️ A Vespa Rainha tomou a ilha, mas leva uma ferroada de ${Math.round(S.finalResult.dmgPct * 100)}%. A próxima colmeia vai saber onde mirar.`}</p>${S.queen ? `<p class="muted">${SEASONS[S.season].n} · ${RIVALS[S.rival].n}: ${S.stats.raidsWon} invasão(ões) repelida(s) · ${S.stats.mutants} mutante(s) · ${QUEENS.find(q => q.k === S.queen).n} · prado de ${S.meadow.map(e => EL[e].n).join(', ')} · ${S.relics.length} relíquia(s)</p>` : ''}</div>
     <table class="stats">${Object.entries(sc.parts).map(([k, v]) => `<tr><td>${k}</td><td>${fmt(v)}</td></tr>`).join('')}</table>
     <div class="kpis">
       <div class="kpi"><span>🪙 mel produzido</span><b class="num">${fmt(S.stats.goldEarned)}</b></div>
@@ -10166,6 +10335,9 @@ const ACTIONS = {
     startBattle(el.dataset.k);
   },
   move: el => playerMove(el.dataset.k),
+  node: el => takeNode(el.dataset.k),
+  raidGo: () => { overlay(''); S.tab = 'arena'; startBattle('raid'); },
+  raidSkip: () => { overlay(''); if (S.raid) raidPenalty(); },
   auto: () => { S.autoBattle = !S.autoBattle; },
   surrender: () => surrender(), closeBattle: () => closeBattle(),
   claim: el => claimMission(+el.dataset.i),
