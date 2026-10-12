@@ -83,7 +83,9 @@ h2 { font-size: 1.25rem; }
 /* Ilha isométrica + painéis */
 body { padding-bottom: calc(76px + env(safe-area-inset-bottom, 0px)); }
 .stage { position: relative; }
-.mapwrap { overflow: auto; background: #2a1405; scrollbar-width: thin; overscroll-behavior: contain; }
+#map3d { position: absolute; z-index: 0; pointer-events: none; background-size: 100% 100%; }
+#map { position: relative; z-index: 1; }
+.mapwrap { position: relative; overflow: auto; background: #2a1405; scrollbar-width: thin; overscroll-behavior: contain; }
 .mapwrap svg.iso { display: block; width: 100%; height: auto; max-height: calc(100vh - 150px); margin-inline: auto; }
 .iso .bld { cursor: pointer; }
 .iso .bld:hover .lot, .iso .bld:focus .lot { filter: brightness(1.15); }
@@ -7857,7 +7859,7 @@ const M3 = (() => {
     [-1, 1].forEach(sd => mesh(new T.BoxGeometry(0.09, 1.3, 0.09), woodD, f, [sd * 0.34, 0.6, -0.16], [1, 1, 1], [0, 0, sd * 0.26]));
     mesh(new T.BoxGeometry(0.62, 0.08, 0.09), woodD, f, [0, 0.42, -0.16]);
     mesh(new T.CylinderGeometry(0.05, 0.05, 0.3, 10), woodD, f, [0, 1.2, -0.04], [1, 1, 1], [Math.PI / 2, 0, 0]);
-    const W = new T.Group(); W.position.set(0, 1.2, 0.08); W.rotation.z = 0.2; f.add(W);
+    const W = new T.Group(); W.name = 'wheel'; W.position.set(0, 1.2, 0.08); W.rotation.z = 0.2; f.add(W);
     const R = 0.66, cols = ['#9aa7b4', '#4fb3ff', '#9aa7b4', '#c77dff', '#9aa7b4', '#4fb3ff', '#ffd23f', '#4fb3ff'];
     cols.forEach((c, i) => mesh(new T.CylinderGeometry(R, R, 0.09, 10, 1, false, i * Math.PI / 4, Math.PI / 4), mat(c, { roughness: 0.4, emissive: col(c), emissiveIntensity: 0.45 }), W, [0, 0, 0], [1, 1, 1], [Math.PI / 2, 0, 0], false));
     for (let i = 0; i < 4; i++) mesh(new T.BoxGeometry(2 * R, 0.03, 0.11), mat('#5a3212'), W, [0, 0, 0], [1, 1, 1], [0, 0, i * Math.PI / 4], false);
@@ -7982,8 +7984,158 @@ const M3 = (() => {
     }
     return g;
   };
+
+  // ---------- Ilha 3D em tempo real (mesma câmera isométrica do mapa) ----------
+  function world(canvas, L) {
+    let WR;
+    try { WR = new T.WebGLRenderer({ canvas, antialias: true, alpha: true }); if (!WR.getContext()) return null; } catch (e) { return null; }
+    WR.setClearColor(0x000000, 0);
+    WR.shadowMap.enabled = true; WR.shadowMap.type = T.PCFSoftShadowMap;
+    WR.shadowMap.autoUpdate = false; // a ilha é parada: a sombra só é refeita quando algo muda
+    const scene = new T.Scene();
+    const C = new T.Vector3(7, 0, 7);
+    scene.add(new T.HemisphereLight(0xfff6e8, 0x5a4a6a, 0.6));
+    const key = new T.DirectionalLight(0xffffff, 0.6);
+    key.position.copy(C).add(new T.Vector3(-4, 9, 3).multiplyScalar(2.4)); key.target.position.copy(C);
+    key.castShadow = true; key.shadow.mapSize.set(2048, 2048);
+    Object.assign(key.shadow.camera, { left: -15, right: 15, top: 15, bottom: -15, near: 1, far: 70 });
+    key.shadow.bias = -0.0012; key.shadow.normalBias = 0.02; key.shadow.radius = 3;
+    const rim = new T.DirectionalLight(0xbfe4ff, 0.55); rim.position.copy(C).add(new T.Vector3(6, 3, -6));
+    scene.add(key, key.target, rim);
+    const cam = new T.OrthographicCamera(-500 / PX, 500 / PX, 68 / PX, -532 / PX, -100, 100);
+    cam.position.set(10, 10 * Math.SQRT2 * Math.tan(Math.PI / 6), 10); cam.lookAt(0, 0, 0); cam.updateMatrixWorld();
+    const G2 = ([X, Y]) => { const a = (X - 500) / 32, b = (Y - 68) / 16; return [(a + b) / 2, (b - a) / 2]; };
+    const shapeOf = pts => { const sh = new T.Shape(); pts.forEach(([x, z], i) => i ? sh.lineTo(x, z) : sh.moveTo(x, z)); sh.closePath(); return sh; };
+    const flat = geo => { geo.rotateX(Math.PI / 2); return geo; };
+    const holeOf = pts => { const h = new T.Path(); pts.forEach(([x, z], i) => i ? h.lineTo(x, z) : h.moveTo(x, z)); h.closePath(); return h; };
+    const ring = (a, b) => { const sh = shapeOf(a); sh.holes.push(holeOf(b)); return sh; };
+    const hex = L.hex.map(G2), grow = d => L.grow(d).map(G2);
+
+    // ---- textura do chão, pintada de cima (1 unidade = 1 lote) ----
+    const X0 = -5.5, SPAN = 25, TS = 2048, K = TS / SPAN;
+    const cv = document.createElement('canvas'); cv.width = cv.height = TS;
+    const g = cv.getContext('2d');
+    const P = ([x, z]) => [(x - X0) * K, (z - X0) * K];
+    const PP = q => P(G2(q));
+    const poly = pts => { g.beginPath(); pts.forEach((q, i) => { const [a, b] = P(q); i ? g.lineTo(a, b) : g.moveTo(a, b); }); g.closePath(); };
+    const c = L.look;
+    g.fillStyle = c.gw[2]; g.fillRect(0, 0, TS, TS);
+    const [pcx, pcy] = PP(L.plaza);
+    let gr = g.createRadialGradient(pcx, pcy, 0, pcx, pcy, 12.5 * K);
+    gr.addColorStop(0, c.gw[0]); gr.addColorStop(0.55, c.gw[1]); gr.addColorStop(1, c.gw[2]);
+    g.fillStyle = gr; g.fillRect(0, 0, TS, TS);
+    let seed = 5; const rnd = () => (seed = (seed * 16807) % 2147483647) / 2147483647;
+    for (let i = 0; i < 16; i++) {
+      const x = X0 + 3 + rnd() * (SPAN - 6), z = X0 + 3 + rnd() * (SPAN - 6), r = (1.5 + rnd() * 2.5) * K, [a, b] = P([x, z]);
+      const rg = g.createRadialGradient(a, b, 0, a, b, r); const lt = rnd() < 0.5;
+      rg.addColorStop(0, lt ? 'rgba(255,214,150,.10)' : 'rgba(40,18,4,.12)'); rg.addColorStop(1, 'rgba(0,0,0,0)');
+      g.fillStyle = rg; g.fillRect(a - r, b - r, 2 * r, 2 * r);
+    }
+    // favo bem de leve no chão
+    g.save(); poly(hex); g.clip();
+    g.strokeStyle = 'rgba(255,220,160,.07)'; g.lineWidth = 2;
+    const hr = 0.42 * K, hw = Math.sqrt(3) * hr;
+    for (let row = 0, yy = 0; yy < TS + hr; row++, yy += hr * 1.5) for (let xx = (row % 2) * hw / 2; xx < TS + hw; xx += hw) {
+      g.beginPath(); for (let k = 0; k < 6; k++) { const an = Math.PI / 6 + k * Math.PI / 3; g.lineTo(xx + Math.cos(an) * hr, yy + Math.sin(an) * hr); } g.closePath(); g.stroke();
+    }
+    // sombra suave perto da borda
+    g.filter = 'blur(28px)'; g.strokeStyle = 'rgba(30,12,2,.55)'; g.lineWidth = 1.4 * K; poly(hex); g.stroke(); g.filter = 'none';
+    // pedrinhas dos caminhos
+    const pc = document.createElement('canvas'); pc.width = 44; pc.height = 26; const q = pc.getContext('2d');
+    q.fillStyle = c.cbBg; q.fillRect(0, 0, 44, 26);
+    [[11, 6.5], [33, 19.5], [-11, 19.5], [55, 6.5], [11, 32.5], [33, -6.5]].forEach(([x, y]) => { q.fillStyle = c.cbCell; q.beginPath(); q.ellipse(x, y, 9.5, 5.2, 0, 0, Math.PI * 2); q.fill(); q.strokeStyle = 'rgba(90,50,18,.25)'; q.lineWidth = 1; q.stroke(); });
+    const cob = g.createPattern(pc, 'repeat');
+    const curve = ([X, Y]) => { const [PXp, PYp] = L.plaza, mx = (PXp + X) / 2, my = (PYp + Y) / 2, bend = (X - PXp) * 0.12; return [PP(L.plaza), PP([mx - bend * 0.3, my - Math.abs(bend)]), PP([X, Y])]; };
+    g.lineCap = 'round';
+    const road = (pp, w) => { g.beginPath(); g.moveTo(...pp[0]); g.quadraticCurveTo(...pp[1], ...pp[2]); g.lineWidth = w; g.stroke(); };
+    L.ways.forEach((w, i) => { const pp = curve(w), wd = (i < 6 ? 0.62 : 0.4) * K; g.strokeStyle = 'rgba(40,18,4,.55)'; road(pp, wd + 0.16 * K); });
+    L.ways.forEach((w, i) => { const pp = curve(w), wd = (i < 6 ? 0.62 : 0.4) * K; g.strokeStyle = cob; road(pp, wd); g.strokeStyle = 'rgba(70,32,6,.22)'; road(pp, wd); });
+    // praça
+    const pr = 2.15 * K;
+    g.fillStyle = 'rgba(40,18,4,.6)'; g.beginPath(); g.arc(pcx, pcy, pr + 0.14 * K, 0, Math.PI * 2); g.fill();
+    gr = g.createRadialGradient(pcx, pcy - pr * 0.2, 0, pcx, pcy, pr); gr.addColorStop(0, c.pz[0]); gr.addColorStop(1, c.pz[1]);
+    g.fillStyle = gr; g.beginPath(); g.arc(pcx, pcy, pr, 0, Math.PI * 2); g.fill();
+    g.setLineDash([0.3 * K, 0.22 * K]); g.strokeStyle = c.pzDash; g.lineWidth = 0.06 * K; g.beginPath(); g.arc(pcx, pcy, pr * 0.78, 0, Math.PI * 2); g.stroke(); g.setLineDash([]);
+    // canteiro do jardim
+    const fr = L.farmRect.map(G2);
+    g.lineJoin = 'round';
+    g.fillStyle = '#4a2a12'; g.strokeStyle = c.rim; g.lineWidth = 0.5 * K; poly(fr); g.stroke();
+    g.lineWidth = 0.34 * K; g.strokeStyle = '#5a3518'; poly(fr); g.stroke(); g.fill();
+    g.restore();
+    const tex = new T.CanvasTexture(cv); tex.flipY = false; tex.anisotropy = 4;
+    tex.repeat.set(1 / SPAN, 1 / SPAN); tex.offset.set(-X0 / SPAN, -X0 / SPAN);
+
+    // ---- corpo da ilha: chão, paredão de favo e borda de cera ----
+    const wc = document.createElement('canvas'); wc.width = 256; wc.height = 128; const w2 = wc.getContext('2d');
+    let wg = w2.createLinearGradient(0, 0, 0, 128); wg.addColorStop(0, '#d99a3a'); wg.addColorStop(1, '#6e3a10'); w2.fillStyle = wg; w2.fillRect(0, 0, 256, 128);
+    w2.strokeStyle = 'rgba(60,28,6,.55)'; w2.lineWidth = 3;
+    for (let row = 0; row < 7; row++) for (let i = -1; i < 10; i++) { const r = 16, x = i * r * Math.sqrt(3) + (row % 2) * r * Math.sqrt(3) / 2, y = row * r * 1.5; w2.beginPath(); for (let k = 0; k < 6; k++) { const an = Math.PI / 6 + k * Math.PI / 3; w2.lineTo(x + Math.cos(an) * r, y + Math.sin(an) * r); } w2.closePath(); w2.stroke(); w2.fillStyle = `rgba(255,190,90,${(0.05 + ((row * 7 + i * 3) % 5) * 0.03).toFixed(2)})`; w2.fill(); }
+    const wtex = new T.CanvasTexture(wc); wtex.wrapS = wtex.wrapT = T.RepeatWrapping; wtex.repeat.set(0.35, 0.9);
+    const D = 1.15;
+    const body = new T.ExtrudeGeometry(shapeOf(hex), { depth: D, bevelEnabled: false });
+    flat(body);
+    const top = new T.MeshStandardMaterial({ map: tex, roughness: 0.92, metalness: 0 });
+    const side = new T.MeshStandardMaterial({ map: wtex, roughness: 0.8, metalness: 0 });
+    const isl = new T.Mesh(body, [top, side]); isl.receiveShadow = true; isl.castShadow = false; scene.add(isl);
+    // a face de cima do ExtrudeGeometry usa (x, z) como UV: a textura já está alinhada
+    const lipS = ring(grow(10), grow(-4));
+    const lip = new T.Mesh(flat(new T.ExtrudeGeometry(lipS, { depth: 0.1, bevelEnabled: true, bevelThickness: 0.05, bevelSize: 0.05, bevelSegments: 3 })), mat('#e7a94a', { roughness: 0.45 }));
+    lip.position.y = 0.1; lip.castShadow = true; lip.receiveShadow = true; scene.add(lip);
+    // mar de mel animado
+    const seaU = { t: { value: 0 } };
+    const seaM = new T.ShaderMaterial({
+      uniforms: seaU, transparent: true, side: T.DoubleSide, depthWrite: false,
+      vertexShader: 'varying vec3 vw; void main(){ vec4 w = modelMatrix * vec4(position,1.0); vw = w.xyz; gl_Position = projectionMatrix * viewMatrix * w; }',
+      fragmentShader: `uniform float t; varying vec3 vw;
+        void main(){
+          vec2 p = vw.xz;
+          float w1 = sin(p.x * 1.1 + p.y * 0.6 + t * 0.9) * 0.5 + 0.5;
+          float w2 = sin(p.x * -0.7 + p.y * 1.3 - t * 0.7) * 0.5 + 0.5;
+          float w3 = sin((p.x + p.y) * 2.4 + t * 1.6) * 0.5 + 0.5;
+          vec3 deep = vec3(0.66, 0.33, 0.05), light = vec3(0.96, 0.62, 0.17);
+          vec3 col = mix(deep, light, 0.35 + 0.35 * w1 * w2);
+          col += vec3(1.0, 0.9, 0.65) * pow(w3 * w1, 8.0) * 0.4;
+          float d = length(p - vec2(7.0, 7.0));
+          col *= 1.0 - smoothstep(12.0, 18.0, d) * 0.18;
+          gl_FragColor = vec4(col, 1.0 - smoothstep(14.0, 17.5, d));
+        }`,
+    });
+    const sea = new T.Mesh(flat(new T.ShapeGeometry(shapeOf(grow(150)))), seaM); sea.position.y = -0.78; scene.add(sea);
+    const foamM = new T.MeshBasicMaterial({ color: 0xfff0c8, transparent: true, opacity: 0.35, depthWrite: false, side: T.DoubleSide });
+    const foam = new T.Mesh(flat(new T.ShapeGeometry(ring(grow(22), grow(2)))), foamM);
+    foam.position.y = -0.76; scene.add(foam);
+
+    // ---- construções e enfeites ----
+    const objs = new Map();
+    let wheel = null;
+    function setLots(list) {
+      OUT = 0.022;
+      const want = new Set(list.map(o => o.id));
+      for (const [id, o] of objs) if (!want.has(id)) { scene.remove(o); disposeTree(o); objs.delete(id); }
+      list.forEach(o => {
+        if (objs.has(o.id) || !B[o.k]) return;
+        let m; try { m = o.a === undefined ? B[o.k]() : B[o.k](o.a); } catch (e) { return; }
+        m.position.set(o.x, 0, o.z);
+        m.traverse(n => { if (n.isMesh && n.material && n.material.type !== 'ShaderMaterial') { n.castShadow = true; n.receiveShadow = true; } });
+        scene.add(m); objs.set(o.id, m);
+        if (o.k === 'roleta') wheel = m.getObjectByName('wheel');
+      });
+      WR.shadowMap.needsUpdate = true;
+    }
+    let lastT = 0;
+    function frame(t, o = {}) {
+      const dt = Math.min(0.1, (t - lastT) / 1000 || 0); lastT = t;
+      seaU.t.value = t / 1000;
+      foamM.opacity = 0.26 + Math.sin(t / 900) * 0.1;
+      if (wheel) wheel.rotation.z += o.spin ? dt * 9 : dt * 0.25;
+      WR.render(scene, cam);
+    }
+    function setSize(w, h) { WR.setPixelRatio(Math.min(window.devicePixelRatio || 1, 1.6)); WR.setSize(w, h, false); WR.shadowMap.needsUpdate = true; }
+    return { setLots, frame, setSize };
+  }
   const isoCache = new Map();
   return {
+    world,
     FW, FH, NF,
     load, get ready() { return glbReady; },
     dragonStrip,
@@ -9836,6 +9988,7 @@ function render(force) {
   const map = viewMap();
   if (map !== lastMap) {
     morph($('#map'), map); lastMap = map;
+    if (!W3) map3dInit();
     if (!mapCentered) { const w = $('#mapwrap'); w.scrollLeft = (w.scrollWidth - w.clientWidth) / 2; mapCentered = true; }
   }
   const hud = viewHud();
@@ -10125,9 +10278,11 @@ function isoHabitat(i) {
   const th = habTheme(ds), [top, s1, s2] = HAB_THEME[th];
   const g = habGps(i), cap = Math.max(50, g * 60), full = h.stored >= cap - 0.5 && g > 0;
   let out = `<g class="bld" data-a="collect" data-i="${i}" tabindex="0" role="button" aria-label="Colmeia ${i + 1}: ${ds.length} de ${HAB_CAP} abelhas, ${fmt(g)} de mel por segundo"><title>Colmeia ${i + 1} · ${ds.length}/${HAB_CAP} abelhas · ${fmt(g)} ouro/s</title>`;
-  out += `<ellipse cx="${X}" cy="${Y + 14}" rx="74" ry="26" fill="url(#g-shadow)" opacity=".5"/>`;
-  const img = isoImg('habitat:' + th, X, Y);
-  if (img) out += `<polygon class="lot hit" points="${pts(diamond(cx, cy, 1.9, 1.9))}" fill="transparent"/>` + img;
+  const img = ISO3D ? null : isoImg('habitat:' + th, X, Y);
+  if (ISO3D) out += `<polygon class="lot hit" points="${pts(diamond(cx, cy, 1.9, 1.9))}" fill="transparent"/><rect class="hit" x="${X - 46}" y="${Y - 80}" width="92" height="80" fill="transparent"/>`;
+  else out += `<ellipse cx="${X}" cy="${Y + 14}" rx="74" ry="26" fill="url(#g-shadow)" opacity=".5"/>`;
+  if (ISO3D) { /* a colmeia é desenhada na ilha 3D */ }
+  else if (img) out += `<polygon class="lot hit" points="${pts(diamond(cx, cy, 1.9, 1.9))}" fill="transparent"/>` + img;
   else {
     out += slab(cx, cy, 1.9, 1.9, 10, top, s1, s2);
     out += `<polygon points="${pts(diamond(cx, cy, 1.5, 1.5))}" fill="#fff" opacity=".12"/>`;
@@ -10152,9 +10307,9 @@ function isoFarm(i) {
   const [X, Y] = iso(cx, cy);
   const f = S.farms[i];
   let out = `<g class="bld" data-a="farm" data-i="${i}" tabindex="0" role="button" aria-label="Canteiro de flores ${i + 1}">`;
-  out += slab(cx, cy, 0.86, 0.86, 5, '#7a4a24', '#5a3518', '#4a2a12');
-  const [t, r, bt, l] = diamond(cx, cy, 0.86, 0.86);
-  out += [0.25, 0.5, 0.75].map(k => { const a = iso(cx - 0.43, cy - 0.43 + 0.86 * k), c = iso(cx + 0.43, cy - 0.43 + 0.86 * k); return `<path d="M${pts([a])} L${pts([c])}" stroke="#4a2a12" stroke-width="1.6" opacity=".8"/>`; }).join('');
+  if (ISO3D) out += `<polygon class="lot hit" points="${pts(diamond(cx, cy, 0.9, 0.9))}" fill="transparent"/>`;
+  else out += slab(cx, cy, 0.86, 0.86, 5, '#7a4a24', '#5a3518', '#4a2a12');
+  if (!ISO3D) out += [0.25, 0.5, 0.75].map(k => { const a = iso(cx - 0.43, cy - 0.43 + 0.86 * k), c = iso(cx + 0.43, cy - 0.43 + 0.86 * k); return `<path d="M${pts([a])} L${pts([c])}" stroke="#4a2a12" stroke-width="1.6" opacity=".8"/>`; }).join('');
   const spots = [[-0.2, -0.2], [0.2, -0.2], [-0.2, 0.2], [0.2, 0.2]].map(([dx, dy]) => iso(cx + dx, cy + dy)).sort((a, c) => a[1] - c[1]);
   if (!f.crop) out += `<g opacity=".55">${spots.map(([x, y]) => cropPlant(S.selCrop, x, y, 0)).join('')}</g>`;
   else {
@@ -10185,6 +10340,14 @@ function isoSpecial(k) {
   const sp = SPOTS[k], [cx, cy] = sp.at, size = sp.size || 2;
   const [X, Y] = iso(cx, cy);
   let out = `<g class="bld" data-a="tab" data-k="${k}" tabindex="0" role="button" aria-label="Abrir ${sp.n}">`;
+  if (ISO3D) {
+    const big = size === 3, hh = big ? 170 : 120;
+    out += `<polygon class="lot hit" points="${pts(diamond(cx, cy, size, size))}" fill="transparent"/><rect class="hit" x="${X - (big ? 80 : 46)}" y="${Y - hh}" width="${big ? 160 : 92}" height="${hh}" fill="transparent"/>`;
+    if (k === 'arena') { const alert = S.finalPhase ? '☠️' : (S.event && S.event.type === 'selvagem' && S.event.until > S.t) ? '🐲' : (S.battle && !S.battle.over) ? '⚔️' : ''; if (alert) bubble(X + 50, Y - 78, alert, true, '', 'data-a="tab" data-k="arena"'); }
+    else if (k === 'missoes') { const claim = S.missions.filter(m => missionProg(m) >= m.target).length; if (claim) bubble(X + 30, Y - 68, '📜', true, String(claim), 'data-a="tab" data-k="missoes"'); }
+    else if (k === 'chocadeira') { const n = (S.t >= S.freeAt ? 1 : 0) + S.tickets; if (n) bubble(X + 46, Y - 112, '🎯', true, String(n), 'data-a="tab" data-k="chocadeira"'); }
+    return out + pill(X, Y + (big ? 52 : 40), sp.n) + '</g>';
+  }
   if (k === 'chocadeira') {
     const im = isoImg('roleta', X, Y), n = (S.t >= S.freeAt ? 1 : 0) + S.tickets;
     if (!im) return out + `<polygon class="lot hit" points="${pts(diamond(cx, cy, size, size))}" fill="transparent"/><rect class="hit" x="${X - 50}" y="${Y - 110}" width="100" height="110" fill="transparent"/>` + isoWheel(cx, cy, X, Y) + pill(X, Y + 40, sp.n) + '</g>';
@@ -10403,6 +10566,53 @@ function hiveWall() {
   wallURI = 'data:image/svg+xml,' + encodeURIComponent(g);
   return wallURI;
 }
+// ---------- Ilha 3D: uma tela WebGL atrás do SVG (o SVG fica só com cliques, balões, nomes e abelhas) ----------
+let ISO3D = false, W3 = null, w3Sig = '', w3Last = 0, w3Box = '';
+const WAYS = [[500, 150], [676, 200], [324, 200], [842, 282], [158, 282], [500, 440], [620, 300], [380, 300], [660, 380], [340, 380], [748, 310], [252, 310], [818, 390], [182, 390]];
+// Poucos enfeites, bem espaçados
+const DECO3D = [[300, 108, 'vela'], [700, 108, 'vela'], [468, 222, 'lanterna'], [532, 222, 'lanterna'], [232, 205, 'skep'], [768, 205, 'potmel'], [110, 330, 'girassol'], [890, 330, 'girassol'], [395, 540, 'flores'], [605, 540, 'flores'], [255, 520, 'potmel'], [745, 520, 'skep']];
+function w3Lots() {
+  const L = Object.entries(SPOTS).map(([k, sp]) => ({ id: 's:' + k, k: k === 'chocadeira' ? 'roleta' : k, x: sp.at[0], z: sp.at[1] }));
+  S.habitats.forEach((h, i) => { const th = habTheme(habDragons(i)); L.push({ id: `h${i}:${th}`, k: 'habitat', a: th, x: HAB_LOTS[i][0], z: HAB_LOTS[i][1] }); });
+  S.farms.forEach((f, i) => L.push({ id: 'f' + i, k: 'farm', x: FARM_LOTS[i][0], z: FARM_LOTS[i][1] }));
+  const [px, pz] = gridAt(...PLAZA); L.push({ id: 'fonte', k: 'deco', a: 'fonte', x: px, z: pz });
+  DECO3D.forEach(([X, Y, k], i) => { const [x, z] = gridAt(X, Y); L.push({ id: 'd' + i + k, k: 'deco', a: k, x, z }); });
+  return L;
+}
+function map3dInit() {
+  if (W3 || window.__no3d || sprOff || typeof M3 === 'undefined' || !M3 || !M3.world || !M3.ready || !document.querySelector('#map svg.iso')) return;
+  const wrap = $('#mapwrap'), cv = document.createElement('canvas');
+  cv.id = 'map3d'; wrap.prepend(cv);
+  const fx0 = FARM_X[0] - 44, fx1 = FARM_X[FARM_X.length - 1] + 44, fy0 = FARM_ROWS[0] - 26, fy1 = FARM_ROWS[1] + 24;
+  let w = null;
+  try { w = M3.world(cv, { hex: HEX, grow: hexGrow, plaza: PLAZA, ways: WAYS, farmRect: [[fx0, fy0], [fx1, fy0], [fx1, fy1], [fx0, fy1]], look: glook() }); } catch (e) { console.warn('[ilha 3D]', e); w = null; }
+  if (!w) { cv.remove(); window.__no3d = true; return; }
+  W3 = w; ISO3D = true; w3Sig = ''; w3Box = '';
+  cv.style.backgroundImage = `url(${hiveWall()})`;
+  lastMap = ''; render();
+  requestAnimationFrame(map3dLoop);
+}
+function map3dPlace() {
+  const cv = $('#map3d'), svg = document.querySelector('#map svg.iso'), wrap = $('#mapwrap');
+  if (!cv || !svg) return;
+  const wr = wrap.getBoundingClientRect(), r = svg.getBoundingClientRect();
+  const box = [r.left - wr.left + wrap.scrollLeft, r.top - wr.top + wrap.scrollTop, r.width, r.height].map(v => Math.round(v));
+  const key = box.join();
+  if (key === w3Box || !box[2]) return;
+  w3Box = key;
+  Object.assign(cv.style, { left: box[0] + 'px', top: box[1] + 'px', width: box[2] + 'px', height: box[3] + 'px' });
+  W3.setSize(box[2], box[3]);
+}
+function map3dLoop(t) {
+  requestAnimationFrame(map3dLoop);
+  if (!W3 || !S || document.hidden) return;
+  if (t - w3Last < 1000 / (S.tab === 'ilha' ? 30 : 5)) return;
+  w3Last = t;
+  map3dPlace();
+  const lots = w3Lots(), sig = lots.map(o => o.id).join('|');
+  if (sig !== w3Sig) { W3.setLots(lots); w3Sig = sig; }
+  W3.frame(t, { spin: !!(S.wheel && S.wheel.until > performance.now()) });
+}
 function viewMap() {
   topLayer = [];
   const objs = [];
@@ -10411,9 +10621,11 @@ function viewMap() {
   S.farms.forEach((f, i) => objs.push({ d: FARM_LOTS[i][0] + FARM_LOTS[i][1], html: isoFarm(i) }));
   if (S.farms.length < farmMax()) { const [x, y] = FARM_LOTS[S.farms.length]; objs.push({ d: x + y, html: isoGhost(x, y, 0.92, 'buyFarm', `+ 🪙${fmt(farmCost())}`) }); }
   Object.keys(SPOTS).forEach(k => objs.push({ d: SPOTS[k].at[0] + SPOTS[k].at[1], html: isoSpecial(k) }));
-  TREES.forEach(([x, y, n]) => objs.push({ d: x + y, html: isoTree(x, y, n) }));
-  DECOR.forEach(([x, y, k]) => objs.push({ d: x + y - 0.5, html: isoDecor(x, y, k) }));
-  fillDecor().forEach(([x, y, k]) => objs.push({ d: x + y - 0.6, html: isoDecor(x, y, k) }));
+  if (!ISO3D) {
+    TREES.forEach(([x, y, n]) => objs.push({ d: x + y, html: isoTree(x, y, n) }));
+    DECOR.forEach(([x, y, k]) => objs.push({ d: x + y - 0.5, html: isoDecor(x, y, k) }));
+    fillDecor().forEach(([x, y, k]) => objs.push({ d: x + y - 0.6, html: isoDecor(x, y, k) }));
+  }
   objs.sort((a, b) => a.d - b.d);
   const [t, r, b, l] = diamond(NG / 2, NG / 2, NG, NG);
   const [st, sr, sb, sl] = diamond(NG / 2, NG / 2, NG + 1.2, NG + 1.2);
@@ -10427,6 +10639,7 @@ function viewMap() {
   const fliers = [...S.dragons].sort((a, c) => RARITY[c.rar].rv - RARITY[a.rar].rv || c.lvl - a.lvl).slice(0, Math.min(2, Math.floor(S.dragons.length / 3)));
   const flyPath = ['M500,40 C860,40 990,250 760,420 C520,580 120,470 90,260 C70,110 260,40 500,40Z', 'M520,560 C200,560 40,380 160,200 C260,60 760,20 900,200 C1000,340 820,560 520,560Z'];
   return `<svg class="iso" viewBox="0 0 1000 600" role="img" aria-label="Mapa da ilha">
+    ${ISO3D ? '' : `
     <image href="${hiveWall()}" x="0" y="0" width="1000" height="600" pointer-events="none"/>
     <polygon points="${pts(hexGrow(60))}" fill="url(#g-sea)" transform="translate(0 22)"/>
     <polygon points="${pts(hexGrow(60))}" fill="url(#p-honey)" opacity=".7" transform="translate(0 22)"/>
@@ -10440,7 +10653,7 @@ function viewMap() {
     <g opacity=".55">${face(H[0], H[5], 'url(#p-comb)')}${face(H[5], H[4], 'url(#p-comb)')}${face(H[4], H[3], 'url(#p-comb)')}</g>
     ${strata(H[0], H[5], 0)}${strata(H[5], H[4], 1)}${strata(H[4], H[3], 1)}
     ${lipBand(H[0], H[5], '#f2b544')}${lipBand(H[5], H[4], '#e0a23a')}${lipBand(H[4], H[3], '#c98a2c')}
-    <image href="${groundImage()}" x="0" y="0" width="1000" height="600" pointer-events="none"/>
+    <image href="${groundImage()}" x="0" y="0" width="1000" height="600" pointer-events="none"/>`}
     ${objs.map(o => o.html).join('')}
     ${topLayer.join('')}
     ${fliers.map((d, n) => `<g><animateMotion dur="${26 + n * 9}s" repeatCount="indefinite" path="${flyPath[n]}"/><ellipse cx="0" cy="44" rx="22" ry="5" fill="rgba(0,0,0,.18)"/>${placeDragon(d, 0, 0, 84)}</g>`).join('')}

@@ -75,6 +75,14 @@ O jogo **pausa sozinho** quando a aba fica oculta. Botão Pausar e tecla `P` tam
 - **Vila da colmeia:** o chão virou cera lisa, sem o desenho de alvéolos. No meio fica uma praça com a fonte de mel, de onde saem caminhos curvos. As construções ficam num arco no fundo: Arena no topo, Mercado e Chocadeira dos lados, Mural de Missões e Jardim do Amor nas pontas. São até 9 colmeias, dos dois lados e embaixo da praça. O jardim fica na frente, um canteiro de terra com borda de cera e 12 vagas em 2 fileiras. Enfeites: poças de mel, potes, colunas de cera e flores do prado.
 - **Relíquias:** agora a cada 300 s (antes, 150 s).
 
+## Novidades da v6: ilha em 3D de verdade (12/10/2026)
+
+- A ilha agora é uma cena 3D em tempo real (three.js), com a mesma câmera isométrica de antes. Ela fica numa tela WebGL atrás do SVG; o SVG ficou só com as áreas de clique, os balões, os nomes e as abelhas.
+- Chão novo e mais limpo: âmbar escuro com favo bem leve, caminhos de pedrinha, praça clara e canteiro do jardim, tudo pintado numa textura. Borda de cera em relevo, paredão de favo e mar de mel animado.
+- As construções são os mesmos modelos de antes, agora com luz e sombra reais. A roda da Roleta do Enxame gira na ilha durante o giro.
+- Só 13 enfeites, bem espaçados (fonte, velas, lampiões, colmeias de palha, potes, girassóis e flores). Sumiram os tufos espalhados.
+- Sem WebGL, ou com `window.__no3d = true`, o mapa antigo em SVG volta sozinho. A sombra só é recalculada quando algo muda na ilha, para pesar menos no celular.
+
 ## Novidades da v5.1: carrossel, roleta 3D, ilha e tesouros (12/10/2026)
 
 - A Roleta do Enxame virou um carrossel no estilo de caixa: passam abelhas de verdade, com a cor da raridade embaixo. Só aparece o nome e o desenho das espécies que você já tem; as outras passam como silhueta "???". Cada giro dura 5,2 s, com um tique por abelha que passa; às vezes uma mais rara para do lado. O Giro do Amor usa o mesmo carrossel com os filhotes possíveis do casal.
