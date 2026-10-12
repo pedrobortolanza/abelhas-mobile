@@ -8097,7 +8097,7 @@ const M3 = (() => {
           col += vec3(1.0, 0.9, 0.65) * pow(w3 * w1, 8.0) * 0.4;
           float d = length(p - vec2(7.0, 7.0));
           col *= 1.0 - smoothstep(12.0, 18.0, d) * 0.18;
-          gl_FragColor = vec4(col, 1.0 - smoothstep(14.0, 17.5, d));
+          gl_FragColor = vec4(col, 1.0 - smoothstep(12.6, 14.2, d));
         }`,
     });
     const sea = new T.Mesh(flat(new T.ShapeGeometry(shapeOf(grow(150)))), seaM); sea.position.y = -0.78; scene.add(sea);
@@ -8130,7 +8130,15 @@ const M3 = (() => {
       if (wheel) wheel.rotation.z += o.spin ? dt * 9 : dt * 0.25;
       WR.render(scene, cam);
     }
-    function setSize(w, h) { WR.setPixelRatio(Math.min(window.devicePixelRatio || 1, 1.6)); WR.setSize(w, h, false); WR.shadowMap.needsUpdate = true; }
+    // o SVG usa viewBox 1000x600 com "meet": a câmera mostra exatamente a mesma área, sem esticar
+    function setSize(w, h) {
+      WR.setPixelRatio(Math.min(window.devicePixelRatio || 1, 1.6)); WR.setSize(w, h, false); WR.shadowMap.needsUpdate = true;
+      const sc = Math.min(w / 1000, h / 600), ox = (w - 1000 * sc) / 2, oy = (h - 600 * sc) / 2;
+      const mx0 = -ox / sc, mx1 = (w - ox) / sc, my0 = -oy / sc, my1 = (h - oy) / sc;
+      Object.assign(cam, { left: (mx0 - 500) / PX, right: (mx1 - 500) / PX, top: -(my0 - 68) / PX, bottom: -(my1 - 68) / PX });
+      cam.updateProjectionMatrix();
+      return sc;
+    }
     return { setLots, frame, setSize };
   }
   const isoCache = new Map();
@@ -10601,7 +10609,9 @@ function map3dPlace() {
   if (key === w3Box || !box[2]) return;
   w3Box = key;
   Object.assign(cv.style, { left: box[0] + 'px', top: box[1] + 'px', width: box[2] + 'px', height: box[3] + 'px' });
-  W3.setSize(box[2], box[3]);
+  const sc = W3.setSize(box[2], box[3]);
+  cv.style.backgroundSize = `${Math.round(1000 * sc)}px ${Math.round(600 * sc)}px`;
+  cv.style.backgroundPosition = 'center'; cv.style.backgroundRepeat = 'no-repeat';
 }
 function map3dLoop(t) {
   requestAnimationFrame(map3dLoop);
