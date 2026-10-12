@@ -301,6 +301,7 @@ body { padding-bottom: calc(76px + env(safe-area-inset-bottom, 0px)); }
 .hero { text-align: center; display: flex; flex-direction: column; gap: 10px; align-items: center; }
 .hero h1 { font-size: clamp(2rem, 6vw, 3.2rem); line-height: 1.05; background: linear-gradient(180deg, var(--ember-2), var(--ember)); -webkit-background-clip: text; background-clip: text; color: transparent; }
 .hero p { max-width: 56ch; margin: 0; color: var(--muted); }
+.lock-note { padding: 12px 16px; border-radius: 14px; background: rgba(40, 20, 6, .75); color: #fff3d6; font-weight: 700; text-align: center; max-width: 520px; margin: 0 auto; }
 .play-btn { min-width: 220px; font-size: 1.35rem !important; padding: 14px 30px !important; }
 .run-chips { display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; margin-top: 8px; }
 .run-chip { flex: 1 1 220px; max-width: 360px; text-align: left; font-size: .82rem; padding: 8px 10px; border-radius: 12px; background: rgba(255, 210, 110, .14); border: 1px solid rgba(255, 210, 110, .4); }
@@ -1698,8 +1699,10 @@ svg.gi { width: 1.2em; height: 1.2em; vertical-align: -.25em; display: inline-bl
           texto: 'Ouviu esse zumbido? O enxame dela está vindo. A velha Tropa se foi, e minhas asas já não voam como antes.' },
         { palco: 'ovo', quem: 'melina',
           texto: 'Este é o último ovo da Tropa. Choque abelhas, cruze os tipos, plante flores e faça mel.' },
-        { palco: 'ilha', quem: 'melina', exceto: 'infinito',
+        { palco: 'ilha', quem: 'melina', exceto: 'infinito', nao: 'atos',
           texto: 'A Vespa Rainha chega em {tempo}. Só três abelhas poderão enfrentá-la. Quem defender bem o lar entra para a Tropa do Mel.' },
+        { palco: 'ilha', quem: 'melina', so: 'atos',
+          texto: 'O enxame vem em três ondas. Primeiro o General Vespa, em {tempo}. Depois a própria Vespa Rainha. E, por último, quem manda nela: a Imperatriz do Ninho.' },
         { palco: 'ilha', quem: 'melina', so: 'infinito',
           texto: 'Ela vai atacar a cada quinze minutos, com um enxame maior a cada vez. Aguente o quanto puder.' },
         { palco: 'titulo', titulo: 'Honey Troop', sub: 'A Tropa do Mel', dur: 3.2 },
@@ -1733,6 +1736,22 @@ svg.gi { width: 1.2em; height: 1.2em; vertical-align: -.25em; display: inline-bl
         { palco: 'vespa', quem: 'melina', texto: 'Três abelhas, de novo. Ela está mais forte, e nós também.' },
       ],
     },
+    atoChefe: {
+      musica: 'invasao',
+      cenas: [
+        { palco: 'zumbido', quem: 'narrador', tremor: 0.9, rachas: 1, som: ['tremor', { intensidade: 1 }],
+          texto: 'Fim do {ato}. O céu escurece de novo, e um zumbido diferente cobre a ilha.' },
+        { palco: 'vespa', quem: 'vespa', tremor: 0.5, flash: true, som: ['despertar'],
+          texto: 'Aqui fala {chefe}. Esta colmeia vai ser do meu enxame.' },
+        { palco: 'vespa', quem: 'melina', texto: 'Três abelhas. Tudo o que você construiu até aqui decide este momento.' },
+      ],
+    },
+    atoVencido: {
+      cenas: [
+        { palco: 'vitoria', quem: 'narrador', texto: '{chefe} recua para além do mar de mel. Mas o zumbido continua no horizonte.' },
+        { palco: 'ilha', quem: 'melina', texto: 'Começa o {ato}. A colmeia pode crescer mais agora, com novos lotes e ligas. Próximo chefe: {proximo}.' },
+      ],
+    },
     ondaVencida: {
       cenas: [
         { palco: 'vitoria', quem: 'narrador', texto: 'A Vespa Rainha recua para além do mar de mel, mas o zumbido não some de vez.' },
@@ -1760,7 +1779,7 @@ svg.gi { width: 1.2em; height: 1.2em; vertical-align: -.25em; display: inline-bl
     },
   };
 
-  const TEMPO_MODO = { rapido: '10 minutos', padrao: '20 minutos', longa: '30 minutos', infinito: '15 minutos' };
+  const TEMPO_MODO = { atos: '12 minutos', rapido: '10 minutos', padrao: '20 minutos', longa: '30 minutos', infinito: '15 minutos' };
 
   // ---------- CSS ----------
   // Paleta: chocolate e âmbar, com verde-água para a Vovó Melina (sem exagerar no amarelo).
@@ -2415,7 +2434,7 @@ svg.gi { width: 1.2em; height: 1.2em; vertical-align: -.25em; display: inline-bl
     injetaCSS();
     const modo = opts.modo || 'padrao';
     const vars = Object.assign({ tempo: TEMPO_MODO[modo] || '20 minutos', onda: 2 }, opts.vars || {});
-    const cenas = rot.cenas.filter((c) => (!c.so || c.so === modo) && (!c.exceto || c.exceto !== modo));
+    const cenas = rot.cenas.filter((c) => (!c.so || c.so === modo) && (!c.exceto || c.exceto !== modo) && (!c.nao || c.nao !== modo));
     const reduz = global.matchMedia && global.matchMedia('(prefers-reduced-motion: reduce)').matches;
     const som = opts.som === false ? null : (opts.som || global.Som || null);
     const sfx = (a) => { try { if (som && a) som.play(a[0], a[1]); } catch (e) { /* som é opcional */ } };
@@ -7864,8 +7883,22 @@ const MODES = {
   rapido: { n: 'Rápida', dur: 600,  d: 'A Vespa Rainha ataca em 10 minutos.', boss: { hp: 1200, atk: 48 } },
   padrao: { n: 'Padrão', dur: 1200, d: 'A Vespa Rainha ataca em 20 minutos.', boss: { hp: 2400, atk: 70 } },
   longa:  { n: 'Longa',  dur: 1800, d: 'A Vespa Rainha ataca em 30 minutos.', boss: { hp: 3600, atk: 88 } },
+  atos: { n: 'Atos', dur: 0, d: 'Três atos de 12 minutos, cada um com seu chefe.', boss: { hp: 1300, atk: 50 } },
   infinito: { n: 'Infinito', dur: 0, wave: 900, d: 'A Vespa Rainha ataca a cada 15 minutos, mais forte a cada vez. Acaba na primeira derrota.', boss: { hp: 1800, atk: 60 } },
 };
+// Partida em atos: cada ato termina com um chefe; vencer leva ao próximo ato com tudo o que foi construído
+const ACTS = [
+  { n: 'Ato I', boss: 'General Vespa', disp: ['fogo', 'metal'], dur: 720, hp: 1300, atk: 50, reward: { gold: 4000, gems: 20, xp: 300 }, pts: 4000, hab: 4, farm: 6, lg: 3 },
+  { n: 'Ato II', boss: 'Vespa Rainha', disp: ['trevas', 'fogo'], dur: 720, hp: 2800, atk: 76, reward: { gold: 12000, gems: 30, xp: 600 }, pts: 8000, hab: 7, farm: 9, lg: 6 },
+  { n: 'Ato III', boss: 'Imperatriz do Ninho', disp: ['trevas', 'luz'], dur: 720, hp: 4400, atk: 98, pts: 12000, hab: 9, farm: 12, lg: 8 },
+];
+const actEndAt = i => ACTS.slice(0, i + 1).reduce((a, x) => a + x.dur, 0);
+const isActs = () => !!(S && S.mode === 'atos');
+const curAct = () => ACTS[Math.min(S.act || 0, ACTS.length - 1)];
+const habMax = () => isActs() ? Math.min(HAB_LOTS.length, curAct().hab) : HAB_LOTS.length;
+const farmMax = () => isActs() ? Math.min(FARM_LOTS.length, curAct().farm) : FARM_LOTS.length;
+const leagueLocked = () => isActs() && S.league <= LEAGUES.length && S.league > curAct().lg;
+const bossName = () => isActs() ? curAct().boss : 'Vespa Rainha';
 const LEAGUES = ['Bronze', 'Prata', 'Ouro', 'Platina', 'Diamante', 'Mestre', 'Grão-Mestre', 'Campeões'];
 const LEAGUE_RARITY = [['C'], ['C', 'C', 'R'], ['R', 'C'], ['R', 'R', 'E'], ['E', 'R'], ['E', 'E', 'R'], ['E', 'L', 'E'], ['L', 'E']];
 const MAX_DLVL = 15;
@@ -8153,7 +8186,7 @@ function newStats() {
     dragonsBought: 0, dragonsSold: 0, feeds: 0, maxDragonLvl: 1,
     breeds: 0, eggsHatched: 0, eggsSpedUp: 0, byRarity: { C: 1, R: 0, E: 0, L: 0 }, firstLegendT: null,
     battles: 0, battlesWon: 0, battlesLost: 0, streak: 0, bestStreak: 0, damageDealt: 0, damageTaken: 0,
-    bestHit: 0, crits: 0, superEffective: 0, kos: 0, kosTaken: 0, flawless: 0, bossDefeated: 0, wildWins: 0, finalWins: 0, finalPerfect: 0, finalDmgPct: 0,
+    bestHit: 0, crits: 0, superEffective: 0, kos: 0, kosTaken: 0, flawless: 0, bossDefeated: 0, wildWins: 0, actsWon: 0, finalWins: 0, finalPerfect: 0, finalDmgPct: 0,
     gemsEarned: 0, gemsSpent: 0, missionsDone: 0, eventsSeen: 0, lostEggs: 0, xpTotal: 0, levelUps: 0,
   };
 }
@@ -8181,7 +8214,8 @@ function newState(modeKey) {
   st.season = pick(Object.keys(SEASONS));
   st.rival = pick(Object.keys(RIVALS));
   const dur = MODES[modeKey].dur || 1200;
-  st.raids = RAID_AT.map(p => Math.round(dur * p)); st.raidIdx = 0; st.raid = null; st.raidWarned = -1;
+  st.act = 0;
+  st.raids = modeKey === 'atos' ? ACTS.map((a, i) => actEndAt(i) - a.dur / 2) : RAID_AT.map(p => Math.round(dur * p)); st.raidIdx = 0; st.raid = null; st.raidWarned = -1;
   st.route = null; st.bonusRelic = false;
   return st;
 }
@@ -8397,8 +8431,8 @@ function sell(id) {
   sfx('vender');
   toast(`${d.name} foi vendida`, `+${fmt(sellValue(d))} de mel`);
 }
-function buyHabitat() { if (S.habitats.length >= HAB_LOTS.length) { toast('Ilha cheia', 'Todos os lotes de colmeia estão ocupados.', 'bad'); return; } if (spendGold(habitatCost())) { S.habitats.push({ stored: 0 }); sfx('comprar'); addXp(8); } }
-function buyFarm() { if (S.farms.length >= FARM_LOTS.length) { toast('Jardim cheio', 'Todos os canteiros estão ocupados.', 'bad'); return; } if (spendGold(farmCost())) { S.farms.push({ crop: null, prog: 0, lvl: 1, pick: bestCrop() }); sfx('comprar'); addXp(5); } }
+function buyHabitat() { if (S.habitats.length >= habMax()) { toast('Ilha cheia', habMax() < HAB_LOTS.length ? 'Mais lotes de colmeia abrem no próximo ato.' : 'Todos os lotes de colmeia estão ocupados.', 'bad'); return; } if (spendGold(habitatCost())) { S.habitats.push({ stored: 0 }); sfx('comprar'); addXp(8); } }
+function buyFarm() { if (S.farms.length >= farmMax()) { toast('Jardim cheio', farmMax() < FARM_LOTS.length ? 'Mais canteiros abrem no próximo ato.' : 'Todos os canteiros estão ocupados.', 'bad'); return; } if (spendGold(farmCost())) { S.farms.push({ crop: null, prog: 0, lvl: 1, pick: bestCrop() }); sfx('comprar'); addXp(5); } }
 function buyHatch() {
   const c = HATCH_COSTS[S.hatchSlots - 1];
   if (c === undefined) return;
@@ -8537,7 +8571,7 @@ function raidStart() {
   const R = RIVALS[S.rival];
   S.raid = { n: S.raidIdx + 1, until: S.t + RAID_WAIT }; S.raidIdx++;
   sfx('tremor', { intensidade: 0.5 });
-  overlay(`<div class="card hero"><span class="cat">Inimigo da partida · invasão ${S.raid.n} de ${RAID_AT.length}</span>
+  overlay(`<div class="card hero"><span class="cat">Inimigo da partida · invasão ${S.raid.n} de ${S.raids.length}</span>
     <div class="row" style="justify-content:center">${dIcon(R.els, 'E', 'xl', 'flip', 9)}</div>
     <h1>${R.i} ${R.n} atacam!</h1><p>${R.d} Você tem ${RAID_WAIT}s para defender. Vencer rende mel, geleia real e uma relíquia.</p>
     <div class="row" style="justify-content:center"><button class="btn primary big" data-a="raidGo">🛡️ Defender</button><button class="btn" data-a="raidSkip">Deixar</button></div></div>`);
@@ -8576,7 +8610,7 @@ function advanceRoute(text) {
   return text || `Etapa ${S.leagueFight} de 3 da liga ${LEAGUES[S.league - 1]} concluída.`;
 }
 function takeNode(k) {
-  if (S.battle || S.finalPhase || S.league > LEAGUES.length || !ensureRoute().includes(k)) return;
+  if (S.battle || S.finalPhase || S.league > LEAGUES.length || leagueLocked() || !ensureRoute().includes(k)) return;
   const L = Math.min(S.league, 8), base = 90 * Math.pow(L, 1.9);
   if (k === 'luta' || k === 'elite') { S.battleNode = k; startBattle('arena'); return; }
   if (k === 'misterio') {
@@ -8596,6 +8630,13 @@ function takeNode(k) {
   addXp(10 * L);
 }
 function bossTeam(final) {
+  if (isActs()) {
+    const A = curAct();
+    let hp = A.hp, atk = A.atk;
+    if (!final) { hp = Math.round(hp * 0.8); atk = Math.round(atk * 0.8); }
+    else if (S.weakened) hp = Math.round(hp * 0.7);
+    return [{ name: final ? A.boss : A.boss + ' no ninho', els: [], disp: A.disp, rar: 'L', lvl: 99, hpMax: hp, hp, atk, cd: 0, boss: true }];
+  }
   const b = MODES[S.mode].boss, k = S.mode === 'infinito' ? Math.pow(1.35, S.wave) : 1;
   let hp = Math.round(b.hp * k), atk = Math.round(b.atk * k);
   if (!final) { hp = Math.round(hp * 0.8); atk = Math.round(atk * 0.8); }
@@ -8742,17 +8783,22 @@ function endBattle(win) {
   B.over = true;
   const st = S.stats;
   const r = { win, kind: B.kind, gold: 0, gems: 0, xp: 0, text: '' };
+  const actGo = win && B.kind === 'final' && isActs() && S.act < ACTS.length - 1;
   if (win) {
     st.battlesWon++; st.streak++; st.bestStreak = Math.max(st.bestStreak, st.streak);
     if (B.lost === 0 && (B.kind !== 'arena' || S.league >= 4)) st.flawless++;
     if (B.kind === 'final') {
       st.finalWins++; if (B.lost === 0) st.finalPerfect++;
-      if (S.mode === 'infinito') {
+      if (actGo) {
+        const A = curAct(), N = ACTS[S.act + 1];
+        r.gold = A.reward.gold; r.gems = A.reward.gems; r.xp = A.reward.xp;
+        r.text = `${A.boss} caiu! O ${A.n} acabou. Começa o ${N.n}, com mais lotes e ligas. Próximo chefe: ${N.boss}.`;
+      } else if (S.mode === 'infinito') {
         S.wave++; r.gold = 3000 * S.wave; r.gems = 20; r.xp = 300;
         r.text = `Ataque ${S.wave} repelido! A Vespa Rainha volta em 15 minutos, mais forte.`;
-      } else r.text = 'A colmeia resistiu! A Vespa Rainha fugiu para o Ninho de Papel, e sua colmeia agora é da Tropa do Mel.';
+      } else r.text = isActs() ? 'A Imperatriz do Ninho caiu! O enxame foi embora de vez, e sua colmeia agora é da Tropa do Mel.' : 'A colmeia resistiu! A Vespa Rainha fugiu para o Ninho de Papel, e sua colmeia agora é da Tropa do Mel.';
     } else if (B.kind === 'boss') {
-      r.text = S.weakened ? 'Você venceu a Vespa Rainha adormecida de novo.' : 'Você feriu a Vespa Rainha no sono! No próximo ataque ela terá 30% menos vida.';
+      r.text = S.weakened ? `Você venceu ${bossName()} no ninho de novo.` : `Você feriu ${bossName()} no ninho! No próximo ataque terá 30% menos vida.`;
       S.weakened = true;
       st.bossDefeated++; r.gold = Math.round(8000 * modeFactor()); r.gems = 30; r.xp = 400;
     } else {
@@ -8775,9 +8821,12 @@ function endBattle(win) {
     st.battlesLost++; st.streak = 0;
     r.xp = 5; addXp(5);
     if (B.kind === 'raid' && S.raid) raidPenalty();
-    r.text = B.kind === 'final' ? 'A Vespa Rainha tomou a colmeia. Suas abelhas lutaram até o fim.' : 'Suas abelhas precisam ficar mais fortes. Alimente-as ou cruze espécies com vantagem de tipo.';
+    r.text = B.kind === 'final' ? `${bossName()} tomou a colmeia. Suas abelhas lutaram até o fim.` : 'Suas abelhas precisam ficar mais fortes. Alimente-as ou cruze espécies com vantagem de tipo.';
   }
-  if (B.kind === 'final' && S.mode === 'infinito' && win) {
+  if (actGo) {
+    S.finalPhase = false; S.act++; S.warned = []; S.weakened = false; st.actsWon = S.act;
+    S.route = null; nextSeason();
+  } else if (B.kind === 'final' && S.mode === 'infinito' && win) {
     S.finalPhase = false; S.nextInvasion = S.t + MODES.infinito.wave; S.warned = [];
     st.finalDmgPct = 1;
   } else if (B.kind === 'final') {
@@ -8792,7 +8841,18 @@ function endBattle(win) {
 function closeBattle() {
   const B = S.battle;
   if (B && B.kind === 'final' && S.mode === 'infinito' && S.lastResult && S.lastResult.win) cena('ondaVencida', { modo: S.mode });
-  S.battle = null; music(S.finalPhase ? 'invasao' : 'ilha'); if (!S.finalPhase && S.mode === 'infinito') tension(0); }
+  if (B && B.kind === 'final' && isActs() && S.lastResult && S.lastResult.win && !S.finalResult) {
+    const P = ACTS[S.act - 1], A = curAct();
+    cena('atoVencido', { modo: S.mode, vars: { chefe: P.boss, ato: A.n, proximo: A.boss } }).then(() => toast(`${A.n} começou`, `${SEASONS[S.season].i} Nova estação: ${SEASONS[S.season].n}. Até ${A.hab} colmeias, ${A.farm} canteiros e liga ${LEAGUES[A.lg - 1]}.`, 'ach'));
+  }
+  S.battle = null; music(S.finalPhase ? 'invasao' : 'ilha'); if (!S.finalPhase && (S.mode === 'infinito' || isActs())) tension(0); }
+// A cada ato a estação muda (tira os efeitos da antiga e aplica a nova)
+function nextSeason() {
+  const old = SEASONS[S.season];
+  Object.entries(old.mods).forEach(([k, v]) => { S.mods[k] = k === 'lvlGems' ? S.mods[k] - v : S.mods[k] / v; });
+  S.season = pick(Object.keys(SEASONS).filter(k => k !== S.season));
+  applyMods(SEASONS[S.season].mods);
+}
 function toggleTeam(id) {
   const has = S.team.includes(id);
   if (has) { if (S.team.length > 1) S.team = S.team.filter(t => t !== id); }
@@ -8868,7 +8928,9 @@ function score() {
     'Conquistas': Object.keys(S.ach).length * 250,
     'Arena': (Math.min(S.league, 9) - 1) * 600 + S.leagueFight * 200 + st.battlesWon * 40,
     'Vespa Rainha adormecida': st.bossDefeated ? 2000 : 0,
-    'Ataque final': S.mode === 'infinito'
+    'Ataque final': isActs()
+      ? ACTS.slice(0, S.act + (S.finalResult && S.finalResult.win ? 1 : 0)).reduce((a, x) => a + x.pts, 0) + st.finalPerfect * 1500 + (S.finalResult && !S.finalResult.win ? Math.round(S.finalResult.dmgPct * curAct().pts * 0.5) : 0)
+      : S.mode === 'infinito'
       ? st.finalWins * 12000 + st.finalPerfect * 3000 + (S.finalResult && !S.finalResult.win ? Math.round(S.finalResult.dmgPct * 6000) : 0)
       : S.finalResult ? (S.finalResult.win ? 12000 + (S.finalResult.lost === 0 ? 3000 : 0) : Math.round(S.finalResult.dmgPct * 6000)) * modeFactor() : 0,
     'Nível do jogador': S.level * 200,
@@ -8906,7 +8968,7 @@ function tick() {
   for (const w of [300, 120, 60, 30]) {
     if (left <= w && !S.warned.includes(w)) {
       S.warned.push(w);
-      toast('☠️ Um zumbido ao longe…', `A Vespa Rainha ataca em ${w >= 60 ? w / 60 + ' min' : w + 's'}. Prepare seu time!`, 'bad warn');
+      toast('☠️ Um zumbido ao longe…', `${bossName()} ataca em ${w >= 60 ? w / 60 + ' min' : w + 's'}. Prepare seu time!`, 'bad warn');
       const inten = { 300: 0.25, 120: 0.5, 60: 0.75, 30: 1 }[w];
       sfx('tremor', { intensidade: inten }); tension(inten);
     }
@@ -8955,8 +9017,8 @@ function tick() {
 }
 let autoAcc = 0;
 // Peso do modo na pontuação: 1 = 20 min. No Infinito, cresce com o tempo jogado.
-function modeFactor() { const d = MODES[S.mode].dur; return d ? d / 1200 : Math.max(0.5, S.t / 1200); }
-const invadeAt = () => MODES[S.mode].dur || S.nextInvasion;
+function modeFactor() { if (isActs()) return actEndAt(S.act) / 1200; const d = MODES[S.mode].dur; return d ? d / 1200 : Math.max(0.5, S.t / 1200); }
+const invadeAt = () => isActs() ? actEndAt(S.act) : (MODES[S.mode].dur || S.nextInvasion);
 // Cutscene da lore com o jogo pausado; sem o módulo (ou nos testes automáticos), segue direto
 function cena(id, opts = {}) {
   if (!window.Cutscene || window.__noCutscenes) return Promise.resolve({ id, semCena: true });
@@ -8966,13 +9028,15 @@ function cena(id, opts = {}) {
 }
 function startFinal() {
   S.finalPhase = true; S.t = invadeAt();
-  const despertar = cena(S.mode === 'infinito' && S.wave > 0 ? 'despertarOnda' : 'despertar', { modo: S.mode, vars: { onda: S.wave + 1 } });
+  const despertar = isActs() ? cena(S.act === 1 ? 'despertar' : 'atoChefe', { modo: S.mode, vars: { chefe: curAct().boss, ato: curAct().n } })
+    : cena(S.mode === 'infinito' && S.wave > 0 ? 'despertarOnda' : 'despertar', { modo: S.mode, vars: { onda: S.wave + 1 } });
   if (S.battle && !S.battle.over) S.stats.battles--;
   S.battle = null; S.lastResult = null; S.lostEgg = null; S.event = null; S.buffs = {}; S.tab = 'arena'; S.autoBattle = false; S.raid = null; S.bonusRelic = false;
   render(true);
-  despertar.then(r => { if (r && r.semCena) { sfx('despertar'); music('invasao'); } if (S && !S.ended) overlay(`<div class="card hero">${dIcon(['trevas', 'fogo'], 'L', 'xl', 'pop', 5)}
-    <h1>A Vespa Rainha chegou com o enxame!</h1>
-    <p>Ela voa em direção à colmeia com seu enxame. Escolha até 3 abelhas para a batalha final. Tudo o que você construiu decide este momento.</p>
+  const bn = bossName(), bd = isActs() ? curAct().disp : ['trevas', 'fogo'];
+  despertar.then(r => { if (r && r.semCena) { sfx('despertar'); music('invasao'); } if (S && !S.ended) overlay(`<div class="card hero">${isActs() ? `<span class="cat">${curAct().n} · chefe</span>` : ''}${dIcon(bd, 'L', 'xl', 'pop', 5)}
+    <h1>${bn} chegou com o enxame!</h1>
+    <p>Voa em direção à colmeia com seu enxame. Escolha até 3 abelhas para a batalha final. Tudo o que você construiu decide este momento.</p>
     <button class="btn primary" data-a="cancelEnd">Escolher meu time</button></div>`); });
 }
 
@@ -9051,9 +9115,9 @@ function endGame() {
   if (!S || S.ended) return;
   S.ended = true; S.running = false;
   checkAchievements();
-  const won = S.finalResult ? S.finalResult.win : (S.mode === 'infinito' && S.stats.finalWins > 0);
+  const won = S.finalResult ? S.finalResult.win : ((S.mode === 'infinito' || isActs()) && S.stats.finalWins > 0);
   sfx(won ? 'finalVitoria' : 'finalDerrota'); tension(0);
-  const fim = S.finalResult ? (S.finalResult.win ? 'vitoria' : 'derrota') : S.mode === 'infinito' && S.stats.finalWins > 0 ? 'vitoria' : 'semDefesa';
+  const fim = S.finalResult ? (S.finalResult.win ? 'vitoria' : 'derrota') : (S.mode === 'infinito' || isActs()) && S.stats.finalWins > 0 ? 'vitoria' : 'semDefesa';
   cena(fim, { modo: S.mode }).then(() => { setTimeout(() => music('placar'), 1200); renderEnd(); });
 }
 function togglePause() {
@@ -9388,7 +9452,7 @@ function renderTop() {
     <div class="res food" title="Néctar"><span>🍖</span><b class="num">${fmt(S.food)}</b></div>
     <div class="res gem" title="Geleia real"><span>💎</span><b class="num">${fmt(S.gems)}</b></div>
     <div class="lvl" title="Nível do jogador"><span>Nível ${S.level} <span class="muted num">${S.level >= MAX_PLVL ? 'máx.' : `${fmt(S.xp)}/${fmt(xpNeed(S.level))} XP`}</span></span><div class="bar"><i style="width:${S.level >= MAX_PLVL ? 100 : pct(S.xp, xpNeed(S.level))}%"></i></div></div>
-    <div class="timer num ${hurry ? 'hurry' : ''}" title="A Vespa Rainha ataca quando o tempo acabar">☠️ ${S.finalPhase ? 'ATAQUE!' : fmtTime(left)}${S.mode === 'infinito' ? ` · onda ${S.wave + 1}` : ''}</div>
+    <div class="timer num ${hurry ? 'hurry' : ''}" title="${bossName()} ataca quando o tempo acabar">☠️ ${S.finalPhase ? 'ATAQUE!' : fmtTime(left)}${S.mode === 'infinito' ? ` · onda ${S.wave + 1}` : isActs() ? ` · ${curAct().n}` : ''}</div>
     <button class="iconbtn" data-a="pause">Pausar</button>
     <button class="iconbtn" data-a="askEnd">Encerrar</button>
     ${buffs.length ? `<div class="buffs" style="width:100%">${buffs.map(b => `<span class="buff">${b}</span>`).join('')}</div>` : ''}
@@ -9823,9 +9887,9 @@ function viewMap() {
   topLayer = [];
   const objs = [];
   S.habitats.forEach((h, i) => objs.push({ d: HAB_LOTS[i][0] + HAB_LOTS[i][1], html: isoHabitat(i) }));
-  if (S.habitats.length < HAB_LOTS.length) { const [x, y] = HAB_LOTS[S.habitats.length]; objs.push({ d: x + y, html: isoGhost(x, y, 1.9, 'buyHab', `+ Colmeia 🪙${fmt(habitatCost())}`) }); }
+  if (S.habitats.length < habMax()) { const [x, y] = HAB_LOTS[S.habitats.length]; objs.push({ d: x + y, html: isoGhost(x, y, 1.9, 'buyHab', `+ Colmeia 🪙${fmt(habitatCost())}`) }); }
   S.farms.forEach((f, i) => objs.push({ d: FARM_LOTS[i][0] + FARM_LOTS[i][1], html: isoFarm(i) }));
-  if (S.farms.length < FARM_LOTS.length) { const [x, y] = FARM_LOTS[S.farms.length]; objs.push({ d: x + y, html: isoGhost(x, y, 0.92, 'buyFarm', `+ 🪙${fmt(farmCost())}`) }); }
+  if (S.farms.length < farmMax()) { const [x, y] = FARM_LOTS[S.farms.length]; objs.push({ d: x + y, html: isoGhost(x, y, 0.92, 'buyFarm', `+ 🪙${fmt(farmCost())}`) }); }
   Object.keys(SPOTS).forEach(k => objs.push({ d: SPOTS[k].at[0] + SPOTS[k].at[1], html: isoSpecial(k) }));
   TREES.forEach(([x, y, n]) => objs.push({ d: x + y, html: isoTree(x, y, n) }));
   DECOR.forEach(([x, y, k]) => objs.push({ d: x + y - 0.5, html: isoDecor(x, y, k) }));
@@ -9958,7 +10022,7 @@ function viewBattle() {
     const r = S.lastResult;
     controls = `<div class="result ${r.win ? 'win' : 'lose'}"><h2>${r.win ? '🏆 Vitória!' : 'Derrota'}</h2><p style="margin:0">${r.text}</p>
       <div class="row" style="justify-content:center">${r.gold ? costTag(r.gold) : ''} ${r.gems ? costTag(r.gems, 'm') : ''} <span class="cost">+${r.xp} XP</span></div>
-      ${B.kind === 'final' ? `<p style="margin:0" class="muted">${S.finalResult ? `Dano causado à Vespa Rainha: ${Math.round(S.finalResult.dmgPct * 100)}%` : `Ataques repelidos: ${S.stats.finalWins}`}</p>${S.mode === 'infinito' && S.lastResult.win ? '<button class="btn primary" data-a="closeBattle">Voltar para a ilha</button>' : '<button class="btn primary" data-a="end">Ver placar final</button>'}` : `<button class="btn primary" data-a="closeBattle">Continuar</button>`}</div>`;
+      ${B.kind === 'final' ? `<p style="margin:0" class="muted">${S.finalResult ? `Dano causado: ${Math.round(S.finalResult.dmgPct * 100)}%` : isActs() ? `Atos vencidos: ${S.act} de ${ACTS.length}` : `Ataques repelidos: ${S.stats.finalWins}`}</p>${(S.mode === 'infinito' || isActs()) && S.lastResult.win && !S.finalResult ? '<button class="btn primary" data-a="closeBattle">Voltar para a ilha</button>' : '<button class="btn primary" data-a="end">Ver placar final</button>'}` : `<button class="btn primary" data-a="closeBattle">Continuar</button>`}</div>`;
   } else {
     const bEl = moveEl(p, 'b'), sEl = moveEl(p, 'sp');
     const effTxt = el => { const m = eff(el, e.els); return m > 1 ? ' · forte' : m < 1 ? ' · fraco' : ''; };
@@ -9970,7 +10034,7 @@ function viewBattle() {
       <button class="btn danger" data-a="surrender">🏳️ Desistir</button></div>`;
   }
   return `<section class="panel fight">
-    <div class="fight-head"><h2>${B.kind === 'final' ? 'Ataque da Vespa Rainha' : B.kind === 'boss' ? 'Vespa Rainha adormecida' : B.kind === 'wild' ? 'Abelha selvagem' : B.kind === 'raid' ? `${RIVALS[S.rival].i} Invasão das ${RIVALS[S.rival].n}` : `${B.node === 'elite' ? '☠️ Elite · ' : ''}Liga ${LEAGUES[S.league - 1] || 'Campeões'} · luta ${S.leagueFight + 1} de 3`}</h2><span class="turn num">Turno ${B.turn}</span></div>
+    <div class="fight-head"><h2>${B.kind === 'final' ? `Ataque de ${bossName()}` : B.kind === 'boss' ? `${bossName()} no ninho` : B.kind === 'wild' ? 'Abelha selvagem' : B.kind === 'raid' ? `${RIVALS[S.rival].i} Invasão das ${RIVALS[S.rival].n}` : `${B.node === 'elite' ? '☠️ Elite · ' : ''}Liga ${LEAGUES[S.league - 1] || 'Campeões'} · luta ${S.leagueFight + 1} de 3`}</h2><span class="turn num">Turno ${B.turn}</span></div>
     <div class="battle">${fighterView(p, 'me', B.team, B.pi, B)}<div class="vs">VS</div>${fighterView(e, 'foe', B.foes, B.ei, B)}</div>
     ${controls}
     <div class="log">${B.log.map(l => `<div class="${l.cls}">${l.txt}</div>`).join('')}</div>
@@ -9982,26 +10046,27 @@ function viewArena() {
     const chips = [...S.dragons].sort((a, b) => powerOf(b) - powerOf(a)).map(d => `<button class="chip" aria-pressed="${S.team.includes(d.id)}" data-a="team" data-id="${d.id}">${dIcon(d.els, d.rar, 's', '', d.id, d.skin)}${d.name} · Nv ${d.lvl} · ⚡${powerOf(d)}</button>`).join('');
     const boss = bossTeam(true)[0];
     teamDragons();
-    return `<section class="panel"><div class="panel-head"><h2>Ataque final</h2><span class="muted num">Vespa Rainha: ❤️ ${fmt(boss.hpMax)} · 🗡️ ${boss.atk}</span></div>
-      <div class="row" style="justify-content:center"><div class="stand">${dIcon(['trevas', 'fogo'], 'L', 'xl', 'flip', 5)}</div></div>
-      <p style="margin:0">A Vespa Rainha ataca com tipos aleatórios e não tem fraquezas. Leve as suas abelhas com mais vida e ataque.${S.weakened ? ' Ela está ferida: você a enfrentou na Arena, e ela perdeu 30% da vida.' : ''}${S.mode === 'infinito' ? ` Esta é a invasão ${S.wave + 1}.` : ''}</p>
+    return `<section class="panel"><div class="panel-head"><h2>${isActs() ? `${curAct().n} · chefe` : 'Ataque final'}</h2><span class="muted num">${boss.name}: ❤️ ${fmt(boss.hpMax)} · 🗡️ ${boss.atk}</span></div>
+      <div class="row" style="justify-content:center"><div class="stand">${dIcon(boss.disp, 'L', 'xl', 'flip', 5)}</div></div>
+      <p style="margin:0">${boss.name} ataca com tipos aleatórios e não tem fraquezas. Leve as suas abelhas com mais vida e ataque.${S.weakened ? ' Está ferida: você lutou com ela no ninho, e ela perdeu 30% da vida.' : ''}${S.mode === 'infinito' ? ` Esta é a invasão ${S.wave + 1}.` : ''}</p>
       <div class="chips">${chips}</div>
       <div class="row"><button class="btn primary big pulse-go" data-a="fight" data-k="final">🛡️ Defender a colmeia</button><span class="hint">Time: ${S.team.length}/3</span></div></section>`;
   }
   const team = teamDragons();
   const ladder = LEAGUES.map((n, i) => `<div class="rung ${i + 1 < S.league ? 'done' : i + 1 === S.league ? 'cur' : ''}">${n}</div>`).join('');
   const chips = [...S.dragons].sort((a, b) => powerOf(b) - powerOf(a)).map(d => `<button class="chip" aria-pressed="${S.team.includes(d.id)}" data-a="team" data-id="${d.id}">${dIcon(d.els, d.rar, 's', '', d.id, d.skin)}${d.name} · Nv ${d.lvl} · ⚡${powerOf(d)}</button>`).join('');
-  const champion = S.league > LEAGUES.length;
+  const champion = S.league > LEAGUES.length, locked = leagueLocked();
   const wild = S.event && S.event.type === 'selvagem' && S.event.until > S.t;
   const nextFoes = champion ? '' : `${Math.min(3, Math.ceil((S.league + S.leagueFight) / 2))} oponente(s) de nível ${clamp(1 + (S.league - 1) * 2 + S.leagueFight, 1, MAX_DLVL)}`;
   const stands = team.map(d => `<div class="stand">${dIcon(d.els, d.rar, 'l', '', d.id, d.skin)}<span class="tag">${d.name} · Nv ${d.lvl}</span></div>`).join('')
     + '<div class="stand empty-stand"><span>Vaga</span></div>'.repeat(Math.max(0, 3 - team.length));
   return `<div class="grid">
     <div class="arena-stage">
-      <div class="lg-banner lg-${Math.min(S.league, 9)}"><b>${champion ? '👑 Campeão' : '🏅 Liga ' + LEAGUES[S.league - 1]}</b><small>${champion ? 'Todas as ligas vencidas' : `Etapa ${S.leagueFight + 1} de 3 · escolha o caminho`}</small></div>
+      <div class="lg-banner lg-${Math.min(S.league, 9)}"><b>${champion ? '👑 Campeão' : '🏅 Liga ' + LEAGUES[S.league - 1]}</b><small>${champion ? 'Todas as ligas vencidas' : locked ? 'Abre no próximo ato' : `Etapa ${S.leagueFight + 1} de 3 · escolha o caminho`}</small></div>
       <div class="arena-team">${stands}</div>
       ${champion
         ? '<button class="btn danger big" data-a="fight" data-k="boss">☠️ Entrar no Ninho de Papel</button>'
+        : locked ? `<div class="lock-note">🔒 A liga ${LEAGUES[S.league - 1]} abre no próximo ato. Até lá, fortaleça o time para o chefe.</div>`
         : `<div class="route">${ensureRoute().map(k => `<button class="node node-${k}" data-a="node" data-k="${k}"><span class="ric">${NODES[k].i}</span><b>${NODES[k].n}</b><small>${NODES[k].d}</small></button>`).join('')}</div>`}
     </div>
     <section class="panel" style="grid-column:1/-1">
@@ -10068,8 +10133,8 @@ function viewShop() {
     const hc = HATCH_COSTS[S.hatchSlots - 1];
     const card = (ic, n, d, own, btn) => `<div class="sitem build"><span class="bigic">${ic}</span><b class="sname">${n}</b><span class="hint">${d}</span><span class="own">${own}</span>${btn}</div>`;
     body = `<div class="sgrid">
-      ${card('🏛️', 'Colmeia', 'Mais 3 vagas para abelhas, e mais mel guardado.', `Você tem ${S.habitats.length}/${HAB_LOTS.length}`, S.habitats.length < HAB_LOTS.length ? `<button class="btn primary" data-a="buyHab">${costTag(habitatCost())}</button>` : '<span class="slock">Ilha cheia</span>')}
-      ${card('🌱', 'Canteiro de flores', 'Mais um canteiro para plantar flores e colher néctar.', `Você tem ${S.farms.length}/${FARM_LOTS.length}`, S.farms.length < FARM_LOTS.length ? `<button class="btn primary" data-a="buyFarm">${costTag(farmCost())}</button>` : '<span class="slock">Jardim cheio</span>')}
+      ${card('🏛️', 'Colmeia', 'Mais 3 vagas para abelhas, e mais mel guardado.', `Você tem ${S.habitats.length}/${habMax()}${habMax() < HAB_LOTS.length ? ' (mais no próximo ato)' : ''}`, S.habitats.length < habMax() ? `<button class="btn primary" data-a="buyHab">${costTag(habitatCost())}</button>` : '<span class="slock">Ilha cheia</span>')}
+      ${card('🌱', 'Canteiro de flores', 'Mais um canteiro para plantar flores e colher néctar.', `Você tem ${S.farms.length}/${farmMax()}${farmMax() < FARM_LOTS.length ? ' (mais no próximo ato)' : ''}`, S.farms.length < farmMax() ? `<button class="btn primary" data-a="buyFarm">${costTag(farmCost())}</button>` : '<span class="slock">Jardim cheio</span>')}
       ${card('🪺', 'Ninho na chocadeira', 'Choque mais ovos ao mesmo tempo.', `Você tem ${S.hatchSlots}/4`, hc !== undefined ? `<button class="btn primary" data-a="buyHatch">${costTag(Math.round(hc * MOD('shop')))}</button>` : '<span class="slock">Máximo</span>')}
     </div>`;
   } else if (tab === 'tesouros') {
@@ -10152,7 +10217,7 @@ function viewGarden() {
     <div class="panel-head"><h2>Canteiros</h2><span class="hint">Escolha a flor de cada canteiro. A flor nativa (${CROPS[S.nativeFlower].i} ${CROPS[S.nativeFlower].n}) dá 50% mais néctar.</span></div>
     <div class="row gall"><span class="hint">Todos:</span>${flowerBtns('all', null)}
       ${S.level >= 3 ? '<button class="btn small primary" data-a="harvestAll">🧺 Colher e replantar tudo</button>' : ''}
-      ${S.farms.length < FARM_LOTS.length ? `<button class="btn small" data-a="buyFarm">+ Canteiro ${costTag(farmCost())}</button>` : ''}</div>
+      ${S.farms.length < farmMax() ? `<button class="btn small" data-a="buyFarm">+ Canteiro ${costTag(farmCost())}</button>` : ''}</div>
     <div class="gardens">${cards}</div>
   </section>`;
 }
@@ -10272,9 +10337,9 @@ function renderStart() {
     <div class="hero">
       <div class="row" style="justify-content:center">${dIcon(['fogo'], 'R', 'l', '', 1)}${dIcon(['luz', 'trevas'], 'L', 'xl', '', 4)}${dIcon(['agua', 'planta'], 'E', 'l', 'flip', 2)}</div>
       <h1>Honey Troop</h1>
-      <p>A Vespa Rainha está a caminho da Ilha Favo e ataca quando o relógio zerar. Até lá, crie, cruze, alimente e treine um enxame de abelhas. Se elas defenderem a colmeia, viram uma nova Tropa do Mel. Cada partida sorteia a estação, o inimigo que invade a colmeia, o prado, a rainha, as relíquias e os caminhos da Arena. Ao fechar a aba, a partida se perde.</p>
+      <p>O enxame da Vespa Rainha está a caminho da Ilha Favo. A partida tem três atos, e cada um termina com um chefe: o General Vespa, a Vespa Rainha e a Imperatriz do Ninho. Crie, cruze, alimente e treine um enxame de abelhas para vencer os três. Se elas defenderem a colmeia, viram uma nova Tropa do Mel. Cada partida sorteia a estação, o inimigo que invade a colmeia, o prado, a rainha, as relíquias e os caminhos da Arena. Ao fechar a aba, a partida se perde.</p>
     </div>
-    <div class="row" style="justify-content:center"><button class="btn primary big play-btn" data-a="start" data-k="padrao">Jogar</button></div>
+    <div class="row" style="justify-content:center"><button class="btn primary big play-btn" data-a="start" data-k="atos">Jogar</button></div>
     <p class="hint" style="margin:0;text-align:center">Dica: colete mel das colmeias, plante flores para ter néctar, alimente abelhas até o nível 3 e cruze para descobrir as ${ALL_SPECIES.length} espécies.</p>
   </div>`);
 }
@@ -10285,7 +10350,7 @@ function renderEnd() {
   overlay(`<div class="card">
     <div class="hero"><span class="muted" style="font-weight:800">FIM DA PARTIDA · ${fmtTime(S.t)}</span>
       <div class="rank">${r}</div><h1 class="num">${fmt(sc.total)} pontos</h1>
-      <p>${S.mode === 'infinito' ? `Você repeliu ${S.stats.finalWins} ataque(s) da Vespa Rainha em ${fmtTime(S.t)}.${S.finalResult && !S.finalResult.win ? ` No último, ela levou ${Math.round(S.finalResult.dmgPct * 100)}% de dano.` : ''}` : !S.finalResult ? 'Você deixou a ilha antes do ataque. A Vespa Rainha encontrou as colmeias vazias.' : S.finalResult.win ? '🛡️ A colmeia resistiu! Sua colmeia agora é da Tropa do Mel.' : `☠️ A Vespa Rainha tomou a ilha, mas leva uma ferroada de ${Math.round(S.finalResult.dmgPct * 100)}%. A próxima colmeia vai saber onde mirar.`}</p>${S.queen ? `<p class="muted">${SEASONS[S.season].n} · ${RIVALS[S.rival].n}: ${S.stats.raidsWon} invasão(ões) repelida(s) · ${S.stats.mutants} mutante(s) · ${QUEENS.find(q => q.k === S.queen).n} · prado de ${S.meadow.map(e => EL[e].n).join(', ')} · ${S.relics.length} relíquia(s)</p>` : ''}</div>
+      <p>${isActs() ? `${S.finalResult && S.finalResult.win ? '🛡️ Você venceu os três atos! Sua colmeia agora é da Tropa do Mel.' : S.finalResult ? `☠️ ${curAct().boss} venceu no ${curAct().n}, mas levou ${Math.round(S.finalResult.dmgPct * 100)}% de dano.` : `Você saiu no ${curAct().n}.`} Atos vencidos: ${S.act + (S.finalResult && S.finalResult.win ? 1 : 0)} de ${ACTS.length}.` : S.mode === 'infinito' ? `Você repeliu ${S.stats.finalWins} ataque(s) da Vespa Rainha em ${fmtTime(S.t)}.${S.finalResult && !S.finalResult.win ? ` No último, ela levou ${Math.round(S.finalResult.dmgPct * 100)}% de dano.` : ''}` : !S.finalResult ? 'Você deixou a ilha antes do ataque. A Vespa Rainha encontrou as colmeias vazias.' : S.finalResult.win ? '🛡️ A colmeia resistiu! Sua colmeia agora é da Tropa do Mel.' : `☠️ A Vespa Rainha tomou a ilha, mas leva uma ferroada de ${Math.round(S.finalResult.dmgPct * 100)}%. A próxima colmeia vai saber onde mirar.`}</p>${S.queen ? `<p class="muted">${SEASONS[S.season].n} · ${RIVALS[S.rival].n}: ${S.stats.raidsWon} invasão(ões) repelida(s) · ${S.stats.mutants} mutante(s) · ${QUEENS.find(q => q.k === S.queen).n} · prado de ${S.meadow.map(e => EL[e].n).join(', ')} · ${S.relics.length} relíquia(s)</p>` : ''}</div>
     <table class="stats">${Object.entries(sc.parts).map(([k, v]) => `<tr><td>${k}</td><td>${fmt(v)}</td></tr>`).join('')}</table>
     <div class="kpis">
       <div class="kpi"><span>🪙 mel produzido</span><b class="num">${fmt(S.stats.goldEarned)}</b></div>

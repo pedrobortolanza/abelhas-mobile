@@ -75,6 +75,23 @@ O jogo **pausa sozinho** quando a aba fica oculta. Botão Pausar e tecla `P` tam
 - **Vila da colmeia:** o chão virou cera lisa, sem o desenho de alvéolos. No meio fica uma praça com a fonte de mel, de onde saem caminhos curvos. As construções ficam num arco no fundo: Arena no topo, Mercado e Chocadeira dos lados, Mural de Missões e Jardim do Amor nas pontas. São até 9 colmeias, dos dois lados e embaixo da praça. O jardim fica na frente, um canteiro de terra com borda de cera e 12 vagas em 2 fileiras. Enfeites: poças de mel, potes, colunas de cera e flores do prado.
 - **Relíquias:** agora a cada 300 s (antes, 150 s).
 
+## Novidades da v4: partida em 3 atos (12/10/2026)
+Pedido do Pedro: deixar o jogo mais longo. O botão Jogar abre o modo `atos` (os outros modos continuam no código, fora do menu).
+
+| Ato | Dura | Chefe | Vida / ataque | Lotes de colmeia / canteiros | Ligas abertas | Vitória rende | Pontos |
+|---|---|---|---|---|---|---|---|
+| I | 12 min (0 a 12) | General Vespa | 1.300 / 50 | 4 / 6 | até Ouro | 4.000 mel, 20 geleia, 300 XP | 4.000 |
+| II | 12 min (12 a 24) | Vespa Rainha | 2.800 / 76 | 7 / 9 | até Mestre | 12.000 mel, 30 geleia, 600 XP | 8.000 |
+| III | 12 min (24 a 36) | Imperatriz do Ninho | 4.400 / 98 | 9 / 12 | todas | fim com vitória | 12.000 |
+
+- Vencer o chefe leva ao próximo ato com tudo o que foi construído. Perder encerra a partida, pontuando `50% × pontos do ato × fração da vida tirada`. Cada chefe vencido sem perder abelhas vale +1.500.
+- A cada novo ato a **estação muda** (sai o efeito da antiga, entra o da nova) e o caminho da Arena é sorteado de novo.
+- Uma **invasão do inimigo** por ato, no meio dele (6, 18 e 30 min), com 2, 3 e 3 inimigos.
+- Liga travada pelo ato: a Arena mostra "abre no próximo ato". Comprar colmeia ou canteiro acima do limite avisa que mais lotes abrem no próximo ato.
+- A luta no ninho (depois da liga Campeões, só no Ato III) usa o chefe do ato atual com 80% da força.
+- Peso do modo (`modeFactor`): fim do ato atual ÷ 20 min (0,6; 1,2; 1,8).
+- Cenas: `atoChefe` (despertar do General e da Imperatriz), `despertar` (Vespa Rainha, Ato II) e `atoVencido`. A abertura ganhou uma fala sobre as três ondas (`so: 'atos'`) e o filtro `nao` no roteiro.
+
 ## Novidades da v3: partidas únicas (12/10/2026)
 - **Só um botão Jogar.** A tela inicial não tem mais escolha de modo. A partida usa o modo Padrão: 20 minutos até a Vespa Rainha. Os outros modos (Rápida, Longa, Infinito) ficam no código, mas não aparecem no menu. Onde a documentação abaixo fala de modos, vale só o Padrão.
 - **Estação da partida** (sorteada; aplicada junto com a rainha). Abelhas do tipo da estação ganham +20% de vida e ataque. O chão da vila ganha um véu de cor e detalhes próprios.

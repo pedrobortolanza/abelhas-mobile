@@ -5,7 +5,7 @@ Jogo de navegador sobre abelhas, feito para caber numa sessão. Você cria, cruz
 ## Como jogar
 Abra `index.html` no navegador. No celular o jogo roda deitado, e um botão abre a tela cheia na horizontal.
 
-- Um botão **Jogar**: a Vespa Rainha ataca em 20 minutos.
+- Um botão **Jogar**: a partida tem 3 atos de 12 minutos, cada um com um chefe (General Vespa, Vespa Rainha e Imperatriz do Ninho). Vencendo, você segue para o próximo ato.
 - Colmeias produzem mel. As flores (Margarida, Girassol, Rosa e Lótus) dão néctar para alimentar as abelhas.
 - Tipos de abelha: Fogo, Água, Flor, Deserto, Elétrica, Gelo, Veneno, Sombra e Luz. Cada tipo tem seu mel.
 - As formas mudam com a raridade: Operária, Guardiã, Guerreira e Soberana. A chefe é a Vespa Rainha.
