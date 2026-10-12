@@ -7969,9 +7969,68 @@ const M3 = (() => {
 
   // Construções com modelos prontos da KayKit (CC0); sem eles, ficam as versões procedurais acima
   const PB = { arena: B.arena, cruzar: B.cruzar, loja: B.loja, missoes: B.missoes, tree: B.tree, rock: B.rock, habitat: B.habitat, farm: B.farm, chocadeira: B.chocadeira };
-  B.arena = () => { if (!G.castle) return PB.arena(); const g = new T.Group(); platform(g, 2.9, '#cbb489', '#8a7350', 0.28); cobble(g, 2.5); glb('castle', g, [0, 0.03, 0], 2.0, Math.PI / 4); glb('flag', g, [1.15, 0.03, -1.15], 0.35); glb('flag', g, [-1.15, 0.03, 1.15], 0.35); glb('barrel', g, [1.2, 0.03, 0.9], 0.22); glb('crate', g, [0.95, 0.03, 1.2], 0.24); return g; };
-  B.loja = () => { if (!G.market) return PB.loja(); const g = new T.Group(); platform(g, 1.9, '#f6c768', '#a8641a'); cobble(g, 1.6); glb('market', g, [0, 0.03, -0.05], 1.65, Math.PI / 4); glb('sack', g, [0.65, 0.03, 0.62], 0.25); glb('barrel', g, [-0.66, 0.03, 0.6], 0.22); glb('crate', g, [0.7, 0.03, -0.62], 0.24); return g; };
-  B.missoes = () => { if (!G.tavern) return PB.missoes(); const g = new T.Group(); platform(g, 1.9, '#f6c768', '#a8641a'); cobble(g, 1.6); glb('tavern', g, [0, 0.03, -0.05], 1.45, Math.PI / 4); glb('barrel', g, [0.68, 0.03, 0.6], 0.22); glb('flag', g, [-0.7, 0.03, 0.65], 0.3); return g; };
+  const honeyAtlasCache = new Map();
+  function honeyAtlas(m) {
+    if (honeyAtlasCache.has(m)) return honeyAtlasCache.get(m);
+    let out = m;
+    try {
+      const img = m.map.image, w = img.width, h = img.height, cv = document.createElement('canvas'); cv.width = w; cv.height = h;
+      const cx = cv.getContext('2d'); cx.drawImage(img, 0, 0); const d = cx.getImageData(0, 0, w, h), px = d.data;
+      for (let i = 0; i < px.length; i += 4) {
+        const r = px[i], gg = px[i + 1], b = px[i + 2];
+        if (r > 90 && r > gg * 1.7 && r > b * 1.6) { const l = r / 255; px[i] = Math.min(255, 255 * (0.62 + l * 0.42)); px[i + 1] = Math.min(255, 255 * (0.36 + l * 0.42)); px[i + 2] = Math.min(255, 255 * (0.02 + l * 0.12)); }
+      }
+      cx.putImageData(d, 0, 0);
+      const t = new T.CanvasTexture(cv); t.flipY = m.map.flipY; t.encoding = m.map.encoding; t.wrapS = m.map.wrapS; t.wrapT = m.map.wrapT; t.magFilter = m.map.magFilter; t.minFilter = m.map.minFilter;
+      out = m.clone(); out.map = t;
+    } catch (e) { /* sem tinta nova: fica o original */ }
+    honeyAtlasCache.set(m, out); return out;
+  }
+  // Arena: castelo de pedra com telhados de colmeia dourada e mel escorrendo (como na imagem de referência)
+  B.arena = () => { if (!G.castle) return PB.arena(); const g = new T.Group(); platform(g, 2.9, '#cbb489', '#8a7350', 0.28); cobble(g, 2.5); const c = glb('castle', g, [0, 0.03, 0], 2.0, Math.PI / 4);
+    // a textura do KayKit é um atlas: repinta o vermelho dos telhados de mel dourado
+    c.traverse(n => { if (n.isMesh && n.material && n.material.map) n.material = honeyAtlas(n.material); });
+    const sk = B.deco('skep'); sk.scale.setScalar(0.9); sk.position.set(0.95, 0.03, 0.95); sk.rotation.y = Math.PI / 4; g.add(sk);
+    [[1.15, -1.15, '#e0402e'], [-1.15, 1.15, '#ffc53a']].forEach(([x, z, cc]) => { const f = glb('flag', g, [x, 0.03, z], 0.35); if (f) f.traverse(n => { if (n.isMesh && n.material && n.material.color && n.material.color.r > 0.45 && n.material.color.g < 0.3) n.material = mat(cc); }); });
+    glb('barrel', g, [1.2, 0.03, 0.55], 0.22); glb('crate', g, [0.55, 0.03, 1.2], 0.24); return g; };
+  // Mercado: três barracas com toldos listrados, balcões com potes de mel, frutas e caixotes
+  B.loja = () => { const g = new T.Group(); platform(g, 1.9, '#f6c768', '#a8641a'); cobble(g, 1.6);
+    const wood = mat('#9a5a28', { roughness: 0.8 }), woodD = mat('#6a3a14', { roughness: 0.8 }), jar = mat('#f2a91e', { roughness: 0.2 }), lid = mat('#fff3c4', { roughness: 0.6 });
+    const row = new T.Group(); row.rotation.y = Math.PI / 4; g.add(row);
+    [[-0.62, 0.02, '#e0402e', '#fff4e0'], [0, -0.18, '#ffc53a', '#e0402e'], [0.62, 0.02, '#ff8a2a', '#fff4e0']].forEach(([x, z, c1, c2], k) => {
+      const st = new T.Group(); st.position.set(x, 0.03, z); st.rotation.y = (k - 1) * -0.25; row.add(st);
+      [[-0.26, -0.18], [0.26, -0.18], [-0.26, 0.18], [0.26, 0.18]].forEach(([px, pz]) => mesh(CYL, woodD, st, [px, 0.33, pz], [0.025, 0.66, 0.025]));
+      mesh(BOX, wood, st, [0, 0.17, 0.12], [0.6, 0.3, 0.2]);
+      mesh(BOX, woodD, st, [0, 0.33, 0.12], [0.64, 0.03, 0.24]);
+      const a1 = mat(c1, { roughness: 0.6 }), a2 = mat(c2, { roughness: 0.6 });
+      for (let i = 0; i < 6; i++) mesh(BOX, i % 2 ? a2 : a1, st, [-0.275 + i * 0.11, 0.7, 0.02], [0.11, 0.025, 0.56], [0.32, 0, 0], false);
+      for (let i = 0; i < 6; i++) mesh(SPH_LO, i % 2 ? a2 : a1, st, [-0.275 + i * 0.11, 0.6, 0.3], [0.055, 0.05, 0.03], [0, 0, 0], false);
+      // mercadorias: potes de mel na barraca do meio, frutas e flores nas outras
+      if (k === 1) [-0.18, 0, 0.18].forEach(px => { mesh(new T.CylinderGeometry(0.055, 0.06, 0.11, 14), jar, st, [px, 0.4, 0.13]); mesh(new T.CylinderGeometry(0.062, 0.062, 0.025, 14), lid, st, [px, 0.47, 0.13], [1, 1, 1], [0, 0, 0], false); });
+      else for (let i = 0; i < 7; i++) mesh(SPH_LO, mat(k ? ['#ff5fa2', '#ffd23f', '#ffffff'][i % 3] : ['#e0402e', '#ff9a2a', '#7ac24a'][i % 3], { roughness: 0.5 }), st, [-0.2 + (i % 4) * 0.13, 0.39 + Math.floor(i / 4) * 0.05, 0.08 + Math.floor(i / 4) * 0.08], [0.05, 0.05, 0.05], [0, 0, 0], false);
+    });
+    if (G.crate) { glb('crate', g, [0.72, 0.03, 0.55], 0.22); glb('crate', g, [0.78, 0.2, 0.5], 0.16, 0.5); }
+    if (G.sack) glb('sack', g, [-0.55, 0.03, 0.75], 0.22);
+    const pj = B.deco('potmel'); pj.scale.setScalar(0.7); pj.position.set(0.25, 0.03, 0.8); g.add(pj);
+    return g; };
+  // Mural de missões: quadro de madeira com bilhetes presos, favo no canto, moita atrás e mel escorrendo
+  B.missoes = () => { const g = new T.Group(); platform(g, 1.9, '#f6c768', '#a8641a'); cobble(g, 1.6);
+    const wood = mat('#9a5a28', { roughness: 0.8 }), woodD = mat('#5a3010', { roughness: 0.8 }), paper = mat('#fff1c8', { roughness: 0.9 }), cork = mat('#c98a4a', { roughness: 0.9 });
+    const bush = B.deco('moita'); bush.scale.setScalar(1.7); bush.position.set(-0.45, 0.03, -0.45); g.add(bush);
+    const bd = new T.Group(); bd.rotation.y = Math.PI / 4; bd.position.set(0.05, 0.03, 0.05); bd.scale.setScalar(1.2); g.add(bd);
+    [-0.6, 0.6].forEach(x => mesh(BOX, woodD, bd, [x, 0.55, 0], [0.09, 1.1, 0.09]));
+    mesh(BOX, wood, bd, [0, 0.72, 0], [1.25, 0.8, 0.07]);
+    mesh(BOX, cork, bd, [0, 0.72, 0.04], [1.08, 0.64, 0.02], [0, 0, 0], false);
+    mesh(BOX, woodD, bd, [0, 1.16, 0.02], [1.4, 0.07, 0.2], [0.2, 0, 0]);
+    [[-0.3, 0.86, 0.06, 0.26, 0.2, '#ff5f7e'], [0.05, 0.9, -0.08, 0.22, 0.24, '#3aa0ff'], [0.33, 0.8, 0.05, 0.24, 0.3, '#7ac24a'], [-0.22, 0.56, -0.04, 0.3, 0.2, '#ffc53a'], [0.16, 0.55, 0.08, 0.24, 0.18, '#c77dff']]
+      .forEach(([x, y, r, w, h, pin]) => { mesh(BOX, paper, bd, [x, y, 0.055], [w, h, 0.01], [0, 0, r], false); mesh(SPH_LO, mat(pin), bd, [x, y + h / 2 - 0.03, 0.065], [0.025, 0.025, 0.02], [0, 0, 0], false);
+        [0.03, -0.02, -0.06].forEach(dy => mesh(BOX, woodD, bd, [x, y + dy, 0.062], [w * 0.7, 0.008, 0.004], [0, 0, r], false)); });
+    const fv = B.deco('favo'); fv.scale.setScalar(0.9); fv.rotation.x = Math.PI / 2; fv.position.set(-0.5, 1.05, 0.08); bd.add(fv);
+    const hm = mat('#f2a91e', { roughness: 0.2 });
+    [[-0.45, 0.35], [-0.32, 0.22], [-0.56, 0.28]].forEach(([x, h]) => { mesh(CYL, hm, bd, [x, 1.0 - h / 2, 0.08], [0.025, h, 0.025], [0, 0, 0], false); mesh(SPH_LO, hm, bd, [x, 1.0 - h, 0.08], [0.035, 0.045, 0.035], [0, 0, 0], false); });
+    if (G.barrel) glb('barrel', g, [0.7, 0.03, 0.55], 0.22);
+    const fl = B.deco('flores'); fl.position.set(0.55, 0.03, 0.75); g.add(fl);
+    return g; };
   B.cruzar = () => {
     // Jardim do Amor: três flores gigantes (rosa, lilás e amarela) com um coração em cima
     const g = new T.Group(); platform(g, 1.9, '#f6c768', '#a8641a');
