@@ -7880,6 +7880,11 @@ const M3 = (() => {
     if (G.barrel) glb('barrel', g, [0.68, 0.03, -0.62], 0.22);
     return g;
   };
+  // folhagem fofa: esfera com calombos (moitas e copas no estilo desenho)
+  const BLOB = (() => { const g = new T.IcosahedronGeometry(1, 3), p = g.attributes.position, v = new T.Vector3();
+    for (let i = 0; i < p.count; i++) { v.fromBufferAttribute(p, i).normalize(); const n = 1 + 0.09 * Math.sin(v.x * 7.1 + v.y * 3.3) * Math.cos(v.z * 6.7 - v.y * 2.1) + 0.05 * Math.sin(v.y * 11 + v.x * 5); v.multiplyScalar(n); p.setXYZ(i, v.x, v.y, v.z); }
+    g.computeVertexNormals(); return g; })();
+  const LEAF = (() => { const sh = new T.Shape(); sh.moveTo(0, 0); sh.quadraticCurveTo(0.6, 0.35, 0, 1); sh.quadraticCurveTo(-0.6, 0.35, 0, 0); return new T.ShapeGeometry(sh, 8); })();
   // Enfeites 3D da ilha
   B.deco = kind => {
     const g = new T.Group();
@@ -7927,21 +7932,27 @@ const M3 = (() => {
         .forEach(([x, z, h, c]) => flower(x, z, h, c));
       [[0.05, 0.12], [-0.15, -0.15]].forEach(([x, z]) => mesh(SPH_LO, mat('#56b04a', { roughness: 0.8 }), g, [x, 0.05, z], [0.11, 0.06, 0.11]));
     } else if (kind === 'girassol') {
+      const pet = mat('#ffc61a', { roughness: 0.5 }), pet2 = mat('#ff9f1a', { roughness: 0.5 }), leafM = mat('#3f9a34', { roughness: 0.7, side: T.DoubleSide });
       [[0, 0, 0.95, 1], [0.24, 0.16, 0.7, 0.8]].forEach(([x, z, h, k]) => {
-        mesh(CYL, stem, g, [x, h / 2, z], [0.035, h, 0.035]);
-        [0.35, 0.55].forEach((t, i) => mesh(SPH_LO, stem, g, [x + (i ? -0.08 : 0.08), h * t, z], [0.11, 0.025, 0.06], [0, Math.PI / 4, i ? 0.5 : -0.5], false));
+        mesh(new T.CylinderGeometry(0.028, 0.04, h, 8), stem, g, [x, h / 2, z]);
+        [[0.3, 0.5], [0.52, -0.6], [0.7, 0.4]].forEach(([t, rz], i) => { const l = new T.Mesh(LEAF, leafM); l.position.set(x, h * t, z); l.rotation.set(0.5, Math.PI / 4 + i * 2.1, rz); l.scale.setScalar(0.2 * k); g.add(l); });
         const hd = new T.Group(); hd.position.set(x, h, z); hd.rotation.set(-0.35, Math.PI / 4, 0); g.add(hd);
-        for (let i = 0; i < 12; i++) { const a = i / 12 * Math.PI * 2; mesh(SPH_LO, mat('#ffcc22', { roughness: 0.5 }), hd, [Math.cos(a) * 0.16 * k, Math.sin(a) * 0.16 * k, 0], [0.085 * k, 0.04 * k, 0.02], [0, 0, a], false); }
-        mesh(new T.CylinderGeometry(0.11 * k, 0.11 * k, 0.05, 20), mat('#6b3a12', { roughness: 0.9 }), hd, [0, 0, 0.02], [1, 1, 1], [Math.PI / 2, 0, 0]);
+        for (let i = 0; i < 16; i++) { const a = i / 16 * Math.PI * 2; mesh(SPH_LO, pet, hd, [Math.cos(a) * 0.17 * k, Math.sin(a) * 0.17 * k, -0.005], [0.09 * k, 0.038 * k, 0.018], [0, 0, a], false); }
+        for (let i = 0; i < 12; i++) { const a = (i + 0.5) / 12 * Math.PI * 2; mesh(SPH_LO, pet2, hd, [Math.cos(a) * 0.13 * k, Math.sin(a) * 0.13 * k, 0.008], [0.065 * k, 0.032 * k, 0.016], [0, 0, a], false); }
+        mesh(new T.CylinderGeometry(0.105 * k, 0.11 * k, 0.05, 20), mat('#5a2e0e', { roughness: 0.9 }), hd, [0, 0, 0.025], [1, 1, 1], [Math.PI / 2, 0, 0]);
+        mesh(SPH_LO, mat('#7a4416', { roughness: 0.9 }), hd, [0, 0, 0.05], [0.07 * k, 0.07 * k, 0.025], [0, 0, 0], false);
       });
     } else if (kind === 'skep') {
-      mesh(new T.CylinderGeometry(0.28, 0.32, 0.18, 16), mat('#8a5a2c', { roughness: 0.9 }), g, [0, 0.09, 0]);
-      const prof = Array.from({ length: 12 }, (_, i) => { const t = i / 11; return new T.Vector2(Math.max(0.001, Math.cos(t * Math.PI / 2) * 0.3), Math.sin(t * Math.PI / 2) * 0.48); });
-      const straw = mat('#e2b04a', { roughness: 0.9 });
-      mesh(new T.LatheGeometry(prof, 24), straw, g, [0, 0.18, 0]);
-      for (let i = 1; i < 6; i++) { const t = i / 6, r = Math.cos(t * Math.PI / 2) * 0.3; mesh(new T.TorusGeometry(r, 0.018, 6, 24), mat('#b98428'), g, [0, 0.18 + Math.sin(t * Math.PI / 2) * 0.48, 0], [1, 1, 1], [Math.PI / 2, 0, 0], false); }
-      mesh(new T.CylinderGeometry(0.07, 0.07, 0.04, 16, 1, false, 0, Math.PI), mat('#2a1606'), g, [0.19, 0.22, 0.19], [1, 1, 1], [Math.PI / 2, 0, -Math.PI / 4 - Math.PI / 2], false);
-      drip(g, -0.12, 0.42, 0.18, 0.12);
+      mesh(new T.CylinderGeometry(0.3, 0.34, 0.14, 16), mat('#7a4a22', { roughness: 0.9 }), g, [0, 0.07, 0]);
+      const prof = Array.from({ length: 16 }, (_, i) => { const t = i / 15; return new T.Vector2(Math.max(0.001, Math.pow(Math.cos(t * Math.PI / 2), 0.8) * 0.31), Math.sin(t * Math.PI / 2) * 0.52); });
+      const straw = mat('#e8b648', { roughness: 0.9 }), coil = mat('#c08a2a', { roughness: 0.9 });
+      mesh(new T.LatheGeometry(prof, 28), straw, g, [0, 0.14, 0]);
+      for (let i = 1; i < 9; i++) { const t = i / 9, r = Math.pow(Math.cos(t * Math.PI / 2), 0.8) * 0.31; mesh(new T.TorusGeometry(r, 0.024 * (1 - t * 0.4), 8, 28), i % 2 ? coil : straw, g, [0, 0.14 + Math.sin(t * Math.PI / 2) * 0.52, 0], [1, 1, 1], [Math.PI / 2, 0, 0], false); }
+      mesh(SPH_LO, straw, g, [0, 0.66, 0], [0.05, 0.04, 0.05], [0, 0, 0], false);
+      const door = new T.Group(); door.position.set(0.2, 0.2, 0.2); door.rotation.y = Math.PI / 4; g.add(door);
+      mesh(new T.CircleGeometry(0.075, 16, 0, Math.PI), mat('#1e0f04', { side: T.DoubleSide }), door, [0, 0, 0.02], [1, 1, 1], [0, 0, 0], false);
+      mesh(new T.BoxGeometry(0.2, 0.02, 0.09), mat('#8a5a2c'), door, [0, -0.01, 0.06]);
+      drip(g, -0.14, 0.44, 0.17, 0.13); drip(g, 0.2, 0.36, -0.08, 0.09);
     } else if (kind === 'lanterna') {
       const wd = mat('#5c3a1c', { roughness: 0.8 });
       mesh(CYL, wd, g, [0, 0.45, 0], [0.035, 0.9, 0.035]);
@@ -7975,9 +7986,14 @@ const M3 = (() => {
       [[0, 0, 0.09], [0.13, 0.06, 0.06], [-0.08, 0.1, 0.05]].forEach(([x, z, r]) => mesh(SPH, honey, g, [x, r * 0.3, z], [r, r * 0.45, r]));
       mesh(ICO, mat('#9a8a70', { flatShading: true, roughness: 0.9 }), g, [-0.12, 0.03, -0.06], [0.05, 0.035, 0.045]);
     } else if (kind === 'moita') {
-      const g1 = mat('#3f9e3a', { roughness: 0.85 }), g2 = mat('#62c04a', { roughness: 0.85 });
-      [[0, 0.2, 0, 0.26, g1], [0.24, 0.15, 0.1, 0.2, g2], [-0.22, 0.14, 0.08, 0.19, g2], [0.06, 0.32, -0.12, 0.2, g2], [-0.08, 0.12, 0.24, 0.16, g1]].forEach(([x, y, z, r, m]) => mesh(SPH, m, g, [x, y, z], [r, r * 0.85, r]));
-      [[0.1, 0.42, 0.12, '#ff5fa2'], [0.3, 0.3, 0.2, '#ffffff'], [-0.2, 0.3, 0.2, '#ffd23f'], [-0.05, 0.36, -0.2, '#c77dff'], [0.22, 0.25, -0.1, '#ffffff']].forEach(([x, y, z, c]) => mesh(SPH_LO, mat(c), g, [x, y, z], [0.05, 0.05, 0.05], [0, 0, 0], false));
+      const g1 = mat('#2f8a34', { roughness: 0.85 }), g2 = mat('#4fb043', { roughness: 0.85 }), g3 = mat('#7fd05a', { roughness: 0.85 });
+      [[0, 0.22, 0, 0.27, g1], [0.25, 0.16, 0.1, 0.21, g2], [-0.23, 0.15, 0.09, 0.2, g2], [0.05, 0.36, -0.1, 0.2, g2], [-0.08, 0.13, 0.25, 0.17, g1], [0.16, 0.34, 0.14, 0.15, g3], [-0.14, 0.32, 0.06, 0.14, g3], [0.3, 0.1, -0.12, 0.13, g1]]
+        .forEach(([x, y, z, r, m], i) => mesh(BLOB, m, g, [x, y, z], [r, r * 0.88, r], [i, i * 2, 0]));
+      [[0.12, 0.47, 0.13, '#ff5fa2'], [0.33, 0.3, 0.2, '#ffffff'], [-0.22, 0.33, 0.2, '#ffd23f'], [-0.05, 0.47, -0.16, '#ffffff'], [0.24, 0.3, -0.13, '#ff5fa2'], [-0.28, 0.2, -0.05, '#ffffff']].forEach(([x, y, z, c]) => {
+        const pm = mat(c, { roughness: 0.5 });
+        for (let k = 0; k < 5; k++) { const a = k / 5 * Math.PI * 2; mesh(SPH_LO, pm, g, [x + Math.cos(a) * 0.028, y, z + Math.sin(a) * 0.028], [0.022, 0.012, 0.022], [0, 0, 0], false); }
+        mesh(SPH_LO, mat('#ffcf2a'), g, [x, y + 0.006, z], [0.014, 0.012, 0.014], [0, 0, 0], false);
+      });
     } else if (kind === 'ponte') {
       const wd = mat('#a8692e', { roughness: 0.85 }), wdD = mat('#6b4423', { roughness: 0.85 });
       for (let i = 0; i < 7; i++) { const t = i / 6; mesh(new T.BoxGeometry(0.62, 0.05, 0.16), i % 2 ? wd : wdD, g, [0, -t * 0.72 + 0.02, 0.1 + t * 1.15], [1, 1, 1], [0.55, (i % 3 - 1) * 0.04, 0]); }
@@ -8042,7 +8058,7 @@ const M3 = (() => {
     const rc = document.createElement('canvas'); rc.width = rc.height = 1024; const r2 = rc.getContext('2d'), RK = 1024 / TS;
     r2.fillStyle = '#c8c8c8'; r2.fillRect(0, 0, 1024, 1024);
     const [pcx, pcy] = PP(L.plaza);
-    g.fillStyle = '#9a5408'; g.fillRect(0, 0, TS, TS);
+    g.fillStyle = '#4a2608'; g.fillRect(0, 0, TS, TS);
     g.save(); poly(hex); g.clip();
     // favo: alvéolos dourados em relevo, alinhados com a tela
     const hr = 0.46 * K, hw = Math.sqrt(3) * hr;
@@ -8050,45 +8066,68 @@ const M3 = (() => {
     const cell = (x, y) => {
       const rr = hr * 0.86;
       const gr = g.createLinearGradient(x - rr, y - rr, x + rr, y + rr);
-      gr.addColorStop(0, '#ffd866'); gr.addColorStop(0.45, '#f2ac28'); gr.addColorStop(1, '#c9780c');
+      gr.addColorStop(0, '#8a5420'); gr.addColorStop(0.5, '#5e3410'); gr.addColorStop(1, '#3a1d08');
       g.beginPath(); for (let k = 0; k < 6; k++) { const an = k * Math.PI / 3; g.lineTo(x + Math.cos(an) * rr, y + Math.sin(an) * rr * 0.98); } g.closePath();
       g.fillStyle = gr; g.fill();
-      g.strokeStyle = 'rgba(122,64,6,.55)'; g.lineWidth = 3.5; g.stroke(); g.strokeStyle = 'rgba(255,236,170,.5)'; g.lineWidth = 1.5; g.stroke();
+      g.strokeStyle = 'rgba(28,10,0,.85)'; g.lineWidth = 5; g.stroke(); g.strokeStyle = 'rgba(236,168,62,.7)'; g.lineWidth = 2; g.stroke();
       g.beginPath(); for (let k = 0; k < 6; k++) { const an = k * Math.PI / 3; g.lineTo(x + Math.cos(an) * rr * 0.62, y + Math.sin(an) * rr * 0.6); } g.closePath();
-      g.fillStyle = 'rgba(255,214,90,.35)'; g.fill();
+      g.fillStyle = 'rgba(176,110,40,.28)'; g.fill();
     };
     const ext = TS * 0.8;
     for (let col = 0, xx = -ext; xx < ext; col++, xx += hr * 1.5) for (let yy = -ext + (col % 2) * hw / 2; yy < ext; yy += hw) cell(xx, yy);
     g.restore();
     // luz no centro e sombra perto da borda
     let gr = g.createRadialGradient(pcx, pcy, 0, pcx, pcy, 13 * K);
-    gr.addColorStop(0, 'rgba(255,240,190,.25)'); gr.addColorStop(0.6, 'rgba(0,0,0,0)'); gr.addColorStop(1, 'rgba(60,24,0,.35)');
+    gr.addColorStop(0, 'rgba(255,196,96,.32)'); gr.addColorStop(0.55, 'rgba(255,170,60,.08)'); gr.addColorStop(1, 'rgba(30,10,0,.3)');
     g.fillStyle = gr; g.fillRect(0, 0, TS, TS);
-    g.filter = 'blur(22px)'; g.strokeStyle = 'rgba(80,34,0,.55)'; g.lineWidth = 1.1 * K; poly(hex); g.stroke(); g.filter = 'none';
+    g.filter = 'blur(22px)'; g.strokeStyle = 'rgba(40,16,0,.55)'; g.lineWidth = 1.1 * K; poly(hex); g.stroke(); g.filter = 'none';
+    // gramado e musgo ao longo da borda (menos na frente, onde fica o canteiro)
+    { const ins = grow(-12), fr0 = L.farmRect.map(G2); let sd = 7; const rnd = () => (sd = (sd * 9301 + 49297) % 233280) / 233280;
+      const nearFarm = ([x, z]) => x > Math.min(...fr0.map(q => q[0])) - 1.2 && x < Math.max(...fr0.map(q => q[0])) + 1.2 && z > Math.min(...fr0.map(q => q[1])) - 1.2 && z < Math.max(...fr0.map(q => q[1])) + 1.2;
+      [['rgba(46,92,30,.85)', 0.5], ['rgba(74,128,40,.85)', 0.34], ['rgba(110,160,56,.75)', 0.2]].forEach(([c, sz], li) => {
+        sd = 7 + li;
+        for (let e = 0; e < 6; e++) { const A = ins[e], B2 = ins[(e + 1) % 6], len = Math.hypot(B2[0] - A[0], B2[1] - A[1]);
+          for (let d = 0; d < len; d += 0.32) { if (rnd() < 0.3) continue; const t = d / len, q = [A[0] + (B2[0] - A[0]) * t, A[1] + (B2[1] - A[1]) * t]; if (nearFarm(q)) continue;
+            const [x, y] = P(q), r = (sz + rnd() * sz * 0.8) * K, ox = (rnd() - 0.5) * 0.5 * K, oy = (rnd() - 0.5) * 0.5 * K;
+            g.fillStyle = c; g.beginPath(); g.ellipse(x + ox, y + oy, r, r * (0.7 + rnd() * 0.3), rnd() * 3, 0, Math.PI * 2); g.fill(); } } });
+      sd = 99; const fc = ['#ff6fae', '#ffffff', '#ffd23f', '#c77dff', '#ff9a3c'];
+      for (let e = 0; e < 6; e++) { const A = ins[e], B2 = ins[(e + 1) % 6], len = Math.hypot(B2[0] - A[0], B2[1] - A[1]);
+        for (let d = 0; d < len; d += 0.45) { const t = d / len, q = [A[0] + (B2[0] - A[0]) * t, A[1] + (B2[1] - A[1]) * t]; if (nearFarm(q)) continue;
+          const [x, y] = P(q); g.fillStyle = fc[Math.floor(rnd() * 5)]; g.beginPath(); g.arc(x + (rnd() - 0.5) * 0.7 * K, y + (rnd() - 0.5) * 0.7 * K, 0.07 * K, 0, Math.PI * 2); g.fill(); } } }
     // rios de mel brilhante saindo da praça
     const curve = ([X, Y]) => { const [PXp, PYp] = L.plaza, mx = (PXp + X) / 2, my = (PYp + Y) / 2, bend = (X - PXp) * 0.12; return [PP(L.plaza), PP([mx - bend * 0.3, my - Math.abs(bend)]), PP([X, Y])]; };
     g.lineCap = 'round'; g.lineJoin = 'round';
     const road = (ctx, pp, w, k = 1) => { ctx.beginPath(); ctx.moveTo(pp[0][0] * k, pp[0][1] * k); ctx.quadraticCurveTo(pp[1][0] * k, pp[1][1] * k, pp[2][0] * k, pp[2][1] * k); ctx.lineWidth = w * k; ctx.stroke(); };
     const wid = i => (i < 6 ? 0.6 : 0.4) * K;
-    L.ways.forEach((w, i) => { g.strokeStyle = 'rgba(150,70,0,.75)'; road(g, curve(w), wid(i) + 0.14 * K); });
-    L.ways.forEach((w, i) => { g.strokeStyle = '#f4a514'; road(g, curve(w), wid(i)); });
-    L.ways.forEach((w, i) => { g.strokeStyle = '#ffc93c'; road(g, curve(w), wid(i) * 0.62); });
-    L.ways.forEach((w, i) => { g.strokeStyle = 'rgba(255,248,215,.75)'; const pp = curve(w).map(([x, y]) => [x - 0.06 * K, y - 0.06 * K]); road(g, pp, wid(i) * 0.14); });
+    const COB = [0, 1, 2, 5], riv = L.ways.map((w, i) => [w, i]).filter(([, i]) => !COB.includes(i));
+    // caminhos de pedra creme até as construções principais
+    COB.forEach(i => { const pp = curve(L.ways[i]); g.strokeStyle = 'rgba(70,36,8,.85)'; road(g, pp, 0.95 * K); g.strokeStyle = '#d9bd84'; road(g, pp, 0.8 * K); });
+    { let sd = 3; const rnd = () => (sd = (sd * 9301 + 49297) % 233280) / 233280;
+      COB.forEach(i => { const [a, b, c2] = curve(L.ways[i]);
+        for (let t = 0.12; t < 1; t += 0.035) { const u = 1 - t, x = u * u * a[0] + 2 * u * t * b[0] + t * t * c2[0], y = u * u * a[1] + 2 * u * t * b[1] + t * t * c2[1];
+          [-0.22, 0, 0.22].forEach(o => { const r = (0.1 + rnd() * 0.05) * K, ox = (rnd() - 0.5) * 0.12 * K + o * K, oy = (rnd() - 0.5) * 0.12 * K - o * K * 0.4;
+            g.fillStyle = rnd() < 0.5 ? '#f3e2b6' : '#ead39c'; g.strokeStyle = 'rgba(120,80,30,.6)'; g.lineWidth = 2; g.beginPath(); g.ellipse(x + ox, y + oy, r, r * 0.8, rnd() * 3, 0, Math.PI * 2); g.fill(); g.stroke(); }); } }); }
+    // rios de mel com brilho em volta
+    g.filter = 'blur(14px)'; riv.forEach(([w, i]) => { g.strokeStyle = 'rgba(255,180,40,.55)'; road(g, curve(w), wid(i) + 0.5 * K); }); g.filter = 'none';
+    riv.forEach(([w, i]) => { g.strokeStyle = 'rgba(120,50,0,.85)'; road(g, curve(w), wid(i) + 0.14 * K); });
+    riv.forEach(([w, i]) => { g.strokeStyle = '#f4a514'; road(g, curve(w), wid(i)); });
+    riv.forEach(([w, i]) => { g.strokeStyle = '#ffcf45'; road(g, curve(w), wid(i) * 0.62); });
+    riv.forEach(([w, i]) => { g.strokeStyle = 'rgba(255,250,220,.85)'; const pp = curve(w).map(([x, y]) => [x - 0.06 * K, y - 0.06 * K]); road(g, pp, wid(i) * 0.14); });
     r2.lineCap = 'round'; r2.strokeStyle = '#1a1a1a';
-    L.ways.forEach((w, i) => road(r2, curve(w), wid(i) + 0.1 * K, RK));
+    riv.forEach(([w, i]) => road(r2, curve(w), wid(i) + 0.1 * K, RK));
     // poças de mel nas pontas dos rios
-    L.ways.slice(0, 6).forEach(w => { const [x, y] = PP(w); const rg = g.createRadialGradient(x, y, 0, x, y, 0.55 * K); rg.addColorStop(0, '#ffd34a'); rg.addColorStop(0.7, '#f4a514'); rg.addColorStop(1, 'rgba(244,165,20,0)'); g.fillStyle = rg; g.beginPath(); g.arc(x, y, 0.55 * K, 0, Math.PI * 2); g.fill(); });
+    riv.filter(([, i]) => i < 6).map(([w]) => w).forEach(w => { const [x, y] = PP(w); const rg = g.createRadialGradient(x, y, 0, x, y, 0.55 * K); rg.addColorStop(0, '#ffd34a'); rg.addColorStop(0.7, '#f4a514'); rg.addColorStop(1, 'rgba(244,165,20,0)'); g.fillStyle = rg; g.beginPath(); g.arc(x, y, 0.55 * K, 0, Math.PI * 2); g.fill(); });
     // praça creme com anel tracejado
     const pr = 2.15 * K;
     g.fillStyle = 'rgba(160,80,0,.7)'; g.beginPath(); g.arc(pcx, pcy, pr + 0.16 * K, 0, Math.PI * 2); g.fill();
-    gr = g.createRadialGradient(pcx, pcy - pr * 0.2, 0, pcx, pcy, pr); gr.addColorStop(0, '#fff6d6'); gr.addColorStop(1, '#f5d68a');
+    gr = g.createRadialGradient(pcx, pcy - pr * 0.2, 0, pcx, pcy, pr); gr.addColorStop(0, '#fbeccb'); gr.addColorStop(1, '#e2c58a');
     g.fillStyle = gr; g.beginPath(); g.arc(pcx, pcy, pr, 0, Math.PI * 2); g.fill();
     g.setLineDash([0.3 * K, 0.22 * K]); g.strokeStyle = '#e0a640'; g.lineWidth = 0.07 * K; g.beginPath(); g.arc(pcx, pcy, pr * 0.8, 0, Math.PI * 2); g.stroke(); g.setLineDash([]);
     r2.fillStyle = '#707070'; r2.beginPath(); r2.arc(pcx * RK, pcy * RK, pr * RK, 0, Math.PI * 2); r2.fill();
     // canteiro do jardim: terra escura com moldura de cera
     const fr = L.farmRect.map(G2);
-    g.fillStyle = '#4a2a12'; g.strokeStyle = '#ffd26a'; g.lineWidth = 0.42 * K; poly(fr); g.stroke();
-    g.lineWidth = 0.28 * K; g.strokeStyle = '#6b3d16'; poly(fr); g.stroke(); g.fill();
+    g.fillStyle = '#3e220c'; g.strokeStyle = '#f2b23a'; g.lineWidth = 0.5 * K; poly(fr); g.stroke();
+    g.lineWidth = 0.36 * K; g.strokeStyle = '#7a4a1e'; poly(fr); g.stroke(); g.fill();
     g.restore();
     var rough = new T.CanvasTexture(rc); rough.flipY = false;
     rough.repeat.set(1 / SPAN, 1 / SPAN); rough.offset.set(-X0 / SPAN, -X0 / SPAN);
@@ -8097,25 +8136,37 @@ const M3 = (() => {
 
     // ---- corpo da ilha: chão, paredão de favo e borda de cera ----
     const wc = document.createElement('canvas'); wc.width = 256; wc.height = 148; const w2 = wc.getContext('2d');
-    w2.fillStyle = '#e8a42e'; w2.fillRect(0, 0, 256, 148);
+    w2.fillStyle = '#b8680e'; w2.fillRect(0, 0, 256, 148);
     { const r = 21, hw2 = Math.sqrt(3) * r;
       for (let row = -1; row < 6; row++) for (let i = -1; i < 8; i++) {
         const x = i * hw2 + (row % 2 ? hw2 / 2 : 0), y = row * r * 1.5 + 8;
         const hexp = k => { w2.beginPath(); for (let j = 0; j < 6; j++) { const an = Math.PI / 6 + j * Math.PI / 3; w2.lineTo(x + Math.cos(an) * r * k, y + Math.sin(an) * r * k); } w2.closePath(); };
-        hexp(0.92); w2.fillStyle = '#ffd36a'; w2.fill();
-        hexp(0.74); const gg = w2.createRadialGradient(x - 3, y - 4, 1, x, y, r * 0.8); gg.addColorStop(0, '#2a1203'); gg.addColorStop(0.7, '#5a2a06'); gg.addColorStop(1, '#a8600e'); w2.fillStyle = gg; w2.fill();
+        hexp(0.92); w2.fillStyle = '#ffcf55'; w2.fill();
+        hexp(0.74); const gg = w2.createRadialGradient(x - 3, y - 4, 1, x, y, r * 0.8); gg.addColorStop(0, '#ffe68a'); gg.addColorStop(0.55, '#f6b22c'); gg.addColorStop(1, '#c4700e'); w2.fillStyle = gg; w2.fill();
       } }
     const wtex = new T.CanvasTexture(wc); wtex.wrapS = wtex.wrapT = T.RepeatWrapping; wtex.repeat.set(0.4, 0.42);
     const D = 1.15;
     const body = new T.ExtrudeGeometry(shapeOf(hex), { depth: D, bevelEnabled: false });
     flat(body);
     const top = new T.MeshStandardMaterial({ map: tex, roughnessMap: rough, roughness: 1, metalness: 0 });
-    const side = new T.MeshStandardMaterial({ map: wtex, roughness: 0.8, metalness: 0 });
+    const side = new T.MeshStandardMaterial({ map: wtex, roughness: 0.3, metalness: 0 });
     const isl = new T.Mesh(body, [top, side]); isl.receiveShadow = true; isl.castShadow = false; scene.add(isl);
     // a face de cima do ExtrudeGeometry usa (x, z) como UV: a textura já está alinhada
     const lipS = ring(grow(10), grow(-4));
     const lip = new T.Mesh(flat(new T.ExtrudeGeometry(lipS, { depth: 0.1, bevelEnabled: true, bevelThickness: 0.05, bevelSize: 0.05, bevelSegments: 3 })), mat('#e7a94a', { roughness: 0.45 }));
     lip.position.y = 0.1; lip.castShadow = true; lip.receiveShadow = true; scene.add(lip);
+    lip.material = new T.MeshStandardMaterial({ color: 0xe8920c, roughness: 0.14, metalness: 0, emissive: 0x5a2400, emissiveIntensity: 0.3 });
+    // mel grosso por cima da borda, escorrendo pelo paredão
+    { const hm = new T.MeshStandardMaterial({ color: 0xe8920c, roughness: 0.14, metalness: 0, emissive: 0x5a2400, emissiveIntensity: 0.3 });
+      const ed = grow(9), lumpG = new T.SphereGeometry(1, 14, 10), dripG = new T.CylinderGeometry(1, 1, 1, 10); let sd = 11; const rnd = () => (sd = (sd * 9301 + 49297) % 233280) / 233280;
+      const L1 = [], L2 = [], L3 = [], M4 = new T.Matrix4(), Q = new T.Quaternion(), V = (x, y, z) => new T.Vector3(x, y, z);
+      for (let e = 0; e < 6; e++) { const A = ed[e], B2 = ed[(e + 1) % 6], len = Math.hypot(B2[0] - A[0], B2[1] - A[1]);
+        for (let d = 0; d < len; d += 0.19) { const t = d / len, x = A[0] + (B2[0] - A[0]) * t, z = A[1] + (B2[1] - A[1]) * t;
+          L1.push(M4.clone().compose(V(x, 0.24, z), Q, V(0.26 + rnd() * 0.12, 0.1 + rnd() * 0.05, 0.26 + rnd() * 0.12)));
+          if (rnd() < 0.42) { const h = 0.25 + Math.pow(rnd(), 1.5) * 0.9, r = 0.07 + rnd() * 0.06;
+            L2.push(M4.clone().compose(V(x, 0.2 - h / 2, z), Q, V(r, h, r)));
+            L3.push(M4.clone().compose(V(x, 0.2 - h, z), Q, V(r * 1.35, r * 1.7, r * 1.35))); } } }
+      [[lumpG, L1], [dripG, L2], [lumpG, L3]].forEach(([geo, ms], k) => { const im = new T.InstancedMesh(geo, hm, ms.length); ms.forEach((m, i) => im.setMatrixAt(i, m)); im.castShadow = k === 0; scene.add(im); }); }
     // mar de mel animado
     const seaU = { t: { value: 0 } };
     const seaM = new T.ShaderMaterial({
@@ -8139,6 +8190,7 @@ const M3 = (() => {
     const foamM = new T.MeshBasicMaterial({ color: 0xfff0c8, transparent: true, opacity: 0.35, depthWrite: false, side: T.DoubleSide });
     const foam = new T.Mesh(flat(new T.ShapeGeometry(ring(grow(22), grow(2)))), foamM);
     foam.position.y = -0.76; scene.add(foam);
+    sea.visible = foam.visible = false; // a ilha flutua sobre a névoa dourada (fundo em CSS)
 
     // ---- construções e enfeites ----
     const objs = new Map();
@@ -10633,6 +10685,22 @@ function cropPlant(k, X, Y, p) {
 }
 // Parede de favos ao fundo (gerada uma vez): alvéolos escuros, alguns brilhando com mel
 let wallURI = null;
+// névoa dourada com bolhas de luz desfocadas, atrás da ilha 3D
+let goldHazeUrl = '';
+function goldHaze() {
+  if (goldHazeUrl) return goldHazeUrl;
+  const c = document.createElement('canvas'); c.width = 1200; c.height = 720; const g = c.getContext('2d');
+  let gr = g.createRadialGradient(600, 330, 60, 600, 360, 760);
+  gr.addColorStop(0, '#fff3c8'); gr.addColorStop(0.45, '#f4d488'); gr.addColorStop(1, '#c98f32');
+  g.fillStyle = gr; g.fillRect(0, 0, 1200, 720);
+  let sd = 5; const rnd = () => (sd = (sd * 9301 + 49297) % 233280) / 233280;
+  g.filter = 'blur(26px)';
+  for (let i = 0; i < 26; i++) { g.fillStyle = `rgba(255,${200 + Math.floor(rnd() * 50)},${120 + Math.floor(rnd() * 90)},${0.25 + rnd() * 0.35})`; g.beginPath(); g.arc(rnd() * 1200, rnd() * 720, 40 + rnd() * 140, 0, Math.PI * 2); g.fill(); }
+  g.filter = 'blur(6px)';
+  for (let i = 0; i < 40; i++) { g.fillStyle = `rgba(255,248,215,${0.18 + rnd() * 0.3})`; g.beginPath(); g.arc(rnd() * 1200, rnd() * 720, 6 + rnd() * 22, 0, Math.PI * 2); g.fill(); }
+  g.filter = 'none';
+  return (goldHazeUrl = c.toDataURL('image/jpeg', 0.85));
+}
 function hiveWall() {
   if (wallURI) return wallURI;
   let seed = 11; const rnd = () => { seed = (seed * 16807) % 2147483647; return (seed - 1) / 2147483646; };
@@ -10672,7 +10740,7 @@ function w3Edge() {
   const out = [], inset = hexGrow(-26), G = p => gridAt(...p);
   const lots = [...Object.entries(SPOTS).map(([k, sp]) => [sp.at, k === 'arena' ? 2.2 : 1.35]), ...HAB_LOTS.map(l => [l, 1.25]), ...FARM_LOTS.map(l => [l, 0.7])];
   const free = q => lots.every(([l, r]) => Math.hypot(q[0] - l[0], q[1] - l[1]) > r) && DECO3D.every(([X, Y]) => { const d = gridAt(X, Y); return Math.hypot(q[0] - d[0], q[1] - d[1]) > 0.7; });
-  const kinds = ['moita', 'girassol', 'flores', 'moita', 'arbusto', 'flores', 'moita', 'girassol'];
+  const kinds = ['moita', 'girassol', 'flores', 'vela', 'moita', 'arbusto', 'flores', 'moita', 'girassol', 'vela'];
   let n = 0;
   for (let e = 0; e < 6; e++) {
     const A = inset[e], B2 = inset[(e + 1) % 6], len = Math.hypot(B2[0] - A[0], (B2[1] - A[1]) * 2), steps = Math.floor(len / 62);
@@ -10687,7 +10755,7 @@ function w3Edge() {
   // colmeias de palha presas no paredão (faces da frente)
   [[0, 5, 0.35], [5, 4, 0.2], [5, 4, 0.8], [4, 3, 0.65]].forEach(([a, b, t], i) => { const q = G([outer[a][0] + (outer[b][0] - outer[a][0]) * t, outer[a][1] + (outer[b][1] - outer[a][1]) * t]); out.push({ id: 'cs' + i, k: 'deco', a: 'skep', x: q[0], z: q[1], y: -0.62 }); });
   // pontes de madeira descendo para o mar de mel
-  [[0, 5, 0.7], [4, 3, 0.3]].forEach(([a, b, t], i) => {
+  [].forEach(([a, b, t], i) => { // pontes tiradas: a ilha agora flutua sobre a névoa
     const P0 = G([H[a][0] + (H[b][0] - H[a][0]) * t, H[a][1] + (H[b][1] - H[a][1]) * t]), Pa = G(H[a]), Pb = G(H[b]);
     const ex = Pb[0] - Pa[0], ez = Pb[1] - Pa[1], nx = ez, nz = -ex, ln = Math.hypot(nx, nz), sgn = (nx * (P0[0] - 7) + nz * (P0[1] - 7)) > 0 ? 1 : -1;
     out.push({ id: 'pt' + i, k: 'deco', a: 'ponte', x: P0[0], z: P0[1], ry: Math.atan2(sgn * nx / ln, sgn * nz / ln) });
@@ -10704,7 +10772,7 @@ function map3dInit() {
   try { w = M3.world(cv, { hex: HEX, grow: hexGrow, plaza: PLAZA, ways: WAYS, farmRect: [[fx0, fy0], [fx1, fy0], [fx1, fy1], [fx0, fy1]], look: glook() }); } catch (e) { console.warn('[ilha 3D]', e); w = null; }
   if (!w) { cv.remove(); window.__no3d = true; return; }
   W3 = w; ISO3D = true; w3Sig = ''; w3Box = '';
-  cv.style.backgroundImage = `url(${hiveWall()})`;
+  wrap.style.background = `#e9c477 url(${goldHaze()}) center / cover no-repeat`;
   lastMap = ''; render();
   requestAnimationFrame(map3dLoop);
 }
