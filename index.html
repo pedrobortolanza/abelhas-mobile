@@ -302,6 +302,25 @@ body { padding-bottom: calc(76px + env(safe-area-inset-bottom, 0px)); }
 .hero h1 { font-size: clamp(2rem, 6vw, 3.2rem); line-height: 1.05; background: linear-gradient(180deg, var(--ember-2), var(--ember)); -webkit-background-clip: text; background-clip: text; color: transparent; }
 .hero p { max-width: 56ch; margin: 0; color: var(--muted); }
 .lock-note { padding: 12px 16px; border-radius: 14px; background: rgba(40, 20, 6, .75); color: #fff3d6; font-weight: 700; text-align: center; max-width: 520px; margin: 0 auto; }
+.swwrap2 { display: flex; flex-direction: column; gap: 12px; }
+.swwrap2 .wheel-side { max-width: none; }
+.case { position: relative; height: 140px; overflow: hidden; border-radius: 16px; background: linear-gradient(180deg, #2a1a0c, #3b2512 50%, #2a1a0c); border: 3px solid #6b3a0c; box-shadow: inset 0 0 24px rgba(0, 0, 0, .6), 0 0 0 2px #ffd98a; }
+.case::before, .case::after { content: ''; position: absolute; top: 0; bottom: 0; width: 18%; z-index: 2; pointer-events: none; }
+.case::before { left: 0; background: linear-gradient(90deg, #1e1208, transparent); } .case::after { right: 0; background: linear-gradient(270deg, #1e1208, transparent); }
+.case.love { border-color: #b8306a; box-shadow: inset 0 0 24px rgba(0, 0, 0, .6), 0 0 0 2px #ff8fbf; }
+.case-mark { position: absolute; left: 50%; top: 0; bottom: 0; width: 4px; margin-left: -2px; background: #ffd23f; z-index: 3; box-shadow: 0 0 10px #ffd23f, 0 0 20px rgba(255, 210, 63, .6); }
+.case-mark::before, .case-mark::after { content: ''; position: absolute; left: -8px; border: 10px solid transparent; }
+.case-mark::before { top: -2px; border-top-color: #ffd23f; } .case-mark::after { bottom: -2px; border-bottom-color: #ffd23f; }
+.case-strip { position: absolute; left: 50%; top: 12px; display: flex; transition: transform 5.2s cubic-bezier(.06, .62, .12, 1); will-change: transform; }
+.case-strip.nt { transition: none !important; }
+.ccard { flex: none; width: 98px; height: 112px; margin: 0 3px; border-radius: 10px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px; background: linear-gradient(180deg, rgba(255, 255, 255, .06), rgba(0, 0, 0, .25)); border: 2px solid rgba(255, 255, 255, .12); border-bottom-width: 5px; text-align: center; }
+.ccard small { font-size: .68rem; line-height: 1.1; max-width: 92px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-weight: 700; }
+.ccard.r-C { border-bottom-color: #9aa7b4; } .ccard.r-R { border-color: rgba(79, 179, 255, .5); border-bottom-color: #4fb3ff; background: linear-gradient(180deg, rgba(79, 179, 255, .08), rgba(79, 179, 255, .28)); }
+.ccard.r-E { border-color: rgba(199, 125, 255, .55); border-bottom-color: #c77dff; background: linear-gradient(180deg, rgba(199, 125, 255, .1), rgba(199, 125, 255, .32)); }
+.ccard.r-L { border-color: rgba(255, 210, 63, .7); border-bottom-color: #ffd23f; background: linear-gradient(180deg, rgba(255, 210, 63, .12), rgba(255, 210, 63, .38)); }
+.ccard.won { box-shadow: 0 0 0 3px #ffd23f, 0 0 22px rgba(255, 210, 63, .8); animation: cwon .6s ease-out; }
+@keyframes cwon { from { transform: scale(1.15); } to { transform: scale(1); } }
+@media (max-height: 500px) { .case { height: 112px; } .case-strip { top: 8px; } .ccard { height: 92px; } .ccard .dic.m { zoom: .8; } .swwrap2 { gap: 6px; } .swwrap2 .wprizes { display: flex; flex-wrap: wrap; gap: 2px 12px; font-size: .74rem; } .swwrap2 .sw-pity { font-size: .72rem; } .swwrap2 .swdesc, .swwrap2 .wheel-t { display: none; } .swwrap2 .sw-btns .btn { padding: 6px 9px; font-size: .78rem; } }
 .sw-btns { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; }
 .sw-btns .disc { background: #3fbf5a; color: #fff; border-radius: 6px; padding: 0 4px; font-size: .7rem; margin-left: 4px; }
 .sw-pity { display: flex; flex-wrap: wrap; gap: 4px 14px; font-size: .82rem; }
@@ -315,6 +334,8 @@ body { padding-bottom: calc(76px + env(safe-area-inset-bottom, 0px)); }
 .swr small { opacity: .85; }
 @media (max-height: 500px) { .wheel-wrap.swwrap { flex-wrap: nowrap; gap: 12px; padding: 0; } .swwrap .wheel-box { width: 160px; flex: none; } .swwrap .wheel .wl > span { top: -62px; } .swwrap .swdesc, .swwrap .wheel-t { display: none; } .swwrap .wheel-side { max-width: none; gap: 5px; } .swwrap .sw-btns .btn { padding: 6px 9px; font-size: .78rem; } }
 @media (max-width: 700px), (max-height: 500px) { .swgrid { grid-template-columns: repeat(5, 1fr); gap: 4px; } .swr { font-size: .66rem; padding: 3px 2px; } }
+.mspark circle { animation: mspark .5s ease-in-out infinite alternate; transform-box: fill-box; transform-origin: center; }
+@keyframes mspark { from { opacity: .08; transform: scale(.85); } to { opacity: .35; transform: scale(1.1); } }
 .mwheel.spin { animation: mspin .5s linear infinite; transform-box: fill-box; transform-origin: center; }
 @keyframes mspin { to { transform: rotate(360deg); } }
 .play-btn { min-width: 220px; font-size: 1.35rem !important; padding: 14px 30px !important; }
@@ -1216,6 +1237,7 @@ svg.gi { width: 1.2em; height: 1.2em; vertical-align: -.25em; display: inline-bl
 
   const SONS = {
     // --- interface ---
+    tique(t) { tom({ at: t, f: 1500, f2: 1100, dur: 0.025, vol: 0.06, tipo: 'square', filtro: 'lowpass', ff: 3000 }); },
     clique(t) { tom({ at: t, f: 900, f2: 620, dur: 0.05, vol: 0.12, tipo: 'triangle' }); },
     aba(t) { tom({ at: t, f: 660, dur: 0.04, vol: 0.08, tipo: 'sine' }); tom({ at: t + 0.03, f: 990, dur: 0.05, vol: 0.06 }); },
     erro(t) { tom({ at: t, f: 190, dur: 0.1, vol: 0.14, tipo: 'square', filtro: 'lowpass', ff: 1200 }); tom({ at: t + 0.12, f: 140, dur: 0.16, vol: 0.14, tipo: 'square', filtro: 'lowpass', ff: 1000 }); },
@@ -1402,7 +1424,7 @@ svg.gi { width: 1.2em; height: 1.2em; vertical-align: -.25em; display: inline-bl
   };
 
   // Espaçamento mínimo entre repetições do mesmo som (ms), para cliques em rajada.
-  const INTERVALO = { coletar: 45, colher: 45, clique: 30, acerto: 40, aba: 40, plantar: 40, erro: 120, tremor: 800 };
+  const INTERVALO = { tique: 25, coletar: 45, colher: 45, clique: 30, acerto: 40, aba: 40, plantar: 40, erro: 120, tremor: 800 };
 
   function play(nome, o) {
     if (!AC || st.mudo || st.volEfeitos <= 0) return false;
@@ -7824,6 +7846,142 @@ const M3 = (() => {
   };
   B.windmill = () => { const g = new T.Group(); if (G.windmill) glb('windmill', g, [0, 0, 0], 1.1, Math.PI / 4); return g; };
   B.well = () => { const g = new T.Group(); if (G.well) glb('well', g, [0, 0, 0], 0.7, Math.PI / 4); return g; };
+  // Roleta do Enxame: barraca de parque com roda grande, luzes e letreiro
+  B.roleta = () => {
+    const g = new T.Group(); platform(g, 1.9, '#f6c768', '#a8641a'); cobble(g, 1.6);
+    const woodD = mat('#6b4423', { roughness: 0.8 }), gold = mat('#ffcc33', { metalness: 0.35, roughness: 0.3 }), red = mat('#d8342c', { roughness: 0.5 });
+    const bulb = mat('#fff6d0', { emissive: col('#ffcc66'), emissiveIntensity: 0.9 });
+    mesh(new T.CylinderGeometry(0.8, 0.86, 0.16, 6), mat('#8a5a2c', { roughness: 0.85 }), g, [0, 0.1, 0], [1, 1, 1], [0, Math.PI / 12, 0]);
+    mesh(new T.CylinderGeometry(0.74, 0.74, 0.04, 6), red, g, [0, 0.19, 0], [1, 1, 1], [0, Math.PI / 12, 0], false);
+    const f = new T.Group(); f.rotation.y = Math.PI / 4; f.position.y = 0.2; g.add(f);
+    [-1, 1].forEach(sd => mesh(new T.BoxGeometry(0.09, 1.3, 0.09), woodD, f, [sd * 0.34, 0.6, -0.16], [1, 1, 1], [0, 0, sd * 0.26]));
+    mesh(new T.BoxGeometry(0.62, 0.08, 0.09), woodD, f, [0, 0.42, -0.16]);
+    mesh(new T.CylinderGeometry(0.05, 0.05, 0.3, 10), woodD, f, [0, 1.2, -0.04], [1, 1, 1], [Math.PI / 2, 0, 0]);
+    const W = new T.Group(); W.position.set(0, 1.2, 0.08); W.rotation.z = 0.2; f.add(W);
+    const R = 0.66, cols = ['#9aa7b4', '#4fb3ff', '#9aa7b4', '#c77dff', '#9aa7b4', '#4fb3ff', '#ffd23f', '#4fb3ff'];
+    cols.forEach((c, i) => mesh(new T.CylinderGeometry(R, R, 0.09, 10, 1, false, i * Math.PI / 4, Math.PI / 4), mat(c, { roughness: 0.4, emissive: col(c), emissiveIntensity: 0.45 }), W, [0, 0, 0], [1, 1, 1], [Math.PI / 2, 0, 0], false));
+    for (let i = 0; i < 4; i++) mesh(new T.BoxGeometry(2 * R, 0.03, 0.11), mat('#5a3212'), W, [0, 0, 0], [1, 1, 1], [0, 0, i * Math.PI / 4], false);
+    mesh(new T.TorusGeometry(R + 0.03, 0.06, 10, 48), gold, W, [0, 0, 0]);
+    for (let i = 0; i < 16; i++) { const a = i / 16 * Math.PI * 2; mesh(SPH_LO, bulb, W, [Math.cos(a) * (R + 0.03), Math.sin(a) * (R + 0.03), 0.06], [0.035, 0.035, 0.035], [0, 0, 0], false); }
+    mesh(SPH, gold, W, [0, 0, 0.07], [0.12, 0.12, 0.08]);
+    mesh(CONE, red, f, [0, 1.2 + R + 0.16, 0.12], [0.1, 0.22, 0.06], [Math.PI, 0, 0]);
+    // letreiro em cima
+    mesh(new T.BoxGeometry(1.0, 0.26, 0.07), red, f, [0, 2.12, -0.04]);
+    mesh(new T.BoxGeometry(1.06, 0.05, 0.09), gold, f, [0, 2.27, -0.04]);
+    mesh(new T.BoxGeometry(1.06, 0.05, 0.09), gold, f, [0, 1.97, -0.04]);
+    for (let i = 0; i < 7; i++) mesh(SPH_LO, bulb, f, [-0.42 + i * 0.14, 2.12, 0.0], [0.035, 0.035, 0.035], [0, 0, 0], false);
+    [-1, 1].forEach(sd => mesh(new T.BoxGeometry(0.06, 0.2, 0.06), woodD, f, [sd * 0.4, 1.9, -0.06]));
+    mesh(OCTA, mat('#ffd23f', { emissive: col('#a06a00'), emissiveIntensity: 0.4, flatShading: true }), f, [0, 2.48, -0.04], [0.13, 0.17, 0.13]);
+    // fichas e caixas
+    [[0.55, 0.62, '#ffd23f'], [0.62, 0.48, '#ff5f7e'], [0.48, 0.5, '#4fb3ff']].forEach(([x, z, c], i) => mesh(new T.CylinderGeometry(0.08, 0.08, 0.03, 16), mat(c, { roughness: 0.4 }), g, [x, 0.24 + i * 0.035, z], [1, 1, 1], [0, 0, 0.1 * i], false));
+    if (G.crate) glb('crate', g, [-0.7, 0.03, 0.6], 0.26);
+    if (G.barrel) glb('barrel', g, [0.68, 0.03, -0.62], 0.22);
+    return g;
+  };
+  // Enfeites 3D da ilha
+  B.deco = kind => {
+    const g = new T.Group();
+    const wax = mat('#ffd776', { roughness: 0.55 }), honey = mat('#f2a020', { roughness: 0.15 }), stem = mat('#4f9a38', { roughness: 0.7 });
+    const drip = (par, x, y, z, h) => { mesh(CYL, honey, par, [x, y - h / 2, z], [0.035, h, 0.035], [0, 0, 0], false); mesh(SPH_LO, honey, par, [x, y - h, z], [0.045, 0.055, 0.045], [0, 0, 0], false); };
+    const flower = (x, z, h, c, r = 0.09) => {
+      mesh(CYL, stem, g, [x, h / 2, z], [0.022, h, 0.022], [0, 0, 0], false);
+      mesh(SPH_LO, stem, g, [x + 0.05, h * 0.4, z], [0.07, 0.02, 0.035], [0, 0, -0.5], false);
+      const pm = mat(c, { roughness: 0.45 });
+      for (let i = 0; i < 5; i++) { const a = i / 5 * Math.PI * 2; mesh(SPH_LO, pm, g, [x + Math.cos(a) * r * 0.75, h, z + Math.sin(a) * r * 0.75], [r * 0.6, r * 0.25, r * 0.6], [0, -a, 0.25], false); }
+      mesh(SPH_LO, mat('#ffd23f'), g, [x, h + 0.02, z], [r * 0.45, r * 0.35, r * 0.45], [0, 0, 0], false);
+    };
+    if (kind === 'potmel') {
+      const prof = [[0, 0], [0.14, 0], [0.22, 0.07], [0.25, 0.18], [0.22, 0.29], [0.15, 0.34], [0.16, 0.38], [0.14, 0.39]].map(([x, y]) => new T.Vector2(x, y));
+      const clay = mat('#c8692c', { roughness: 0.7 });
+      mesh(new T.LatheGeometry(prof, 24), clay, g, [0, 0, 0]);
+      mesh(new T.CylinderGeometry(0.14, 0.14, 0.03, 20), honey, g, [0, 0.38, 0], [1, 1, 1], [0, 0, 0], false);
+      mesh(new T.TorusGeometry(0.235, 0.02, 6, 24), mat('#7a3a14'), g, [0, 0.2, 0], [1, 1, 1], [Math.PI / 2, 0, 0], false);
+      drip(g, 0.1, 0.36, 0.11, 0.14); drip(g, -0.04, 0.36, 0.15, 0.09);
+      mesh(CYL, mat('#8a5a2c'), g, [0.03, 0.47, -0.02], [0.02, 0.32, 0.02], [0.3, 0, -0.35], false);
+      mesh(SPH_LO, mat('#8a5a2c'), g, [0.09, 0.62, -0.06], [0.04, 0.05, 0.04], [0, 0, 0], false);
+      mesh(new T.LatheGeometry(prof, 20), clay, g, [0.32, 0, 0.2], [0.55, 0.55, 0.55]);
+      mesh(new T.CylinderGeometry(0.14, 0.14, 0.03, 16), honey, g, [0.32, 0.21, 0.2], [0.55, 1, 0.55], [0, 0, 0], false);
+    } else if (kind === 'vela') {
+      [[0, 0, 0.75, 0.1], [0.2, 0.12, 0.5, 0.085], [-0.14, 0.18, 0.36, 0.08]].forEach(([x, z, h, r]) => {
+        mesh(new T.CylinderGeometry(r, r * 1.08, h, 16), wax, g, [x, h / 2, z]);
+        mesh(new T.CylinderGeometry(r * 0.95, r * 0.95, 0.02, 16), mat('#ffe9b0'), g, [x, h, z], [1, 1, 1], [0, 0, 0], false);
+        drip(g, x + r * 0.7, h, z + r * 0.7, h * 0.3);
+        mesh(CYL, mat('#3a2410'), g, [x, h + 0.03, z], [0.008, 0.05, 0.008], [0, 0, 0], false);
+        mesh(SPH_LO, mat('#ffb030', { emissive: col('#ff8a00'), emissiveIntensity: 1 }), g, [x, h + 0.09, z], [0.035, 0.06, 0.035], [0, 0, 0], false);
+      });
+    } else if (kind === 'polen' || kind === 'polen2') {
+      const k = kind === 'polen2' ? 0.7 : 1;
+      [[0, 0.1, 0, 0.12, '#ffd23f'], [0.16, 0.09, 0.06, 0.1, '#ff9a3c'], [-0.12, 0.08, 0.1, 0.09, '#ffb52e'], [0.04, 0.24, 0.03, 0.09, '#fff0a0'], [0.1, 0.07, -0.14, 0.08, '#ffd23f'], [-0.08, 0.2, -0.06, 0.07, '#ff9a3c']]
+        .forEach(([x, y, z, r, c]) => mesh(SPH, mat(c, { roughness: 0.8 }), g, [x * k, y * k, z * k], [r * k, r * k, r * k]));
+    } else if (kind === 'favo') {
+      const cells = [[0, 0, 0.3], [0.18, 0.1, 0.22], [-0.18, 0.1, 0.18], [0, 0.2, 0.14], [0.18, -0.1, 0.26], [-0.18, -0.1, 0.24], [0, -0.2, 0.2]];
+      cells.forEach(([x, z, h], i) => {
+        mesh(new T.CylinderGeometry(0.1, 0.1, h, 6), mat(i % 2 ? '#f6c75a' : '#f0b845', { roughness: 0.5 }), g, [x, h / 2, z], [1, 1, 1], [0, Math.PI / 6, 0]);
+        mesh(new T.CylinderGeometry(0.068, 0.068, 0.02, 6), i % 3 ? honey : mat('#ffe9b0'), g, [x, h + 0.005, z], [1, 1, 1], [0, Math.PI / 6, 0], false);
+      });
+      drip(g, 0.12, 0.26, 0.16, 0.1);
+    } else if (kind === 'flores') {
+      [[0, 0, 0.32, '#ff5fa2'], [0.16, 0.08, 0.24, '#ffffff'], [-0.14, 0.1, 0.27, '#c77dff'], [0.06, -0.16, 0.22, '#ff9a3c'], [-0.08, -0.08, 0.36, '#9be7ff'], [0.2, -0.12, 0.3, '#ff5f7e']]
+        .forEach(([x, z, h, c]) => flower(x, z, h, c));
+      [[0.05, 0.12], [-0.15, -0.15]].forEach(([x, z]) => mesh(SPH_LO, mat('#56b04a', { roughness: 0.8 }), g, [x, 0.05, z], [0.11, 0.06, 0.11]));
+    } else if (kind === 'girassol') {
+      [[0, 0, 0.95, 1], [0.24, 0.16, 0.7, 0.8]].forEach(([x, z, h, k]) => {
+        mesh(CYL, stem, g, [x, h / 2, z], [0.035, h, 0.035]);
+        [0.35, 0.55].forEach((t, i) => mesh(SPH_LO, stem, g, [x + (i ? -0.08 : 0.08), h * t, z], [0.11, 0.025, 0.06], [0, Math.PI / 4, i ? 0.5 : -0.5], false));
+        const hd = new T.Group(); hd.position.set(x, h, z); hd.rotation.set(-0.35, Math.PI / 4, 0); g.add(hd);
+        for (let i = 0; i < 12; i++) { const a = i / 12 * Math.PI * 2; mesh(SPH_LO, mat('#ffcc22', { roughness: 0.5 }), hd, [Math.cos(a) * 0.16 * k, Math.sin(a) * 0.16 * k, 0], [0.085 * k, 0.04 * k, 0.02], [0, 0, a], false); }
+        mesh(new T.CylinderGeometry(0.11 * k, 0.11 * k, 0.05, 20), mat('#6b3a12', { roughness: 0.9 }), hd, [0, 0, 0.02], [1, 1, 1], [Math.PI / 2, 0, 0]);
+      });
+    } else if (kind === 'skep') {
+      mesh(new T.CylinderGeometry(0.28, 0.32, 0.18, 16), mat('#8a5a2c', { roughness: 0.9 }), g, [0, 0.09, 0]);
+      const prof = Array.from({ length: 12 }, (_, i) => { const t = i / 11; return new T.Vector2(Math.max(0.001, Math.cos(t * Math.PI / 2) * 0.3), Math.sin(t * Math.PI / 2) * 0.48); });
+      const straw = mat('#e2b04a', { roughness: 0.9 });
+      mesh(new T.LatheGeometry(prof, 24), straw, g, [0, 0.18, 0]);
+      for (let i = 1; i < 6; i++) { const t = i / 6, r = Math.cos(t * Math.PI / 2) * 0.3; mesh(new T.TorusGeometry(r, 0.018, 6, 24), mat('#b98428'), g, [0, 0.18 + Math.sin(t * Math.PI / 2) * 0.48, 0], [1, 1, 1], [Math.PI / 2, 0, 0], false); }
+      mesh(new T.CylinderGeometry(0.07, 0.07, 0.04, 16, 1, false, 0, Math.PI), mat('#2a1606'), g, [0.19, 0.22, 0.19], [1, 1, 1], [Math.PI / 2, 0, -Math.PI / 4 - Math.PI / 2], false);
+      drip(g, -0.12, 0.42, 0.18, 0.12);
+    } else if (kind === 'lanterna') {
+      const wd = mat('#5c3a1c', { roughness: 0.8 });
+      mesh(CYL, wd, g, [0, 0.45, 0], [0.035, 0.9, 0.035]);
+      mesh(new T.CylinderGeometry(0.1, 0.12, 0.06, 6), wd, g, [0, 0.03, 0]);
+      mesh(new T.BoxGeometry(0.26, 0.03, 0.03), wd, g, [0.06, 0.88, 0.06], [1, 1, 1], [0, -Math.PI / 4, 0]);
+      const lx = 0.13, lz = 0.13;
+      mesh(new T.CylinderGeometry(0.07, 0.06, 0.15, 6), mat('#ffcc55', { emissive: col('#ff9a00'), emissiveIntensity: 0.9, roughness: 0.2 }), g, [lx, 0.76, lz]);
+      mesh(new T.ConeGeometry(0.1, 0.07, 6), wd, g, [lx, 0.87, lz]);
+      mesh(new T.CylinderGeometry(0.075, 0.075, 0.02, 6), wd, g, [lx, 0.68, lz], [1, 1, 1], [0, 0, 0], false);
+    } else if (kind === 'fonte') {
+      g.scale.setScalar(1.5);
+      mesh(new T.CylinderGeometry(0.62, 0.68, 0.22, 6), wax, g, [0, 0.11, 0], [1, 1, 1], [0, Math.PI / 6, 0]);
+      mesh(new T.CylinderGeometry(0.52, 0.52, 0.03, 6), honey, g, [0, 0.21, 0], [1, 1, 1], [0, Math.PI / 6, 0], false);
+      mesh(new T.CylinderGeometry(0.1, 0.13, 0.5, 6), wax, g, [0, 0.42, 0], [1, 1, 1], [0, Math.PI / 6, 0]);
+      mesh(new T.CylinderGeometry(0.25, 0.1, 0.1, 6), wax, g, [0, 0.7, 0], [1, 1, 1], [0, Math.PI / 6, 0]);
+      mesh(new T.CylinderGeometry(0.2, 0.2, 0.02, 6), honey, g, [0, 0.75, 0], [1, 1, 1], [0, Math.PI / 6, 0], false);
+      mesh(SPH, honey, g, [0, 0.83, 0], [0.08, 0.1, 0.08]);
+      [0, 2, 4].forEach(i => { const a = i / 6 * Math.PI * 2 + Math.PI / 6; drip(g, Math.cos(a) * 0.22, 0.73, Math.sin(a) * 0.22, 0.32); });
+      [[0.3, 0.1], [-0.25, 0.25], [0.1, -0.32]].forEach(([x, z]) => mesh(SPH_LO, mat('#ffd36a', { roughness: 0.1 }), g, [x, 0.23, z], [0.04, 0.025, 0.04], [0, 0, 0], false));
+    } else if (kind === 'arbusto') {
+      [[0, 0.16, 0, 0.2], [0.18, 0.12, 0.08, 0.15], [-0.16, 0.11, 0.06, 0.14]].forEach(([x, y, z, r]) => mesh(SPH, mat('#4fb84a', { roughness: 0.85 }), g, [x, y, z], [r, r * 0.85, r]));
+      [[0.05, 0.32, 0.1, '#ff5fa2'], [0.2, 0.24, 0.14, '#ffffff'], [-0.14, 0.24, 0.12, '#ffd23f'], [-0.02, 0.28, -0.1, '#c77dff']].forEach(([x, y, z, c]) => mesh(SPH_LO, mat(c), g, [x, y, z], [0.045, 0.045, 0.045], [0, 0, 0], false));
+    } else if (kind === 'tufo' || kind === 'tufo2') {
+      g.scale.setScalar(1.7);
+      const gm = mat(kind === 'tufo' ? '#5cb84a' : '#7ac24a', { roughness: 0.8 });
+      for (let i = 0; i < 7; i++) { const a = i / 7 * Math.PI * 2; mesh(CONE, gm, g, [Math.cos(a) * 0.06, 0.07, Math.sin(a) * 0.06], [0.03, 0.16 + (i % 3) * 0.04, 0.03], [Math.sin(a) * 0.35, 0, -Math.cos(a) * 0.35], false); }
+      flower(0.08, 0.04, 0.2, kind === 'tufo' ? '#ffffff' : '#ff5fa2', 0.05);
+      if (kind === 'tufo2') flower(-0.06, 0.08, 0.16, '#ffd23f', 0.045);
+    } else if (kind === 'gotas') {
+      g.scale.setScalar(1.5);
+      [[0, 0, 0.09], [0.13, 0.06, 0.06], [-0.08, 0.1, 0.05]].forEach(([x, z, r]) => mesh(SPH, honey, g, [x, r * 0.3, z], [r, r * 0.45, r]));
+      mesh(ICO, mat('#9a8a70', { flatShading: true, roughness: 0.9 }), g, [-0.12, 0.03, -0.06], [0.05, 0.035, 0.045]);
+    } else if (kind === 'carga') {
+      if (G.barrel) glb('barrel', g, [0, 0, 0], 0.3);
+      if (G.sack) glb('sack', g, [0.28, 0, 0.12], 0.26);
+      if (G.crate) glb('crate', g, [-0.08, 0, 0.3], 0.28);
+    } else if (kind === 'pedras') {
+      if (G.rockA) glb('rockA', g, [0, 0, 0], 0.42); else mesh(ICO, mat('#a3a3ad', { flatShading: true }), g, [0, 0.12, 0], [0.2, 0.15, 0.18]);
+      if (G.plant) glb('plant', g, [0.24, 0, 0.12], 0.26);
+    }
+    return g;
+  };
   const isoCache = new Map();
   return {
     FW, FH, NF,
@@ -8223,7 +8381,7 @@ function newState(modeKey) {
     mode: modeKey, t: 0, running: true, paused: false, ended: false,
     gold: 250, food: 30, gems: 5, xp: 0, level: 1,
     dragons: [], habitats: [{ stored: 0 }], farms: [{ crop: null, prog: 0, lvl: 1, pick: 'trigo' }, { crop: null, prog: 0, lvl: 1, pick: 'trigo' }],
-    eggs: [], hatchSlots: 1, tickets: SWARM.startTickets, pityE: 0, pityL: 0, freeAt: SWARM.free, feat: null, featUntil: 0, wheel: null, swRes: null, selCrop: 'trigo', skinPick: null, gardener: false, gardenAcc: 0, spin: null, atkPick: null, jardimSel: null,
+    eggs: [], hatchSlots: 1, tickets: SWARM.startTickets, pityE: 0, pityL: 0, freeAt: SWARM.free, feat: null, featUntil: 0, wheel: null, swRes: null, luck: 0, idleReel: null, selCrop: 'trigo', skinPick: null, gardener: false, gardenAcc: 0, spin: null, atkPick: null, jardimSel: null,
     league: 1, leagueFight: 0, battle: null, team: [], autoBattle: false, lastResult: null,
     missions: [], ach: {}, dex: {}, stats: newStats(),
     buffs: {}, event: null, nextEvent: 50, lostEgg: null, warned: [], finalPhase: false, finalResult: null, nextInvasion: 900, wave: 0, weakened: false,
@@ -8477,6 +8635,39 @@ const BOOSTS = {
   chuva: { n: 'Nuvem de Mel', i: '🌧️', d: 'Mel das colmeias em dobro por 45s.', gems: 12, dur: 45 },
   colheita: { n: 'Pólen Mágico', i: '🌻', d: 'As flores crescem 3x mais rápido por 45s.', gems: 8, dur: 45 },
 };
+// Tesouros: compras com geleia real
+const TREASURES = {
+  fichas: { i: '🎯', n: 'Pacote de Fichas', d: '3 fichas para a Roleta do Enxame.', gems: 15 },
+  trevo: { i: '🍀', n: 'Trevo da Sorte', d: 'Os próximos 5 giros têm o dobro de chance de Épica e Lendária.', gems: 12 },
+  cesta: { i: '🧺', n: 'Cesta Surpresa', d: 'Prêmio surpresa: mel, fichas, geleia real de volta ou até uma abelha Épica.', gems: 10 },
+  ampulheta: { i: '⏳', n: 'Ampulheta', d: 'Seu giro grátis fica pronto agora.', gems: 8 },
+  pocao: { i: '🧪', n: 'Poção de Treino', d: 'Sua abelha de menor nível sobe 2 níveis.', gems: 6 },
+  estrela: { i: '🌟', n: 'Estrela do Destaque', d: 'Troca agora a espécie em destaque da roleta.', gems: 4 },
+  amor: { i: '💞', n: 'Néctar do Amor', d: 'Todas as abelhas param de descansar e podem cruzar de novo.', gems: 3 },
+};
+const LUCK_ODDS = { C: 0.45, R: 0.33, E: 0.17, L: 0.05 }, LUCK_GEM = { C: 0, R: 0.5, E: 0.38, L: 0.12 };
+function buyTreasure(k) {
+  const t = TREASURES[k]; if (!t) return;
+  if (k === 'ampulheta' && S.t >= S.freeAt) { toast('Já está pronto', 'Seu giro grátis já está esperando na roleta.', 'bad'); return; }
+  if (k === 'pocao' && !S.dragons.some(d => d.lvl < MAX_DLVL)) { toast('Todas no máximo', 'Nenhuma abelha pode subir de nível.', 'bad'); return; }
+  if (k === 'amor' && !S.dragons.some(d => (d.rest || 0) > S.t)) { toast('Ninguém cansado', 'Nenhuma abelha está descansando agora.', 'bad'); return; }
+  if (!spendGems(t.gems)) return;
+  S.stats.treasures = (S.stats.treasures || 0) + 1;
+  sfx('comprar');
+  if (k === 'fichas') { catchTicket(3); toast('🎯 +3 fichas', 'Use na Roleta do Enxame.'); }
+  else if (k === 'trevo') { S.luck = (S.luck || 0) + 5; toast('🍀 Trevo da Sorte', `Sorte nos próximos ${S.luck} giros.`, 'ach'); }
+  else if (k === 'ampulheta') { S.freeAt = S.t; toast('⏳ Giro grátis pronto', 'Corra para a roleta!'); }
+  else if (k === 'pocao') { const d = S.dragons.filter(x => x.lvl < MAX_DLVL).sort((a, b) => a.lvl - b.lvl)[0]; d.lvl = Math.min(MAX_DLVL, d.lvl + 2); S.stats.maxDragonLvl = Math.max(S.stats.maxDragonLvl, d.lvl); toast('🧪 Poção de Treino', `${d.name} agora está no Nv ${d.lvl}.`); }
+  else if (k === 'estrela') { S.featUntil = 0; const f = swarmFeat(); toast('🌟 Novo destaque', f ? `${S.dex[f.key] ? f.name : 'Uma espécie misteriosa'} (${RARITY[f.rar].n})` : 'Libere mais tipos para ter destaque.'); }
+  else if (k === 'amor') { S.dragons.forEach(d => { d.rest = 0; }); toast('💞 Néctar do Amor', 'Todo mundo descansado e pronto para cruzar.'); }
+  else if (k === 'cesta') {
+    const r = Math.random();
+    if (r < 0.1) { const ep = swarmPool().filter(sp => sp.rar === 'E'); if (ep.length) { showSwarm([grantBee(pick(ep))]); return; } }
+    if (r < 0.4) { const g = (150 * S.level + Math.round(totalGps() * 30)) * 2; addGold(g); toast('🧺 Cesta: mel', `+${fmt(g)} de mel.`, 'ach'); }
+    else if (r < 0.75) { catchTicket(2); toast('🧺 Cesta: fichas', '+2 fichas para a roleta.', 'ach'); }
+    else { S.gems += 15; toast('🧺 Cesta: geleia real', '+15 de geleia real.', 'ach'); }
+  }
+}
 function buyBoost(k) {
   const b = BOOSTS[k]; if (!b || !spendGems(b.gems)) return;
   S.buffs[k] = Math.max(S.t, S.buffs[k] || 0) + b.dur;
@@ -8512,7 +8703,8 @@ function rollRarity(odds) {
 }
 function rollSwarm(gem) {
   const pool = swarmPool();
-  let rar = rollRarity(gem ? SWARM.gemOdds : SWARM.odds);
+  const lucky = S.luck > 0; if (lucky) S.luck--;
+  let rar = rollRarity(lucky ? (gem ? LUCK_GEM : LUCK_ODDS) : gem ? SWARM.gemOdds : SWARM.odds);
   const has = r => pool.some(sp => sp.rar === r);
   // garantia
   if (has('E')) S.pityE++;
@@ -8556,6 +8748,65 @@ function grantBee(sp) {
   return { sp, d, isNew };
 }
 // Gira a roleta: pay = gold | gems | ticket | free; n = 1 ou 10
+const SPIN_MS = 5200, REEL_N = 46, REEL_WIN = 38, CARD_W = 104;
+// Sorteio só para encher o carrossel (não mexe em garantia nem estatística)
+function reelSample(gem, outs) {
+  if (outs) { let r = Math.random(); for (const o of outs) { if ((r -= o.p) <= 0) return o.sp; } return outs[outs.length - 1].sp; }
+  const pool = swarmPool();
+  let rar = rollRarity(gem ? SWARM.gemOdds : SWARM.odds);
+  while (!pool.some(sp => sp.rar === rar)) rar = { L: 'E', E: 'R', R: 'C', C: 'C' }[rar];
+  return pick(pool.filter(sp => sp.rar === rar));
+}
+function makeReel(win, gem, outs) {
+  const reel = Array.from({ length: REEL_N }, () => reelSample(gem, outs));
+  reel[REEL_WIN] = win;
+  // às vezes uma mais rara passa raspando do lado
+  if (!outs && Math.random() < 0.35) { const up = swarmPool().filter(sp => RARITY[sp.rar].rv > RARITY[win.rar].rv); if (up.length) reel[REEL_WIN + (Math.random() < 0.5 ? 1 : -1)] = pick(up); }
+  return reel;
+}
+let reelSeq = 0;
+function startReel(win, gem, outs, extra) {
+  S.wheel = Object.assign({ id: ++reelSeq, reel: makeReel(win, gem, outs), off: Math.round((Math.random() - 0.5) * (CARD_W - 30)), until: performance.now() + SPIN_MS, done: false, gem }, extra);
+  setTimeout(() => { finishSwarm(); render(); }, SPIN_MS + 50);
+}
+// Depois de desenhar: começa a animação do carrossel novo do início
+let reelAnimId = 0;
+function animReel() {
+  const el = document.querySelector('.case-strip');
+  if (!el) return;
+  const id = +el.dataset.id;
+  if (!id || id === reelAnimId) return;
+  reelAnimId = id;
+  const W = S.wheel;
+  if (!W || W.done || W.until < performance.now() + 300) return;
+  const fin = el.style.transform;
+  el.classList.add('nt'); el.style.transform = `translateX(${-2 * CARD_W}px)`; void el.offsetWidth;
+  el.classList.remove('nt'); el.style.transitionDuration = Math.round(W.until - performance.now()) + 'ms'; el.style.transform = fin;
+  reelTicks(el, W);
+}
+// tique a cada abelha que passa pela marca
+function reelTicks(el, W) {
+  let last = -1;
+  const step = () => {
+    if (!el.isConnected || W.done) return;
+    const m = new DOMMatrixReadOnly(getComputedStyle(el).transform), i = Math.floor(-m.m41 / CARD_W);
+    if (i !== last) { if (last >= 0) sfx('tique'); last = i; }
+    if (performance.now() < W.until) requestAnimationFrame(step);
+  };
+  requestAnimationFrame(step);
+}
+function reelHTML() {
+  const W = S.wheel;
+  if (!W || !W.reel) {
+    if (!S.idleReel || S.idleReel.n !== swarmPool().length) { const pool = swarmPool(); S.idleReel = { n: pool.length, reel: Array.from({ length: 12 }, (_, i) => pool[i % pool.length]) }; }
+  }
+  const reel = W && W.reel ? W.reel : S.idleReel.reel, win = W && W.reel ? REEL_WIN : 5, off = W && W.reel ? W.off : 0;
+  const cards = reel.map((sp, i) => {
+    const known = S.dex[sp.key], won = W && W.done && W.reel && i === REEL_WIN;
+    return `<div class="ccard r-${sp.rar} ${won ? 'won' : ''}">${dIcon(sp.els, sp.rar, 'm', known ? '' : 'unknown', 3 + (i % 9))}<small>${known ? sp.name : '???'}</small></div>`;
+  }).join('');
+  return `<div class="case ${W && W.love ? 'love' : ''}"><div class="case-mark"></div><div class="case-strip" data-id="${W && W.reel ? W.id : 0}" style="transform:translateX(${-(win * CARD_W + CARD_W / 2 + off)}px)">${cards}</div></div>`;
+}
 function spinSwarm(pay, n = 1) {
   if (S.wheel && S.wheel.until > performance.now()) return;
   if (pay === 'free' && S.t < S.freeAt) return;
@@ -8569,9 +8820,9 @@ function spinSwarm(pay, n = 1) {
   S.stats.swarmSpins += n; if (n === 10) S.stats.swarmTen++;
   S.stats.spins = (S.stats.spins || 0);
   const best = res.reduce((a, b) => RARITY[b.rar].rv > RARITY[a.rar].rv ? b : a);
-  S.wheel = { deg: swDeg(best.rar), until: performance.now() + 3000, res, done: false, gem: pay === 'gems' };
   sfx('evento');
-  setTimeout(() => { finishSwarm(); render(); }, 3050);
+  startReel(best, pay === 'gems', null, { res });
+  if (S.tab !== 'chocadeira') S.tab = 'chocadeira';
 }
 // Fatias da roda (proporcionais à chance) e o ângulo onde ela para
 const SW_ORDER = ['C', 'R', 'C', 'E', 'C', 'R', 'L', 'R'];
@@ -8662,9 +8913,8 @@ function breed() {
   const sp = rollBreed(a, b);
   a.rest = b.rest = S.t + BREED_REST;
   S.stats.breeds++; addXp(5); sfx('cruzar');
-  S.wheel = { deg: swDeg(sp.rar), until: performance.now() + 3000, res: [sp], done: false, love: true };
+  startReel(sp, false, breedOutcomes(a, b), { res: [sp], love: true });
   S.tab = 'chocadeira';
-  setTimeout(() => { finishSwarm(); render(); }, 3050);
 }
 function hatch(id) {
   const i = S.eggs.findIndex(e => e.id === id);
@@ -9520,7 +9770,8 @@ function dragonSprite(els, rar, skin) {
   sprJob(k, () => ({ canvas: M3.dragonStrip(els, rar, skin) }), true);
   return null;
 }
-const isoKeys = () => ['arena', 'cruzar', 'loja', 'missoes', 'farm', ...Object.keys(HAB_THEME).map(t => 'habitat:' + t)];
+const DECO_KINDS = ['tufo', 'tufo2', 'gotas', 'potmel', 'vela', 'polen', 'polen2', 'favo', 'flores', 'girassol', 'skep', 'lanterna', 'fonte', 'arbusto', 'carga', 'pedras'];
+const isoKeys = () => ['arena', 'cruzar', 'loja', 'missoes', 'farm', 'roleta', ...Object.keys(HAB_THEME).map(t => 'habitat:' + t), ...DECO_KINDS.map(k => 'deco:' + k)];
 function warmSprites() {
   if (sprOff) return;
   isoKeys().forEach(k => { const [n, a] = k.split(':'); sprJob('i:' + k, () => a === undefined ? M3.iso(n) : M3.iso(n, n === 'tree' ? +a : a)); });
@@ -9595,6 +9846,7 @@ function render(force) {
   if (view !== lastView) {
     morph($('#sheet'), view); lastView = view;
     if (S.tab === 'stats') drawChart();
+    animReel();
     const log = document.querySelector('.log'); if (log) log.scrollTop = log.scrollHeight;
   }
   renderLostEgg();
@@ -9673,13 +9925,13 @@ function viewSwarm() {
   const res = W && W.done && S.swRes ? S.swRes : null;
   return `<div class="grid">
     <section class="panel" style="grid-column:1/-1">
-      <div class="wheel-wrap swwrap">
-        <div class="wheel-box"><div class="wheel-pin"></div><div class="wheel" style="background:conic-gradient(${grad});transform:rotate(${W ? W.deg : 0}deg)">${labels}<div class="wheel-hub">🎯</div></div></div>
+      <div class="swwrap2">
+        ${reelHTML()}
         <div class="wheel-side">
           <h2 class="wheel-t">${W && W.love && spinning ? 'Giro do Amor' : 'Roleta do Enxame'}</h2>
-          <p class="hint swdesc" style="margin:0">Toda abelha nova vem daqui. Repetida faz a sua abelha da espécie subir de nível.</p>
+          <p class="hint swdesc" style="margin:0">Toda abelha nova vem daqui. Só aparece o nome das abelhas que você já tem. Repetida faz a sua subir de nível.</p>
           <div class="wprizes">${odds}</div>
-          <div class="sw-pity"><span>🔮 Épica garantida em <b class="num">${Math.max(1, SWARM.pityE - S.pityE)}</b> giro(s)</span><span>🌟 Lendária garantida em <b class="num">${Math.max(1, SWARM.pityL - S.pityL)}</b></span></div>
+          <div class="sw-pity"><span>🔮 Épica garantida em <b class="num">${Math.max(1, SWARM.pityE - S.pityE)}</b> giro(s)</span><span>🌟 Lendária garantida em <b class="num">${Math.max(1, SWARM.pityL - S.pityL)}</b></span>${S.luck ? `<span>🍀 Sorte em <b class="num">${S.luck}</b> giro(s)</span>` : ''}</div>
           <div class="sw-btns">
             ${free ? `<button class="btn go big pulse-go" data-a="swarm" data-k="free" ${spinning ? 'disabled' : ''}>Giro grátis!</button>` : `<span class="hint">Giro grátis em ${fmtTime(S.freeAt - S.t)}</span>`}
             ${S.tickets ? `<button class="btn go" data-a="swarm" data-k="ticket" ${spinning ? 'disabled' : ''}>Usar ficha 🎯 ${S.tickets}</button>` : ''}
@@ -9748,9 +10000,42 @@ const SPOTS = {
 // Enfeites em grupos, perto das bordas: potes de mel (0), colunas de cera (1) e pólen (2)
 const TREES = [[400, 108, 1], [600, 108, 1], [240, 476, 2], [760, 476, 2], [710, 524, 0], [290, 524, 0], [250, 140, 1], [750, 140, 1], [110, 340, 0], [890, 340, 0]].map(([X, Y, n]) => [...gridAt(X, Y), n]);
 // Flores (f), cera (r), pólen (b), favo selvagem (h) e a fonte de mel (w) no meio da praça
-const DECOR = [[...gridAt(...PLAZA), 'w'], ...[[430, 250, 'f'], [570, 250, 'f'], [440, 350, 'f'], [560, 350, 'f'], [200, 440, 'h'], [800, 440, 'h'], [270, 250, 'b'], [730, 250, 'b'], [380, 524, 'f'], [620, 524, 'f'], [500, 528, 'h'], [430, 150, 'f'], [570, 150, 'f']].map(([X, Y, k]) => [...gridAt(X, Y), k])];
+const DECOR = [[...gridAt(...PLAZA), 'w'], ...[[430, 250, 'f'], [570, 250, 'f'], [440, 350, 'f'], [560, 350, 'f'], [200, 440, 'h'], [800, 440, 'h'], [270, 250, 'b'], [730, 250, 'b'], [380, 524, 'f'], [620, 524, 'f'], [500, 528, 'h'], [430, 150, 'f'], [570, 150, 'f'],
+  [236, 214, 'girassol'], [770, 214, 'skep'], [455, 222, 'lanterna'], [545, 222, 'lanterna'], [420, 410, 'lanterna'], [580, 410, 'lanterna'],
+  [150, 430, 'girassol'], [850, 430, 'carga'], [260, 560, 'pedras'], [740, 560, 'skep'], [330, 108, 'pedras'], [670, 108, 'girassol'],
+  [120, 300, 'flores'], [880, 300, 'flores'], [215, 330, 'vela'], [785, 330, 'polen2'], [395, 535, 'flores'], [605, 535, 'flores']].map(([X, Y, k]) => [...gridAt(X, Y), k])];
+// Enfeite 3D (sombra + imagem do modelo); null enquanto o modelo não está pronto
+function deco3d(kind, X, Y) {
+  const r = ISO['i:deco:' + kind];
+  if (!r) return null;
+  const rx = Math.min(46, r.w * 0.4);
+  return `<ellipse cx="${X}" cy="${Y + 3}" rx="${rx.toFixed(1)}" ry="${(rx * 0.36).toFixed(1)}" fill="url(#g-shadow)" opacity=".55"/>` + isoImg('deco:' + kind, X, Y);
+}
+// Miudezas (tufos, flores e gotas de mel) espalhadas onde não há lote, caminho nem construção
+let FILL = null;
+function fillDecor() {
+  if (FILL) return FILL;
+  let seed = 7; const rnd = () => (seed = (seed * 16807) % 2147483647) / 2147483647;
+  const plaza = PLAZA, hubs = [...Object.values(SPOTS).map(sp => iso(...sp.at)), ...HAB_LOTS.map(l => iso(...l))];
+  const segD = (x, y, [ax, ay], [bx, by]) => { const dx = bx - ax, dy = by - ay, t = Math.max(0, Math.min(1, ((x - ax) * dx + (y - ay) * dy) / (dx * dx + dy * dy))); return Math.hypot(x - ax - t * dx, y - ay - t * dy); };
+  const taken = [...DECOR, ...TREES].map(([x, y]) => iso(x, y)), out = [];
+  for (let n = 0; n < 900 && out.length < 48; n++) {
+    const X = 70 + rnd() * 860, Y = 70 + rnd() * 470;
+    if (!inHex(X, Y, 40)) continue;
+    if (Math.hypot((X - plaza[0]) / 2, Y - plaza[1]) < 62) continue;
+    if (X > 280 && X < 720 && Y > 418 && Y < 512) continue;
+    if (Object.entries(SPOTS).some(([k, sp]) => { const [sx, sy] = iso(...sp.at), r = k === 'arena' ? 110 : 78; return Math.hypot((X - sx) / 2, Y - sy) < r / 2.1; })) continue;
+    if (HAB_LOTS.some(l => { const [hx, hy] = iso(...l); return Math.hypot((X - hx) / 2, Y - hy) < 34; })) continue;
+    if (hubs.some(h => segD(X, Y, plaza, h) < 24)) continue;
+    if ([...taken, ...out.map(o => iso(o[0], o[1]))].some(([tx, ty]) => Math.hypot(X - tx, Y - ty) < 34)) continue;
+    out.push([...gridAt(X, Y), ['tufo', 'tufo2', 'gotas', 'tufo', 'flores', 'tufo2'][out.length % 6]]);
+  }
+  return (FILL = out);
+}
+const DECO_MAP = { w: 'fonte', h: 'favo', f: 'flores', b: 'arbusto' };
 function isoDecor(x, y, k) {
   const [X, Y] = iso(x, y);
+  { const d3 = deco3d(DECO_MAP[k] || k, X, Y); if (d3) return d3; if (DECO_KINDS.includes(k)) return ''; }
   if (k === 'm') return isoTree(x, y, 0);
   if (k === 'w') {
     // fonte de mel: bacia hexagonal com mel borbulhando
@@ -9900,7 +10185,14 @@ function isoSpecial(k) {
   const sp = SPOTS[k], [cx, cy] = sp.at, size = sp.size || 2;
   const [X, Y] = iso(cx, cy);
   let out = `<g class="bld" data-a="tab" data-k="${k}" tabindex="0" role="button" aria-label="Abrir ${sp.n}">`;
-  if (k === 'chocadeira') return out + `<polygon class="lot hit" points="${pts(diamond(cx, cy, size, size))}" fill="transparent"/><rect class="hit" x="${X - 50}" y="${Y - 110}" width="100" height="110" fill="transparent"/>` + isoWheel(cx, cy, X, Y) + pill(X, Y + 40, sp.n) + '</g>';
+  if (k === 'chocadeira') {
+    const im = isoImg('roleta', X, Y), n = (S.t >= S.freeAt ? 1 : 0) + S.tickets;
+    if (!im) return out + `<polygon class="lot hit" points="${pts(diamond(cx, cy, size, size))}" fill="transparent"/><rect class="hit" x="${X - 50}" y="${Y - 110}" width="100" height="110" fill="transparent"/>` + isoWheel(cx, cy, X, Y) + pill(X, Y + 40, sp.n) + '</g>';
+    out += `<ellipse cx="${X}" cy="${Y + 14}" rx="74" ry="26" fill="url(#g-shadow)" opacity=".45"/><polygon class="lot hit" points="${pts(diamond(cx, cy, size, size))}" fill="transparent"/><rect class="hit" x="${X - 50}" y="${Y - 120}" width="100" height="120" fill="transparent"/>` + im;
+    if (S.wheel && S.wheel.until > performance.now()) out += `<g class="mspark" pointer-events="none"><circle cx="${X + 14}" cy="${Y - 70}" r="34" fill="#ffd23f" opacity=".22"/></g>`;
+    if (n) bubble(X + 46, Y - 112, '🎯', true, String(n), 'data-a="tab" data-k="chocadeira"');
+    return out + pill(X, Y + 40, sp.n) + '</g>';
+  }
   const img = isoImg(k, X, Y);
   if (img) {
     const r = ISO['i:' + k], big = size === 3;
@@ -9966,6 +10258,7 @@ function isoSpecial(k) {
 }
 function isoTree(x, y, n = 0) {
   const [X, Y] = iso(x, y);
+  { const d3 = deco3d(['potmel', 'vela', 'polen'][n % 3], X, Y); if (d3) return d3; }
   const sh = `<ellipse cx="${X}" cy="${Y + 2}" rx="17" ry="6" fill="url(#g-shadow)"/>`, O = 'stroke="#3a1c06" stroke-width="1.5"';
   if (n % 3 === 1) {
     // coluna de cera com mel escorrendo
@@ -10120,6 +10413,7 @@ function viewMap() {
   Object.keys(SPOTS).forEach(k => objs.push({ d: SPOTS[k].at[0] + SPOTS[k].at[1], html: isoSpecial(k) }));
   TREES.forEach(([x, y, n]) => objs.push({ d: x + y, html: isoTree(x, y, n) }));
   DECOR.forEach(([x, y, k]) => objs.push({ d: x + y - 0.5, html: isoDecor(x, y, k) }));
+  fillDecor().forEach(([x, y, k]) => objs.push({ d: x + y - 0.6, html: isoDecor(x, y, k) }));
   objs.sort((a, b) => a.d - b.d);
   const [t, r, b, l] = diamond(NG / 2, NG / 2, NG, NG);
   const [st, sr, sb, sl] = diamond(NG / 2, NG / 2, NG + 1.2, NG + 1.2);
@@ -10371,6 +10665,7 @@ function viewShop() {
       ${merch ? card('🧳', 'Mercador Viajante', `Só por mais ${Math.ceil(S.event.until - S.t)}s: troca mel por 10 de geleia real.`, `<button class="btn primary" data-a="merchant">${costTag(S.event.price)} → 💎 10</button>`, 'hot') : ''}
       ${card('🎯', 'Roleta do Enxame', 'As abelhas agora vêm da roleta. Giro de geleia real: só Raras ou melhores.', '<button class="btn gemb" data-a="mystery">Ir para a roleta</button>', 'rare')}
       ${Object.entries(BOOSTS).map(([k, b]) => card(b.i, b.n, b.d + (S.buffs[k] > S.t ? ` Ativo: ${Math.ceil(S.buffs[k] - S.t)}s.` : ''), `<button class="btn gemb" data-a="boost" data-k="${k}">💎 ${b.gems}</button>`)).join('')}
+      ${Object.entries(TREASURES).map(([k, t]) => card(t.i, t.n, t.d + (k === 'trevo' && S.luck ? ` Restam ${S.luck} giros com sorte.` : ''), `<button class="btn gemb" data-a="treasure" data-k="${k}">💎 ${t.gems}</button>`, k === 'trevo' || k === 'cesta' ? 'rare' : '')).join('')}
       ${card('💰', 'Pote de Mel', `Troque 5 de geleia real por ${fmt(gg)} de mel.`, '<button class="btn gemb" data-a="gemGold">💎 5</button>')}
     </div>`;
   }
@@ -10643,7 +10938,7 @@ const ACTIONS = {
   auto: () => { S.autoBattle = !S.autoBattle; },
   surrender: () => surrender(), closeBattle: () => closeBattle(),
   claim: el => claimMission(+el.dataset.i),
-  merchant: () => buyMerchant(), shopTab: el => { S.shopTab = el.dataset.k; }, boost: el => buyBoost(el.dataset.k), gemGold: () => gemsToGold(), mystery: () => mysteryEgg(),
+  merchant: () => buyMerchant(), shopTab: el => { S.shopTab = el.dataset.k; }, boost: el => buyBoost(el.dataset.k), treasure: el => buyTreasure(el.dataset.k), gemGold: () => gemsToGold(), mystery: () => mysteryEgg(),
   egg: () => catchEgg(),
   pause: () => togglePause(),
   askEnd: () => overlay(`<div class="card hero"><h1>Encerrar a partida?</h1><p>${S && S.finalPhase ? 'Desistir agora conta como colmeia não defendida.' : 'Você sai antes da Vespa Rainha chegar, e a colmeia fica sem defesa.'} Não dá para voltar.</p><div class="row"><button class="btn primary" data-a="end">Encerrar agora</button><button class="btn" data-a="cancelEnd">Continuar jogando</button></div></div>`),

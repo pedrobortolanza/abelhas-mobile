@@ -75,6 +75,13 @@ O jogo **pausa sozinho** quando a aba fica oculta. Botão Pausar e tecla `P` tam
 - **Vila da colmeia:** o chão virou cera lisa, sem o desenho de alvéolos. No meio fica uma praça com a fonte de mel, de onde saem caminhos curvos. As construções ficam num arco no fundo: Arena no topo, Mercado e Chocadeira dos lados, Mural de Missões e Jardim do Amor nas pontas. São até 9 colmeias, dos dois lados e embaixo da praça. O jardim fica na frente, um canteiro de terra com borda de cera e 12 vagas em 2 fileiras. Enfeites: poças de mel, potes, colunas de cera e flores do prado.
 - **Relíquias:** agora a cada 300 s (antes, 150 s).
 
+## Novidades da v5.1: carrossel, roleta 3D, ilha e tesouros (12/10/2026)
+
+- A Roleta do Enxame virou um carrossel no estilo de caixa: passam abelhas de verdade, com a cor da raridade embaixo. Só aparece o nome e o desenho das espécies que você já tem; as outras passam como silhueta "???". Cada giro dura 5,2 s, com um tique por abelha que passa; às vezes uma mais rara para do lado. O Giro do Amor usa o mesmo carrossel com os filhotes possíveis do casal.
+- No mapa, a Roleta do Enxame é uma barraca 3D com roda colorida, luzes, letreiro e fichas.
+- A ilha ganhou enfeites 3D (potes de mel, velas de cera acesas, girassóis, colmeias de palha, lampiões, favos, flores, cargas, pedras, fonte de mel maior) e cerca de 48 tufos, flores e gotas de mel espalhados onde não há lote nem caminho.
+- Loja > Tesouros: Pacote de Fichas (💎15, 3 fichas), Trevo da Sorte (💎12, 5 giros com chances C45/R33/E17/L5), Cesta Surpresa (💎10), Ampulheta (💎8, giro grátis na hora), Poção de Treino (💎6, +2 níveis na abelha mais fraca), Estrela do Destaque (💎4) e Néctar do Amor (💎3, acaba o descanso de quem cruzou).
+
 ## Novidades da v5: Roleta do Enxame (12/10/2026)
 
 - Ovos e chocadeira saíram. Toda abelha nova vem da **Roleta do Enxame** (aba Roleta e roda no mapa).
