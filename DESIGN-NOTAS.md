@@ -52,6 +52,25 @@ O jogo **pausa sozinho** quando a aba fica oculta. Botão Pausar e tecla `P` tam
 - **Relíquias:** a cada **150 s** de jogo (`RELIC_EVERY`, sem batalha aberta) o relógio para e o jogador escolhe 1 entre 3 relíquias. Os efeitos multiplicam ou somam e valem até o fim da partida. As 15 relíquias: Favo Dourado (+20% de mel), Pólen Mágico (flores 25% mais rápidas), Néctar Concentrado (+30% de néctar), Ninho Quentinho (ovos 25% mais rápidos), Ferrão Afiado (+15% de ataque), Cera Resistente (+15% de vida), Mel de Lavanda (cura 6% da vida por turno), Olho Composto (+8% de crítico), Ferrão Elemental (vantagem de tipo x1,8, uma vez só), Bênção da Tropa (+25% de XP), Feromônio (cruzar 30% mais barato), Moeda de Cera (mercado 15% mais barato), Pote de Mel (90 s de produção na hora, mínimo 500), Geleia Fresca (+15 de geleia real) e Ovo da Tropa (ovo Raro ou Épico na chocadeira).
 - Tudo isso vive em `S.mods` (padrão em `MODS0`) e é lido por `MOD(k)`. A tela final mostra a rainha, o prado e o número de relíquias.
 
+## Novidades da v2 (pedidos do Pedro, 12/10/2026)
+- **Ilha dentro da colmeia:** o chão virou um piso de favo de cera, com alvéolos cheios de mel, fechados com cera ou com pólen. Ao fundo fica a parede de favos com mel escorrendo do teto. A plataforma flutua numa poça de mel, e os penhascos são de cera com mel pingando. Árvores e pedras viraram potes de mel, colunas de cera, montes de pólen e uma fonte de mel. O Jardim do Amor agora tem três flores gigantes.
+- **Jardim (painel dos canteiros):** abre ao tocar num canteiro ou no botão "Jardim". Cada canteiro tem sua própria flor e um nível de 1 a 5 (`FARM_MAX`). Cada nível dá +30% de néctar e +15% de velocidade. O próximo nível custa `150 · 2,3^(nível − 1)` de mel. O seletor de flores saiu do mapa.
+- **Abelha Jardineira:** contratada no Jardim a partir do nível 6, por 3.000 de mel. A cada 1,5 s ela colhe um canteiro pronto ou replanta um vazio com a flor escolhida (`GARDENER`).
+- **Roleta da BetMel** (Loja › Roleta): 5.000 de mel ou 25 de geleia real por giro. Prêmios: BetMel 3%, Ovo Épico 10%, Ovo Raro 17%, 3.000 de mel 25%, 12 de geleia real 15% e 400 de néctar 30% (`SPIN_PRIZES`). A **BetMel** é uma lendária Elétrica + Luz que só sai na roleta. Ela é dourada, usa óculos escuros e produz o dobro de mel.
+- **Ataques** (Loja › Ataques): a abelha escolhida aprende um golpe extra para a batalha e ganha ataque permanente. Cada abelha tem 1 golpe aprendido, e um golpe novo troca o antigo, mas o bônus se soma.
+
+| Golpe | Efeito | Recarga | Bônus de ataque | Preço | Nível mínimo |
+|---|---|---|---|---|---|
+| Ferroada Tripla | x2,4 do 1º tipo | 4 | +10% | 2.500 de mel | 3 |
+| Chuva de Pólen | x1,6 neutro, ignora fraquezas | 2 | +8% | 1.800 de mel | 2 |
+| Mel Pegajoso | x1,3 e cura 20% da vida | 3 | +6% | 3.200 de mel | 4 |
+| Mergulho Cometa | x3 do 2º tipo, +25% de crítico | 5 | +15% | 30 de geleia real | 6 |
+
+- **Renomear:** botão de etiqueta no card da abelha, até 18 caracteres.
+- **Lendárias mais raras no cruzamento:** Eclipse 6%, Aurora 5%, Escorpiona 4%, Tempestade 3,5% e Vulcana 3%. Mesmo com a Rainha Sortuda, a chance de cada receita fica em no máximo 25%.
+- **Visual (Loja › Visual):** chapéus (palha, boné, coroa de flores, cartola, coroa dourada) e asas (borboleta, fada, ouro), pagos com geleia real (8 a 18). O visual não muda atributos e aparece em todo o jogo, inclusive na batalha.
+- **Correção:** a abelha inicial não aparecia como descoberta no Abelhário.
+
 ## Recursos
 - **Mel (🪙)**: produzido pelas abelhas dentro das colmeias; precisa ser coletado com clique.
 - **Néctar (🍖)**: colhido nos canteiros de flores; usada para subir o nível das abelhas.

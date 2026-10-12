@@ -83,7 +83,7 @@ h2 { font-size: 1.25rem; }
 /* Ilha isométrica + painéis */
 body { padding-bottom: calc(76px + env(safe-area-inset-bottom, 0px)); }
 .stage { position: relative; }
-.mapwrap { overflow: auto; background: #4a260b; scrollbar-width: thin; overscroll-behavior: contain; }
+.mapwrap { overflow: auto; background: #2a1405; scrollbar-width: thin; overscroll-behavior: contain; }
 .mapwrap svg.iso { display: block; width: 100%; height: auto; max-height: calc(100vh - 150px); margin-inline: auto; }
 .iso .bld { cursor: pointer; }
 .iso .bld:hover .lot, .iso .bld:focus .lot { filter: brightness(1.15); }
@@ -674,6 +674,46 @@ svg.gi { width: 1.2em; height: 1.2em; vertical-align: -.25em; display: inline-bl
 .relics .rl { font-size: .75rem; font-weight: 800; padding: 2px 8px; border-radius: 999px; background: rgba(0, 0, 0, .3); border: 1px solid var(--line); }
 @media (max-width: 640px) { .choices { grid-template-columns: 1fr; } .choice { flex-direction: row; text-align: left; flex-wrap: wrap; } .choice .dic { transform: scale(.7); margin: -14px; } }
 /* Celular deitado (pouca altura): barra de recursos numa linha só, menu na lateral esquerda e mapa ocupando a altura toda */
+/* Jardim, roleta, ataques e renomear */
+.ren { background: none; border: 0; padding: 0 2px; cursor: pointer; vertical-align: middle; opacity: .8; }
+.ren:hover { opacity: 1; transform: scale(1.1); }
+.ren svg.gi { width: 18px; height: 18px; }
+.gard { display: flex; align-items: center; gap: 12px; padding: 10px 12px; border-radius: 14px; margin-bottom: 12px; background: rgba(255, 210, 120, .12); border: 2px dashed rgba(255, 210, 120, .4); }
+.gard.on { border-style: solid; background: rgba(132, 224, 138, .14); border-color: rgba(132, 224, 138, .5); }
+.gard > div { display: flex; flex-direction: column; flex: 1; gap: 2px; }
+.gard .bigic svg.gi { width: 40px; height: 40px; }
+.gall { flex-wrap: wrap; gap: 6px; align-items: center; margin-bottom: 10px; }
+.gardens { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 10px; }
+.gcard { display: flex; flex-direction: column; gap: 6px; padding: 10px; border-radius: 14px; background: linear-gradient(#5a3a1c, #3e2812); border: 3px solid #2a1a0c; box-shadow: inset 0 2px 0 rgba(255, 255, 255, .12), 0 3px 0 rgba(0, 0, 0, .35); }
+.gcard.ready { border-color: #84e08a; }
+.gcard.sel { outline: 3px solid var(--gold); }
+.gcard .ghead { display: flex; justify-content: space-between; align-items: center; }
+.gcard .stars { color: var(--gold); letter-spacing: 1px; font-size: .85rem; }
+.gcard .gpot { width: 100%; height: 70px; }
+.gcard .row { gap: 6px; flex-wrap: wrap; }
+.frow { display: flex; gap: 4px; flex-wrap: wrap; }
+.fbtn { width: 38px; height: 38px; border-radius: 10px; border: 2px solid #2a1a0c; background: #7a5530; cursor: pointer; display: grid; place-items: center; padding: 0; box-shadow: 0 2px 0 rgba(0, 0, 0, .35); }
+.fbtn svg.gi { width: 26px; height: 26px; }
+.fbtn[aria-pressed="true"] { background: #f2a830; border-color: #fff3c4; }
+.fbtn.nat { box-shadow: 0 0 0 2px #84e08a, 0 2px 0 rgba(0, 0, 0, .35); }
+.fbtn:disabled { opacity: .35; cursor: not-allowed; }
+.sitem.picked { outline: 3px solid var(--gold); }
+.chips { display: flex; flex-wrap: wrap; gap: 6px; }
+.wheel-wrap { display: flex; gap: 22px; align-items: center; justify-content: center; flex-wrap: wrap; padding: 8px; }
+.wheel-box { position: relative; width: min(300px, 70vw); aspect-ratio: 1; }
+.wheel { position: absolute; inset: 0; border-radius: 50%; border: 8px solid #6b3a0c; box-shadow: 0 0 0 4px #ffd98a, 0 8px 0 rgba(0, 0, 0, .35), inset 0 0 30px rgba(0, 0, 0, .35); transition: transform 3.2s cubic-bezier(.12, .7, .15, 1); }
+.wheel .wl { position: absolute; left: 50%; top: 50%; width: 0; height: 0; }
+.wheel .wl > span { position: absolute; left: -18px; top: -112px; width: 36px; height: 36px; display: grid; place-items: center; }
+.wheel .wl svg.gi { width: 32px; height: 32px; filter: drop-shadow(0 2px 0 rgba(0, 0, 0, .4)); }
+.wheel-hub { position: absolute; left: 50%; top: 50%; width: 64px; height: 64px; margin: -32px; border-radius: 50%; background: radial-gradient(#ffe9a8, #e0950f); border: 4px solid #6b3a0c; display: grid; place-items: center; }
+.wheel-hub svg.gi { width: 38px; height: 38px; }
+.wheel-pin { position: absolute; left: 50%; top: -14px; margin-left: -14px; width: 0; height: 0; border-left: 14px solid transparent; border-right: 14px solid transparent; border-top: 30px solid #ff4d6d; z-index: 2; filter: drop-shadow(0 3px 0 rgba(0, 0, 0, .4)); }
+.wheel-side { display: flex; flex-direction: column; gap: 8px; max-width: 340px; }
+.wheel-t { font-family: "Lilita One", system-ui; color: var(--gold); margin: 0; }
+.wprizes { display: grid; grid-template-columns: 1fr 1fr; gap: 4px 12px; font-size: .9rem; }
+.wprizes b { color: var(--gold); }
+.wres { min-height: 1.4em; font-weight: 800; margin: 0; }
+@media (prefers-reduced-motion: reduce) { .wheel { transition-duration: .3s; } }
 @media (orientation: landscape) and (max-height: 520px) {
   body { padding-bottom: 0; padding-left: calc(66px + env(safe-area-inset-left, 0px)); }
   .top .wrap { flex-wrap: nowrap; gap: 6px; padding-block: 4px; max-width: none; padding-inline: 8px calc(8px + env(safe-area-inset-right, 0px)); }
@@ -705,6 +745,8 @@ svg.gi { width: 1.2em; height: 1.2em; vertical-align: -.25em; display: inline-bl
   .overlay { padding: 8px; align-items: start; }
   .overlay .card { padding: 12px 14px; gap: 8px; }
   .overlay .card h1 { font-size: 1.6rem; }
+  .wheel-box { width: 210px; } .wheel .wl > span { top: -80px; } .gardens { grid-template-columns: repeat(auto-fill, minmax(170px, 1fr)); }
+  .shop-top { display: none; } .stabs { flex-wrap: nowrap; overflow-x: auto; } .stab { white-space: nowrap; }
   .overlay .hero { gap: 4px; } .overlay .hero > .row:first-child { zoom: .5; }
   .overlay .hero p { font-size: .85rem; margin: 2px 0; }
   .modes { grid-template-columns: repeat(4, 1fr); gap: 6px; } .mode { padding: 8px 10px; } .mode b { font-size: 1.05rem; } .mode span { font-size: .72rem; }
@@ -7207,6 +7249,7 @@ const M3 = (() => {
       mesh(SPH_LO, M.tier === 3 ? M.gold : M.has('luz') ? mat('#ffe680', { emissive: col('#ffc800'), emissiveIntensity: 0.8 }) : M.body, a, [0.5 * s * len, 0.66 * s * len, z * 0.16 * s * len], [0.09 * s, 0.09 * s, 0.09 * s]);
       return a;
     });
+    head.userData.s = s;
     return { head, ants };
   }
   // Par de asas (anterior grande e posterior menor) de cada lado, presas ao tórax
@@ -7352,8 +7395,21 @@ const M3 = (() => {
   }
   const BODY_OF = { C: buildOperaria, R: buildGuardia, E: buildGuerreira, L: buildSoberana };
   const isVespa = (els, rar) => rar === 'L' && els[0] === 'trevas' && els[1] === 'fogo';
+  // BetMel: Soberana dourada com óculos escuros e uma moeda de mel na coroa (só sai na roleta)
+  const isBetMel = (els, rar) => rar === 'L' && els[0] === 'eletrico' && els[1] === 'luz';
+  function buildBetMel() {
+    const M = bMats(['eletrico', 'luz'], 'L');
+    M.body = mat('#ffc928', { metalness: 0.35, roughness: 0.3, emissive: col('#5a3a00'), emissiveIntensity: 0.25 });
+    const b = buildSoberana(M); b.M = M;
+    const h = b.parts.head, s = 1.05, dark = mat('#14101c', { roughness: 0.2, metalness: 0.4 });
+    [1, -1].forEach(z => mesh(SPH, dark, h, [0.62 * s, 0.14 * s, z * 0.3 * s], [0.12 * s, 0.17 * s, 0.22 * s], [0, z * 0.5, 0]));
+    mesh(BOX, dark, h, [0.7 * s, 0.2 * s, 0], [0.05 * s, 0.05 * s, 0.24 * s], [0, 0, 0], false);
+    mesh(CYL, M.gold, h, [0.0, 1.15 * s, 0], [0.26 * s, 0.05 * s, 0.26 * s], [Math.PI / 2, 0, 0]);
+    return b;
+  }
   function buildBee(els, rar) {
     if (isVespa(els, rar)) return buildVespa();
+    if (isBetMel(els, rar)) return buildBetMel();
     const M = bMats(els, rar);
     const b = BODY_OF[rar](M);
     b.M = M;
@@ -7384,9 +7440,47 @@ const M3 = (() => {
   const stripCanvas = document.createElement('canvas');
   stripCanvas.width = FW * NF; stripCanvas.height = FH;
   const sctx = stripCanvas.getContext('2d');
-  function dragonStrip(els, rar) {
+  // Visual comprado na loja: chapéu na cabeça e cor das asas
+  function dressBee(d, skin) {
+    if (!skin) return;
+    const h = d.parts.head, s = (h.userData.s || 1), y = 0.6 * s;
+    if (skin.hat) {
+      if (d.parts.crown) d.parts.crown.visible = false;
+      const g = new T.Group(); g.position.set(-0.05 * s, y, 0); g.rotation.z = 0.18; h.add(g);
+      if (skin.hat === 'palha') {
+        const m = mat('#f2cf7a', { roughness: 0.9 });
+        mesh(CYL, m, g, [0, 0, 0], [0.62 * s, 0.04 * s, 0.62 * s]);
+        mesh(CYL, m, g, [0, 0.14 * s, 0], [0.32 * s, 0.26 * s, 0.32 * s]);
+        mesh(CYL, mat('#ff5f7e'), g, [0, 0.06 * s, 0], [0.335 * s, 0.07 * s, 0.335 * s], [0, 0, 0], false);
+      } else if (skin.hat === 'cartola') {
+        const m = mat('#1e1626', { roughness: 0.35 });
+        mesh(CYL, m, g, [0, 0, 0], [0.5 * s, 0.04 * s, 0.5 * s]);
+        mesh(CYL, m, g, [0, 0.3 * s, 0], [0.3 * s, 0.6 * s, 0.3 * s]);
+        mesh(CYL, mat('#e0402e'), g, [0, 0.1 * s, 0], [0.31 * s, 0.09 * s, 0.31 * s], [0, 0, 0], false);
+      } else if (skin.hat === 'bone') {
+        const m = mat('#3aa0ff', { roughness: 0.6 });
+        mesh(new T.SphereGeometry(1, 20, 10, 0, Math.PI * 2, 0, Math.PI / 2), m, g, [0, -0.04 * s, 0], [0.42 * s, 0.3 * s, 0.42 * s]);
+        mesh(CYL, m, g, [0.4 * s, -0.03 * s, 0], [0.26 * s, 0.03 * s, 0.3 * s]);
+        mesh(SPH_LO, mat('#ffffff'), g, [0, 0.27 * s, 0], [0.06 * s, 0.06 * s, 0.06 * s], [0, 0, 0], false);
+      } else if (skin.hat === 'flores') {
+        mesh(new T.TorusGeometry(0.4 * s, 0.05 * s, 6, 24), mat('#4f9a38'), g, [0, 0, 0], [1, 1, 1], [Math.PI / 2, 0, 0], false);
+        ['#ff5fa2', '#ffd23f', '#ffffff', '#c77dff', '#ff9a3c', '#ff5fa2', '#9be7ff'].forEach((c, i) => { const a = i / 7 * Math.PI * 2; mesh(SPH_LO, mat(c), g, [Math.cos(a) * 0.4 * s, 0.03 * s, Math.sin(a) * 0.4 * s], [0.11 * s, 0.07 * s, 0.11 * s]); });
+      } else if (skin.hat === 'coroa') {
+        crownOn(h, d.M || bMats(['luz'], 'L'), [0, 0.66 * s, 0], 0.95 * s);
+      }
+    }
+    if (skin.wing) {
+      const wc = { borboleta: ['#ff5fa2', 0.85, '#7a1a5a'], ouro: ['#ffd23f', 0.8, '#7a4a00'], fada: ['#9be7ff', 0.55, '#1a6a8a'] }[skin.wing];
+      if (wc) {
+        const wm = mat(wc[0], { transparent: true, opacity: wc[1], roughness: 0.2, side: T.DoubleSide, emissive: col(wc[2]), emissiveIntensity: 0.35, depthWrite: false });
+        [d.parts.wingN, d.parts.wingF].forEach(w => w && w.traverse(n => { if (n.isMesh && n.material && n.material.transparent) n.material = wm; }));
+      }
+    }
+  }
+  function dragonStrip(els, rar, skin) {
     OUT = 0.045;
     const d = buildBee(els, rar);
+    dressBee(d, skin);
     const sc = { operaria: 1.3, guardia: 1.15, guerreira: 1.1, soberana: 1.0, vespa: 1.0 }[d.kind];
     d.root.scale.setScalar(sc);
     const holder = new T.Group(); holder.add(d.root); holder.rotation.y = -0.72;
@@ -7487,7 +7581,7 @@ const M3 = (() => {
   };
   B.cruzar = () => {
     const g = new T.Group();
-    platform(g, 1.9, '#9fd66c', '#6e5232');
+    platform(g, 1.9, '#f6c768', '#a8641a');
     cobble(g, 1.6);
     const mm = mat('#c28cf0', { roughness: 0.7, flatShading: true }), md = mat('#9a62d6', { roughness: 0.7, flatShading: true });
     mesh(new T.ConeGeometry(0.6, 1.5, 7), mm, g, [-0.15, 0.75, -0.2], [1, 1, 0.9], [0, 0.3, 0]);
@@ -7503,7 +7597,7 @@ const M3 = (() => {
   };
   B.chocadeira = () => {
     const g = new T.Group();
-    platform(g, 1.9, '#9fd66c', '#6e5232');
+    platform(g, 1.9, '#f6c768', '#a8641a');
     cobble(g, 1.6);
     mesh(new T.CylinderGeometry(0.75, 0.82, 0.22, 32), mat('#8a6a3a', { roughness: 0.8 }), g, [0, 0.12, 0]);
     const egg = new T.LatheGeometry(Array.from({ length: 21 }, (_, i) => { const t = i / 20, a = t * Math.PI; return new T.Vector2(Math.sin(a) * 0.62 * (1 - 0.25 * t), -Math.cos(a) * 0.8); }), 40);
@@ -7517,7 +7611,7 @@ const M3 = (() => {
   };
   B.loja = () => {
     const g = new T.Group();
-    platform(g, 1.9, '#9fd66c', '#6e5232');
+    platform(g, 1.9, '#f6c768', '#a8641a');
     cobble(g, 1.6);
     const wood = mat('#b5793f', { roughness: 0.8 }), woodD = mat('#7a4d26', { roughness: 0.8 });
     mesh(new T.BoxGeometry(1.2, 0.5, 0.55), wood, g, [0, 0.26, 0.15]);
@@ -7540,7 +7634,7 @@ const M3 = (() => {
   };
   B.missoes = () => {
     const g = new T.Group();
-    platform(g, 1.9, '#9fd66c', '#6e5232');
+    platform(g, 1.9, '#f6c768', '#a8641a');
     cobble(g, 1.6);
     const wood = mat('#b5793f', { roughness: 0.8 }), woodD = mat('#6b4423', { roughness: 0.8 });
     const board = new T.Group(); board.rotation.y = Math.PI / 4; g.add(board);
@@ -7558,8 +7652,8 @@ const M3 = (() => {
     return g;
   };
   // Habitats com tema do elemento
-  const HTOP = { fogo: '#5b4038', agua: '#8fd7a0', planta: '#7fd35a', terra: '#c79a63', eletrico: '#8a8fa8', gelo: '#e9f6ff', metal: '#a7b0bf', trevas: '#4a3a66', luz: '#fff0bf', none: '#9fd66c' };
-  const HSIDE = { fogo: '#3a2522', agua: '#5b7d5a', planta: '#5b8a3a', terra: '#8a6a3f', eletrico: '#555a70', gelo: '#9cc8e6', metal: '#6c7480', trevas: '#2b2140', luz: '#c9a650', none: '#6e5232' };
+  const HTOP = { fogo: '#5b4038', agua: '#8fd7a0', planta: '#7fd35a', terra: '#c79a63', eletrico: '#8a8fa8', gelo: '#e9f6ff', metal: '#a7b0bf', trevas: '#4a3a66', luz: '#fff0bf', none: '#f6c768' };
+  const HSIDE = { fogo: '#3a2522', agua: '#5b7d5a', planta: '#5b8a3a', terra: '#8a6a3f', eletrico: '#555a70', gelo: '#9cc8e6', metal: '#6c7480', trevas: '#2b2140', luz: '#c9a650', none: '#a8641a' };
   B.habitat = th => {
     const g = new T.Group();
     platform(g, 1.9, HTOP[th], HSIDE[th], 0.28);
@@ -7641,12 +7735,20 @@ const M3 = (() => {
   // Construções com modelos prontos da KayKit (CC0); sem eles, ficam as versões procedurais acima
   const PB = { arena: B.arena, cruzar: B.cruzar, loja: B.loja, missoes: B.missoes, tree: B.tree, rock: B.rock, habitat: B.habitat, farm: B.farm, chocadeira: B.chocadeira };
   B.arena = () => { if (!G.castle) return PB.arena(); const g = new T.Group(); platform(g, 2.9, '#cbb489', '#8a7350', 0.28); cobble(g, 2.5); glb('castle', g, [0, 0.03, 0], 2.0, Math.PI / 4); glb('flag', g, [1.15, 0.03, -1.15], 0.35); glb('flag', g, [-1.15, 0.03, 1.15], 0.35); glb('barrel', g, [1.2, 0.03, 0.9], 0.22); glb('crate', g, [0.95, 0.03, 1.2], 0.24); return g; };
-  B.loja = () => { if (!G.market) return PB.loja(); const g = new T.Group(); platform(g, 1.9, '#9fd66c', '#6e5232'); cobble(g, 1.6); glb('market', g, [0, 0.03, -0.05], 1.65, Math.PI / 4); glb('sack', g, [0.65, 0.03, 0.62], 0.25); glb('barrel', g, [-0.66, 0.03, 0.6], 0.22); glb('crate', g, [0.7, 0.03, -0.62], 0.24); return g; };
-  B.missoes = () => { if (!G.tavern) return PB.missoes(); const g = new T.Group(); platform(g, 1.9, '#9fd66c', '#6e5232'); cobble(g, 1.6); glb('tavern', g, [0, 0.03, -0.05], 1.45, Math.PI / 4); glb('barrel', g, [0.68, 0.03, 0.6], 0.22); glb('flag', g, [-0.7, 0.03, 0.65], 0.3); return g; };
+  B.loja = () => { if (!G.market) return PB.loja(); const g = new T.Group(); platform(g, 1.9, '#f6c768', '#a8641a'); cobble(g, 1.6); glb('market', g, [0, 0.03, -0.05], 1.65, Math.PI / 4); glb('sack', g, [0.65, 0.03, 0.62], 0.25); glb('barrel', g, [-0.66, 0.03, 0.6], 0.22); glb('crate', g, [0.7, 0.03, -0.62], 0.24); return g; };
+  B.missoes = () => { if (!G.tavern) return PB.missoes(); const g = new T.Group(); platform(g, 1.9, '#f6c768', '#a8641a'); cobble(g, 1.6); glb('tavern', g, [0, 0.03, -0.05], 1.45, Math.PI / 4); glb('barrel', g, [0.68, 0.03, 0.6], 0.22); glb('flag', g, [-0.7, 0.03, 0.65], 0.3); return g; };
   B.cruzar = () => {
-    if (!G.mountain) return PB.cruzar();
-    const g = new T.Group(); platform(g, 1.9, '#9fd66c', '#6e5232');
-    const m = glb('mountain', g, [0, 0.03, 0], 1.75);
+    // Jardim do Amor: três flores gigantes (rosa, lilás e amarela) com um coração em cima
+    const g = new T.Group(); platform(g, 1.9, '#f6c768', '#a8641a');
+    const m = new T.Group(); g.add(m);
+    const stem = mat('#4f9a38', { roughness: 0.7 }), core = mat('#ffd23f', { roughness: 0.5 });
+    [[0, 0, 1.15, '#ff5fa2'], [-0.45, 0.35, 0.8, '#c77dff'], [0.45, -0.35, 0.75, '#ffb03a']].forEach(([x, z, h, c]) => {
+      const pm = mat(c, { roughness: 0.45 });
+      mesh(CYL, stem, m, [x, h / 2, z], [0.06, h, 0.06]);
+      mesh(SPH_LO, stem, m, [x + 0.12, h * 0.45, z], [0.16, 0.05, 0.08], [0, 0, -0.5], false);
+      for (let i = 0; i < 6; i++) { const a = i / 6 * Math.PI * 2; mesh(SPH, pm, m, [x + Math.cos(a) * 0.22, h + 0.02, z + Math.sin(a) * 0.22], [0.2, 0.08, 0.2], [0, -a, 0.3]); }
+      mesh(SPH, core, m, [x, h + 0.07, z], [0.14, 0.09, 0.14]);
+    });
     const hs = new T.Shape(); hs.moveTo(0, -0.35); hs.bezierCurveTo(-0.5, 0, -0.35, 0.38, 0, 0.18); hs.bezierCurveTo(0.35, 0.38, 0.5, 0, 0, -0.35);
     const hg = new T.ExtrudeGeometry(hs, { depth: 0.12, bevelEnabled: true, bevelThickness: 0.06, bevelSize: 0.05, bevelSegments: 4, curveSegments: 16 }); hg.translate(0, 0, -0.06);
     const top = new T.Box3().setFromObject(m).max.y;
@@ -7727,11 +7829,11 @@ const RARITY = {
   L: { n: 'Lendária', f: 'Soberana',  rv: 5, gps: 15,  hp: 230, atk: 46, egg: 40 },
 };
 const LEGENDS = [
-  { k: 'eclipse',    n: 'Eclipse',     els: ['luz', 'trevas'],     ch: 0.25 },
-  { k: 'aurora',     n: 'Aurora',      els: ['gelo', 'luz'],       ch: 0.20 },
-  { k: 'tita',       n: 'Escorpiona',  els: ['terra', 'metal'],    ch: 0.18 },
-  { k: 'tempestade', n: 'Tempestade',  els: ['agua', 'eletrico'],  ch: 0.15 },
-  { k: 'vulcano',    n: 'Vulcana',     els: ['fogo', 'terra'],     ch: 0.12 },
+  { k: 'eclipse',    n: 'Eclipse',     els: ['luz', 'trevas'],     ch: 0.06 },
+  { k: 'aurora',     n: 'Aurora',      els: ['gelo', 'luz'],       ch: 0.05 },
+  { k: 'tita',       n: 'Escorpiona',  els: ['terra', 'metal'],    ch: 0.04 },
+  { k: 'tempestade', n: 'Tempestade',  els: ['agua', 'eletrico'],  ch: 0.035 },
+  { k: 'vulcano',    n: 'Vulcana',     els: ['fogo', 'terra'],     ch: 0.03 },
 ];
 // Flores plantadas nos canteiros: dão néctar (food) para alimentar as abelhas
 const CROPS = {
@@ -7874,6 +7976,42 @@ const RELICS = [
   { k: 'geleia',   n: 'Geleia Fresca',       i: '💎', d: 'Ganhe agora 15 de geleia real.',                 now: 'geleia' },
   { k: 'ovo',      n: 'Ovo da Tropa',        i: '🥚', d: 'Um ovo Raro ou Épico vai para a chocadeira, sem ocupar alvéolo.', now: 'ovo' },
 ];
+// Canteiros: cada um tem sua flor e seu nível (1 a 5). Nível dá mais néctar e cresce mais rápido.
+const FARM_MAX = 5;
+const farmUpCost = lvl => Math.round(150 * Math.pow(2.3, lvl - 1) * MOD('shop'));
+const farmYield = f => 1 + 0.3 * ((f.lvl || 1) - 1);
+const farmSpeed = f => 1 + 0.15 * ((f.lvl || 1) - 1);
+// Abelha Jardineira: colhe e replanta sozinha
+const GARDENER = { lvl: 6, cost: 3000, every: 1.5 };
+// Roleta da BetMel
+const SPIN = { gold: 5000, gems: 25 };
+const SPIN_PRIZES = [
+  { k: 'betmel', n: 'BetMel!', i: '🍀', p: 0.03, c: '#ffd23f' },
+  { k: 'epico', n: 'Ovo Épico', i: '🔮', p: 0.10, c: '#c77dff' },
+  { k: 'raro', n: 'Ovo Raro', i: '🥚', p: 0.17, c: '#4fb3ff' },
+  { k: 'mel', n: '3.000 de mel', i: '🪙', p: 0.25, c: '#f2a830' },
+  { k: 'geleia', n: '12 de geleia real', i: '💎', p: 0.15, c: '#ffd9b0' },
+  { k: 'nectar', n: '400 de néctar', i: '🍖', p: 0.30, c: '#ff83ba' },
+];
+const BETMEL = { key: 'X:betmel', name: 'BetMel', els: ['eletrico', 'luz'], rar: 'L' };
+// Ataques vendidos na loja: a abelha aprende um golpe e ganha ataque permanente
+const ATTACKS = {
+  tripla:  { n: 'Ferroada Tripla', i: '🗡️', d: 'Golpe forte do tipo da abelha (x2,4), recarga de 4 turnos.', pow: 2.4, cd: 4, el: 'own', up: 0.10, gold: 2500, lvl: 3 },
+  polen:   { n: 'Chuva de Pólen',  i: '💫', d: 'Golpe neutro (x1,6) que ignora fraquezas, recarga de 2 turnos.', pow: 1.6, cd: 2, el: null, up: 0.08, gold: 1800, lvl: 2 },
+  pegajoso:{ n: 'Mel Pegajoso',    i: '❤️', d: 'Golpe x1,3 que cura 20% da vida da abelha, recarga de 3 turnos.', pow: 1.3, cd: 3, el: 'own', heal: 0.2, up: 0.06, gold: 3200, lvl: 4 },
+  cometa:  { n: 'Mergulho Cometa', i: '☄️', d: 'Golpe x3 do 2º tipo da abelha com +25% de crítico, recarga de 5 turnos.', pow: 3.0, cd: 5, el: 'second', crit: 0.25, up: 0.15, gems: 30, lvl: 6 },
+};
+// Visual das abelhas: chapéus e asas comprados com geleia real
+const SKINS = {
+  palha:     { t: 'hat',  n: 'Chapéu de palha',  i: '🌾', gems: 8 },
+  bone:      { t: 'hat',  n: 'Boné azul',        i: '⭐', gems: 8 },
+  flores:    { t: 'hat',  n: 'Coroa de flores',  i: '🌻', gems: 10 },
+  cartola:   { t: 'hat',  n: 'Cartola',          i: '💫', gems: 12 },
+  coroa:     { t: 'hat',  n: 'Coroa dourada',    i: '👑', gems: 18 },
+  borboleta: { t: 'wing', n: 'Asas de borboleta', i: '💞', gems: 12 },
+  fada:      { t: 'wing', n: 'Asas de fada',     i: '✨', gems: 12 },
+  ouro:      { t: 'wing', n: 'Asas de ouro',     i: '🌟', gems: 18 },
+};
 // (DATA-END)
 
 // ============================================================
@@ -7929,11 +8067,11 @@ const ALL_SPECIES = allSpecies();
 const MOD = k => (S && S.mods ? S.mods[k] : MODS0[k]);
 const isNative = d => !!(S && S.meadow && d.els && d.els.some(e => S.meadow.includes(e)));
 const unlockLvl = k => (S && S.unlock ? S.unlock[k] : EL[k].unlock);
-const gpsOf = d => RARITY[d.rar].gps * (1 + 0.4 * (d.lvl - 1)) * MOD('gold') * (isNative(d) ? MEADOW_GOLD : 1);
+const gpsOf = d => RARITY[d.rar].gps * (1 + 0.4 * (d.lvl - 1)) * MOD('gold') * (isNative(d) ? MEADOW_GOLD : 1) * (d.key === BETMEL.key ? 2 : 1);
 const hpOf = d => Math.round(RARITY[d.rar].hp * (1 + 0.2 * (d.lvl - 1)));
 const atkOf = d => Math.round(RARITY[d.rar].atk * (1 + 0.16 * (d.lvl - 1)));
 const myHp = d => Math.round(hpOf(d) * MOD('hp'));
-const myAtk = d => Math.round(atkOf(d) * MOD('atk'));
+const myAtk = d => Math.round(atkOf(d) * MOD('atk') * (1 + (d.atkUp || 0)));
 const powerOf = d => Math.round(hpOf(d) / 4 + atkOf(d) * 2);
 const feedCost = lvl => Math.round(10 * Math.pow(1.5, lvl - 1) * MOD('feed'));
 const sellValue = d => Math.round(25 * RARITY[d.rar].rv * d.lvl);
@@ -7971,8 +8109,8 @@ function newState(modeKey) {
   const st = {
     mode: modeKey, t: 0, running: true, paused: false, ended: false,
     gold: 250, food: 30, gems: 5, xp: 0, level: 1,
-    dragons: [], habitats: [{ stored: 0 }], farms: [{ crop: null, prog: 0 }, { crop: null, prog: 0 }],
-    eggs: [], hatchSlots: 1, selCrop: 'trigo',
+    dragons: [], habitats: [{ stored: 0 }], farms: [{ crop: null, prog: 0, lvl: 1, pick: 'trigo' }, { crop: null, prog: 0, lvl: 1, pick: 'trigo' }],
+    eggs: [], hatchSlots: 1, selCrop: 'trigo', skinPick: null, gardener: false, gardenAcc: 0, spin: null, atkPick: null, jardimSel: null,
     league: 1, leagueFight: 0, battle: null, team: [], autoBattle: false, lastResult: null,
     missions: [], ach: {}, dex: {}, stats: newStats(),
     buffs: {}, event: null, nextEvent: 50, lostEgg: null, warned: [], finalPhase: false, finalResult: null, nextInvasion: 900, wave: 0, weakened: false,
@@ -7987,12 +8125,13 @@ function newState(modeKey) {
   st.meadow.forEach(k => { st.unlock[k] = 1; });
   shuffled.slice(MEADOW_N).forEach((k, i) => { st.unlock[k] = 2 + i; });
   st.nativeFlower = pick(Object.keys(CROPS));
+  st.farms.forEach(f => { f.pick = CROPS[st.nativeFlower].lvl <= 1 ? st.nativeFlower : 'trigo'; });
   return st;
 }
 function addDragon(sp, lvl = 1) {
   const d = { id: S.nextId++, key: sp.key, name: sp.name, els: sp.els.slice(), rar: sp.rar, lvl, born: S.t };
   S.dragons.push(d);
-  if (!S.dex[sp.key]) S.dex[sp.key] = S.t;
+  if (!S.dex[sp.key]) S.dex[sp.key] = S.t || 0.01;
   return d;
 }
 const capacity = () => S.habitats.length * HAB_CAP;
@@ -8054,9 +8193,11 @@ function collectAll(ev) {
 function plant(i, silent) {
   const f = S.farms[i];
   if (f.crop) return false;
-  const c = CROPS[S.selCrop];
-  if (!spendGold(c.cost)) return false;
-  f.crop = S.selCrop; f.prog = 0; S.stats.cropsPlanted++;
+  const k = unlockedCrop(f.pick || 'trigo') ? (f.pick || 'trigo') : 'trigo';
+  const c = CROPS[k];
+  if (S.gold < c.cost) { if (!silent) spendGold(c.cost); return false; }
+  spendGold(c.cost);
+  f.crop = k; f.prog = 0; S.stats.cropsPlanted++;
   if (!silent) sfx('plantar');
   return true;
 }
@@ -8065,7 +8206,7 @@ function harvest(i, ev, silent) {
   if (!f.crop) return plant(i, silent);
   const c = CROPS[f.crop];
   if (f.prog < c.dur) return;
-  const got = cropFood(f.crop);
+  const got = Math.round(cropFood(f.crop) * farmYield(f));
   S.food += got; S.stats.foodHarvested += got; S.stats.cropsHarvested++;
   addXp(1 + c.food / 15);
   if (ev) floatText(`+${got} 🍖`, ev.clientX, ev.clientY, 'var(--food)');
@@ -8080,8 +8221,90 @@ function harvestAll() {
   S.farms.forEach((f, i) => {
     if (f.crop && f.prog >= CROPS[f.crop].dur) did = harvest(i, null, true) || did;
   });
-  S.farms.forEach((f, i) => { if (!f.crop && S.gold >= CROPS[S.selCrop].cost) did = plant(i, true) || did; });
+  S.farms.forEach((f, i) => { if (!f.crop) did = plant(i, true) || did; });
   if (did) sfx('colherTudo');
+}
+// Flor mais valiosa já liberada (a nativa conta em dobro na escolha)
+function bestCrop() {
+  const ks = Object.keys(CROPS).filter(unlockedCrop);
+  return ks.includes(S.nativeFlower) ? S.nativeFlower : ks[ks.length - 1];
+}
+function setFarmCrop(i, k) {
+  if (!unlockedCrop(k)) return;
+  if (i === 'all') S.farms.forEach(f => { f.pick = k; }); else if (S.farms[i]) S.farms[i].pick = k;
+  sfx('clique');
+}
+function upgradeFarm(i) {
+  const f = S.farms[i];
+  if (!f || (f.lvl || 1) >= FARM_MAX) return;
+  if (!spendGold(farmUpCost(f.lvl || 1))) return;
+  f.lvl = (f.lvl || 1) + 1; sfx('comprar'); addXp(6 + f.lvl * 2);
+  toast(`Canteiro ${i + 1} no nível ${f.lvl}`, `Dá ${Math.round((farmYield(f) - 1) * 100)}% mais néctar e cresce ${Math.round((farmSpeed(f) - 1) * 100)}% mais rápido.`);
+}
+function hireGardener() {
+  if (S.gardener || S.level < GARDENER.lvl) return;
+  if (!spendGold(Math.round(GARDENER.cost * MOD('shop')))) return;
+  S.gardener = true; sfx('conquista'); addXp(20);
+  toast('Abelha Jardineira contratada!', 'Ela colhe e replanta os canteiros sozinha, com a flor escolhida em cada um.');
+}
+// Roleta: sorteia o prêmio na hora e entrega quando a roda para
+function spinWheel(pay) {
+  if (S.spin && S.spin.until > performance.now()) return;
+  if (pay === 'gems' ? !spendGems(SPIN.gems) : !spendGold(Math.round(SPIN.gold * MOD('shop')))) return;
+  let r = Math.random(), idx = SPIN_PRIZES.length - 1;
+  for (let i = 0; i < SPIN_PRIZES.length; i++) { if ((r -= SPIN_PRIZES[i].p) <= 0) { idx = i; break; } }
+  const seg = 360 / SPIN_PRIZES.length, prev = S.spin ? S.spin.deg : 0;
+  const deg = prev - (prev % 360) + 360 * 5 + (360 - (idx * seg + seg / 2));
+  S.spin = { deg, idx, until: performance.now() + 3200, done: false };
+  S.stats.spins = (S.stats.spins || 0) + 1;
+  sfx('evento');
+  setTimeout(() => { givePrize(idx); render(); }, 3250);
+}
+function givePrize(idx) {
+  if (!S || !S.spin || S.spin.done) return;
+  S.spin.done = true;
+  const pz = SPIN_PRIZES[idx];
+  if (pz.k === 'betmel') {
+    if (S.dragons.length < capacity()) {
+      const d = addDragon(BETMEL); S.stats.byRarity.L++; if (S.stats.firstLegendT === null) S.stats.firstLegendT = S.t;
+      S.stats.betmel = (S.stats.betmel || 0) + 1;
+      sfx('revelacao', { raridade: RAR_SOM.L });
+      overlay(`<div class="card hero"><span class="cat">Abelha exclusiva da roleta</span>${dIcon(d.els, d.rar, 'xl', 'pop', d.id, d.skin)}<h1>BetMel!</h1><p>Lendária, produz o dobro de mel e só sai na roleta.</p><button class="btn primary" data-a="cancelEnd">Que sorte!</button></div>`);
+    } else { layEgg(BETMEL, true); toast('BetMel!', 'Sem vaga na colmeia, então ela foi para a chocadeira.', 'ach'); }
+  } else if (pz.k === 'epico' || pz.k === 'raro') {
+    layEgg(randomSpeciesOfRarity(pz.k === 'epico' ? 'E' : 'R'), true); toast(`Roleta: ${pz.n}`, 'O ovo já está na chocadeira.');
+  } else if (pz.k === 'mel') { addGold(3000); toast('Roleta: 3.000 de mel', 'Direto para o pote.'); }
+  else if (pz.k === 'geleia') { addGems(12); toast('Roleta: 12 de geleia real', ''); }
+  else { S.food += 400; S.stats.foodHarvested += 400; toast('Roleta: 400 de néctar', ''); }
+}
+// Ataques comprados: a abelha escolhida aprende o golpe (troca o anterior) e ganha ataque permanente
+function learnAttack(id) {
+  const A = ATTACKS[S.atkPick], d = S.dragons.find(x => x.id === id);
+  if (!A || !d) return;
+  if (d.lvl < A.lvl) { toast('Abelha fraca demais', `Ela precisa do nível ${A.lvl}.`, 'bad'); return; }
+  if (A.gems ? !spendGems(A.gems) : !spendGold(Math.round(A.gold * MOD('shop')))) return;
+  d.move = S.atkPick; d.atkUp = (d.atkUp || 0) + A.up;
+  S.atkPick = null; sfx('nivelDragao'); addXp(10);
+  toast(`${d.name} aprendeu ${A.n}!`, `+${Math.round(A.up * 100)}% de ataque para sempre.`);
+}
+function applySkin(id) {
+  const k = S.skinPick, K = SKINS[k], d = S.dragons.find(x => x.id === id);
+  if (!K || !d) return;
+  if (d.skin && d.skin[K.t] === k) { toast('Já está usando', `${d.name} já tem ${K.n}.`, 'bad'); return; }
+  if (!spendGems(K.gems)) return;
+  d.skin = { ...(d.skin || {}), [K.t]: k };
+  S.skinPick = null; sfx('comprar'); toast(`${d.name} ganhou ${K.n}!`, 'O visual aparece em todo o jogo.');
+}
+function removeSkin(id, t) { const d = S.dragons.find(x => x.id === id); if (d && d.skin) { d.skin = { ...d.skin, [t]: null }; sfx('clique'); } }
+function renameBee(id) {
+  const d = S.dragons.find(x => x.id === id);
+  if (!d) return;
+  let n = null;
+  try { n = window.prompt('Novo nome da abelha:', d.name); } catch (e) { n = null; }
+  if (n === null) return;
+  n = n.replace(/[<>&"'`\\]/g, '').replace(/\s+/g, ' ').trim().slice(0, 18);
+  if (!n) return;
+  d.name = n; sfx('clique');
 }
 function buyDragon(e) {
   if (S.level < unlockLvl(e)) return;
@@ -8118,7 +8341,7 @@ function sell(id) {
   toast(`${d.name} foi vendida`, `+${fmt(sellValue(d))} de mel`);
 }
 function buyHabitat() { if (S.habitats.length >= HAB_LOTS.length) { toast('Ilha cheia', 'Todos os lotes de colmeia estão ocupados.', 'bad'); return; } if (spendGold(habitatCost())) { S.habitats.push({ stored: 0 }); sfx('comprar'); addXp(8); } }
-function buyFarm() { if (S.farms.length >= FARM_LOTS.length) { toast('Jardim cheio', 'Todos os canteiros estão ocupados.', 'bad'); return; } if (spendGold(farmCost())) { S.farms.push({ crop: null, prog: 0 }); sfx('comprar'); addXp(5); } }
+function buyFarm() { if (S.farms.length >= FARM_LOTS.length) { toast('Jardim cheio', 'Todos os canteiros estão ocupados.', 'bad'); return; } if (spendGold(farmCost())) { S.farms.push({ crop: null, prog: 0, lvl: 1, pick: bestCrop() }); sfx('comprar'); addXp(5); } }
 function buyHatch() {
   const c = HATCH_COSTS[S.hatchSlots - 1];
   if (c === undefined) return;
@@ -8158,7 +8381,7 @@ function breedOutcomes(a, b) {
   const res = [];
   let remaining = 1;
   for (const L of LEGENDS) {
-    const ch = Math.min(0.9, L.ch * MOD('legend'));
+    const ch = Math.min(0.25, L.ch * MOD('legend'));
     if (L.els.every(e => pool.has(e))) { res.push({ sp: speciesFromLegend(L), p: remaining * ch }); remaining *= 1 - ch; }
   }
   const combos = [];
@@ -8222,7 +8445,7 @@ function speedEgg(id) {
 // ARENA
 // ============================================================
 function fighterFromDragon(d) {
-  return { name: d.name, els: d.els, rar: d.rar, lvl: d.lvl, hpMax: hpOf(d), hp: hpOf(d), atk: atkOf(d), cd: 0, did: d.id };
+  return { name: d.name, els: d.els, rar: d.rar, lvl: d.lvl, hpMax: hpOf(d), hp: hpOf(d), atk: atkOf(d), cd: 0, xcd: 0, move: d.move || null, did: d.id, skin: d.skin };
 }
 function randomSpeciesOfRarity(r) {
   return pick(ALL_SPECIES.filter(s => s.rar === r));
@@ -8276,18 +8499,22 @@ function startBattle(kind) {
 function logB(txt, cls = '') { const B = S.battle; B.log.push({ txt, cls }); if (B.log.length > 40) B.log.shift(); }
 function moveEl(f, kind) {
   if (f.boss) return pick(EL_KEYS);
+  if (kind === 'x') { const A = ATTACKS[f.move]; return !A || A.el === null ? null : A.el === 'second' ? (f.els[1] || f.els[0]) : f.els[0]; }
   return kind === 'sp' ? (f.els[1] || f.els[0]) : f.els[0];
 }
-function movePower(f, kind) { return kind === 'sp' ? (f.rar === 'L' || f.boss ? 2.0 : 1.7) : 1; }
+function movePower(f, kind) { if (kind === 'x') return ATTACKS[f.move] ? ATTACKS[f.move].pow : 1; return kind === 'sp' ? (f.rar === 'L' || f.boss ? 2.0 : 1.7) : 1; }
 function doAttack(a, d, kind, isPlayer) {
   const el = moveEl(a, kind);
-  let m = eff(el, d.els);
+  const A = kind === 'x' ? ATTACKS[a.move] : null;
+  let m = el ? eff(el, d.els) : 1;
   if (isPlayer && m > 1) m *= MOD('eff') / 1.5;
-  const crit = Math.random() < (isPlayer ? MOD('crit') : 0.12);
+  const crit = Math.random() < (isPlayer ? MOD('crit') + (A && A.crit || 0) : 0.12);
   const dmg = Math.max(1, Math.round(a.atk * movePower(a, kind) * m * (crit ? 1.5 : 1) * rnd(0.9, 1.1)));
   d.hp = Math.max(0, d.hp - dmg);
   if (kind === 'sp') a.cd = 3; else if (a.cd > 0) a.cd--;
-  const moveName = kind === 'sp' ? (a.boss ? 'Ferroada Real' : `Especial ${EL[el].i}`) : `Ataque ${EL[el].i}`;
+  if (kind === 'x') a.xcd = A.cd; else if (a.xcd > 0) a.xcd--;
+  if (A && A.heal) { const h = Math.min(a.hpMax - a.hp, Math.round(a.hpMax * A.heal)); if (h > 0) { a.hp += h; logB(`${a.name} recuperou ${h} de vida.`, 'se'); } }
+  const moveName = A ? `${A.n}${el ? ' ' + EL[el].i : ''}` : kind === 'sp' ? (a.boss ? 'Ferroada Real' : `Especial ${EL[el].i}`) : `Ataque ${EL[el].i}`;
   logB(`${a.name} usou ${moveName} e causou ${dmg} de dano${crit ? ' (crítico!)' : ''}.`, crit ? 'cr' : '');
   if (m > 1) logB('É super eficaz!', 'se'); else if (m < 1) logB('Não foi muito eficaz…', 'ne');
   fxQueue.push({ from: isPlayer ? 'me' : 'foe', to: isPlayer ? 'foe' : 'me', el, dmg, crit, m, kind, boss: !!a.boss, ko: d.hp <= 0 });
@@ -8322,7 +8549,7 @@ function playFx(fx) {
   const dx = b.left - a.left, dy = b.top - a.top;
   src.animate([{ transform: 'none' }, { transform: `translate(${dx * 0.12}px, ${-10}px) rotate(${dx > 0 ? 6 : -6}deg)` }, { transform: 'none' }], { duration: 320, easing: 'ease-out' });
   const p = document.createElement('div');
-  p.className = 'proj'; p.textContent = fx.el ? EL[fx.el].i : '💥';
+  p.className = 'proj'; p.textContent = fx.el ? EL[fx.el].i : '✨';
   p.style.left = (a.left + a.width / 2 - 15) + 'px'; p.style.top = (a.top + a.height / 3) + 'px';
   document.body.appendChild(p);
   const fly = p.animate([{ transform: 'translate(0,0) scale(.6)' }, { transform: `translate(${dx / 2}px, ${dy / 2 - 40}px) scale(1.2)` }, { transform: `translate(${dx}px, ${dy}px) scale(1.4)`, opacity: .9 }], { duration: 300, easing: 'ease-in' });
@@ -8333,6 +8560,11 @@ function playFx(fx) {
   };
 }
 function bestMove(f, foe) {
+  if (f.move && ATTACKS[f.move] && !f.xcd) {
+    const xe = moveEl(f, 'x'), xv = (xe ? eff(xe, foe.els) : 1) * movePower(f, 'x');
+    const sv = f.cd > 0 ? 0 : eff(moveEl(f, 'sp'), foe.els) * movePower(f, 'sp');
+    if (xv >= sv && xv >= eff(moveEl(f, 'b'), foe.els)) return 'x';
+  }
   if (f.cd > 0) return 'b';
   return eff(moveEl(f, 'sp'), foe.els) * movePower(f, 'sp') >= eff(moveEl(f, 'b'), foe.els) ? 'sp' : 'b';
 }
@@ -8341,6 +8573,7 @@ function playerMove(kind) {
   if (!B || B.over) return;
   const p = B.team[B.pi], e = B.foes[B.ei];
   if (kind === 'sp' && p.cd > 0) return;
+  if (kind === 'x' && (!p.move || p.xcd > 0)) return;
   B.turn++;
   doAttack(p, e, kind, true);
   if (e.hp <= 0) {
@@ -8542,7 +8775,15 @@ function tick() {
     const cap = Math.max(50, g * 60);
     h.stored = Math.min(cap, h.stored + g * gm * dt);
   });
-  S.farms.forEach(f => { if (f.crop) f.prog = Math.min(CROPS[f.crop].dur, f.prog + dt * fm * MOD('farm')); });
+  S.farms.forEach(f => { if (f.crop) f.prog = Math.min(CROPS[f.crop].dur, f.prog + dt * fm * MOD('farm') * farmSpeed(f)); });
+  if (S.gardener) {
+    S.gardenAcc += dt;
+    if (S.gardenAcc >= GARDENER.every) {
+      S.gardenAcc = 0;
+      const i = S.farms.findIndex(f => (f.crop && f.prog >= CROPS[f.crop].dur) || (!f.crop && S.gold >= CROPS[f.pick || 'trigo'].cost));
+      if (i >= 0) { const f = S.farms[i]; if (f.crop) harvest(i, null, true); if (!f.crop) plant(i, true); S.stats.gardenerWork = (S.stats.gardenerWork || 0) + 1; }
+    }
+  }
   S.eggs.forEach(e => {
     e.prog = Math.min(e.dur, e.prog + dt * MOD('hatch'));
     if (e.prog >= e.dur && !e.rang) { e.rang = true; sfx('ovoPronto'); }
@@ -8763,9 +9004,9 @@ function floatText(txt, x, y, color) {
   document.body.appendChild(el);
   setTimeout(() => el.remove(), 900);
 }
-function dIcon(els, rar, size = 'm', extra = '', seed) {
+function dIcon(els, rar, size = 'm', extra = '', seed, skin) {
   if (seed === undefined) seed = els.join('').length * 7 + rar.charCodeAt(0);
-  return `<span class="dic ${size} r-${rar} ${extra}">${dragonSVG(els, rar, seed)}<span class="els">${els.map(e => EL[e].i).join('')}</span></span>`;
+  return `<span class="dic ${size} r-${rar} ${extra}" data-sk="${'d:' + els.join('+') + rar + skinKey(skin)}" data-seed="${seed}">${dragonSVG(els, rar, seed, skin)}<span class="els">${els.map(e => EL[e].i).join('')}</span></span>`;
 }
 // Mistura uma cor hex com preto (f < 0) ou branco (f > 0)
 function shade(hex, f) {
@@ -8805,6 +9046,8 @@ function buildDefs() {
   d += lg('g-wood', [[0, '#c99358'], [1, '#76502c']]);
   d += lg('g-leaf', [[0, '#8fe070'], [1, '#2c7f37']]);
   d += lg('g-pine', [[0, '#5cbf6a'], [1, '#1f6b3a']]);
+  d += lg('g-wax', [[0, '#fff0c0'], [0.5, '#f2c25a'], [1, '#c98a2c']], 1, 0);
+  d += rg('g-pot', [[0, '#f0a868'], [0.6, '#c06a2c'], [1, '#7a3a14']], '35%', '35%', '70%');
   d += lg('g-crystal', [[0, '#f0d9ff'], [1, '#7436c9']]);
   d += lg('g-ice', [[0, '#ffffff'], [1, '#93d4fb']]);
   d += lg('g-steel', [[0, '#eef2f7'], [1, '#7f8a9c']]);
@@ -8819,8 +9062,8 @@ document.body.insertAdjacentHTML('afterbegin', buildDefs());
 const dgCache = new Map();
 // Abelha desenhada em SVG (viewBox 120x100, olhando para a direita): reserva para quando não há WebGL.
 // Partes animadas por CSS: .all (flutuar), .wing (bater asas) e .eye (piscar).
-function dragonSVG(els, rar, seed = 0) {
-  if (!sprOff) { const u = dragonSprite(els, rar); return u ? spriteSVG(u, rar, seed) : placeholderSVG(rar); }
+function dragonSVG(els, rar, seed = 0, skin) {
+  if (!sprOff) { const u = dragonSprite(els, rar, skin); return u ? spriteSVG(u, rar, seed) : placeholderSVG(rar); }
   const key = els.join('+') + rar + (seed % 9);
   if (dgCache.has(key)) return dgCache.get(key);
   const vespa = rar === 'L' && els[0] === 'trevas' && els[1] === 'fogo';
@@ -8877,17 +9120,26 @@ function pumpSprites() {
     if (b) { const u = URL.createObjectURL(b); SPR.set(job.key, u); if (r.w) ISO[job.key] = { u, w: r.w, h: r.h, ax: r.ax, ay: r.ay }; }
     if (!S && job.key.startsWith('d:') && document.querySelector('.overlay .dg.ph') && !document.querySelector('.loading')) renderStart();
     if (S && S.choosing && !S.relicOffer && job.key.startsWith('d:') && document.querySelector('.overlay .dg.ph')) renderQueens();
+    // telas de revelação (ovo chocado, roleta): troca o brilho pelo sprite assim que ele fica pronto
+    if (job.key.startsWith('d:')) document.querySelectorAll('.overlay .dic').forEach(el => {
+      if (el.dataset.sk !== job.key || !el.querySelector('.dg.ph')) return;
+      const m = job.key.slice(2).match(/^(.*?)([CREL])(?:\|([^/]*)\/(.*))?$/);
+      if (!m) return;
+      const svg = el.querySelector('svg.dg');
+      if (svg) svg.outerHTML = dragonSVG(m[1].split('+'), m[2], +el.dataset.seed || 0, m[3] !== undefined ? { hat: m[3] || null, wing: m[4] || null } : undefined);
+    });
     sprBusy = false;
     setTimeout(pumpSprites, 20);
   });
 }
-function dragonSprite(els, rar) {
-  const k = 'd:' + els.join('+') + rar, v = SPR.get(k);
+function skinKey(sk) { return sk && (sk.hat || sk.wing) ? `|${sk.hat || ''}/${sk.wing || ''}` : ''; }
+function dragonSprite(els, rar, skin) {
+  const k = 'd:' + els.join('+') + rar + skinKey(skin), v = SPR.get(k);
   if (typeof v === 'string') return v;
-  sprJob(k, () => ({ canvas: M3.dragonStrip(els, rar) }), true);
+  sprJob(k, () => ({ canvas: M3.dragonStrip(els, rar, skin) }), true);
   return null;
 }
-const isoKeys = () => ['arena', 'cruzar', 'chocadeira', 'loja', 'missoes', 'farm', 'tree:0', 'tree:1', 'rock', 'bush', 'windmill', 'well', ...Object.keys(HAB_THEME).map(t => 'habitat:' + t)];
+const isoKeys = () => ['arena', 'cruzar', 'chocadeira', 'loja', 'missoes', 'farm', ...Object.keys(HAB_THEME).map(t => 'habitat:' + t)];
 function warmSprites() {
   if (sprOff) return;
   isoKeys().forEach(k => { const [n, a] = k.split(':'); sprJob('i:' + k, () => a === undefined ? M3.iso(n) : M3.iso(n, n === 'tree' ? +a : a)); });
@@ -8938,7 +9190,7 @@ const costTag = (n, kind = 'g') => `<span class="cost ${kind}">${kind === 'g' ? 
 
 const TABS = [
   ['ilha', '🏝️', 'Ilha'], ['dragoes', '🐉', 'Abelhas'], ['cruzar', '💞', 'Cruzar'], ['chocadeira', '🥚', 'Chocadeira'], ['arena', '⚔️', 'Arena'],
-  ['missoes', '📜', 'Missões'], ['loja', '🛒', 'Loja'], ['conquistas', '🏆', 'Conquistas'], ['stats', '📊', 'Estatísticas'],
+  ['missoes', '📜', 'Missões'], ['loja', '🛒', 'Loja'], ['conquistas', '🏆', 'Conquistas'], ['stats', '📊', 'Estatísticas'], ['jardim', '🌱', 'Jardim', 1],
 ];
 const TAB_TITLE = Object.fromEntries(TABS.map(t => [t[0], t[2]]));
 let lastTop = '', lastTabs = '', lastView = '', lastMap = '', lastHud = '', mapCentered = false;
@@ -8994,7 +9246,7 @@ function renderTabs() {
   const claim = S.missions.filter(m => missionProg(m) >= m.target).length;
   const readyEggs = S.eggs.filter(e => e.prog >= e.dur).length;
   const badges = { missoes: claim, chocadeira: readyEggs };
-  return TABS.map(([k, ic, n]) => `<button class="tab" aria-selected="${S.tab === k}" data-a="tab" data-k="${k}"><span class="ic">${ic}</span>${n}${badges[k] ? `<span class="badge">${badges[k]}</span>` : ''}</button>`).join('');
+  return TABS.filter(t => !t[3]).map(([k, ic, n]) => `<button class="tab" aria-selected="${S.tab === k}" data-a="tab" data-k="${k}"><span class="ic">${ic}</span>${n}${badges[k] ? `<span class="badge">${badges[k]}</span>` : ''}</button>`).join('');
 }
 function renderView() {
   switch (S.tab) {
@@ -9006,6 +9258,7 @@ function renderView() {
     case 'loja': return viewShop();
     case 'conquistas': return viewAch();
     case 'stats': return viewStats();
+    case 'jardim': return viewGarden();
   }
   return '';
 }
@@ -9068,14 +9321,19 @@ const TREES = [[13.3, 6.2], [13.3, 8.6], [12.9, 0.7], [0.5, 12.9], [6, 0.5], [0.
 const DECOR = [...[[200, 300, 'h'], [250, 470, 'f'], [330, 120, 'f'], [850, 400, 'h'], [760, 140, 'r'], [130, 400, 'b'], [930, 290, 'b'], [600, 520, 'f']].map(([X, Y, k]) => [...gridAt(X, Y), k]), [6, 3, 'f'], [3, 6, 'f'], [9, 6.1, 'r'], [6.1, 9.3, 'b'], [12.3, 6, 'f'], [6, 12, 'r'], [9, 12, 'f'], [12.2, 9.1, 'b'], [3, 9.1, 'f'], [9.1, 3.1, 'r'], [13.3, 4.8, 'f'], [4.8, 13.4, 'b'], [13.2, 11.3, 'm'], [6, 6, 'w']];
 function isoDecor(x, y, k) {
   const [X, Y] = iso(x, y);
-  if (k === 'm' || k === 'w') return isoImg(k === 'm' ? 'windmill' : 'well', X, Y) || '';
+  if (k === 'm') return isoTree(x, y, 0);
+  if (k === 'w') {
+    // fonte de mel: bacia hexagonal com mel borbulhando
+    const hp = (r, dy, sq = .5) => [0, 60, 120, 180, 240, 300].map(a => `${(X + Math.cos(a * Math.PI / 180) * r).toFixed(1)},${(Y + dy + Math.sin(a * Math.PI / 180) * r * sq).toFixed(1)}`).join(' ');
+    return `<ellipse cx="${X}" cy="${Y + 4}" rx="30" ry="10" fill="url(#g-shadow)"/><polygon points="${hp(26, 0)}" fill="#c98a2c" stroke="#3a1c06" stroke-width="1.5" transform="translate(0 5)"/><polygon points="${hp(26, 0)}" fill="url(#g-wax)" stroke="#3a1c06" stroke-width="1.5"/><polygon points="${hp(19, -1)}" fill="url(#g-sea)"/><ellipse cx="${X - 6}" cy="${Y - 3}" rx="6" ry="2" fill="#fff" opacity=".5"/><circle class="bub" cx="${X + 5}" cy="${Y - 1}" r="2.4" fill="#ffd77a"/>`;
+  }
   if (k === 'h') {
     // favo selvagem no chão, com mel escorrendo
     const cell = (cx, cy, c) => `<polygon points="${[0, 60, 120, 180, 240, 300].map(a => `${(cx + Math.cos(a * Math.PI / 180) * 7).toFixed(1)},${(cy + Math.sin(a * Math.PI / 180) * 6).toFixed(1)}`).join(' ')}" fill="${c}" stroke="#7a420f" stroke-width="1.4"/><polygon points="${[0, 60, 120, 180, 240, 300].map(a => `${(cx + Math.cos(a * Math.PI / 180) * 3.6).toFixed(1)},${(cy + Math.sin(a * Math.PI / 180) * 3).toFixed(1)}`).join(' ')}" fill="#c47a1a" opacity=".6"/>`;
     return `<ellipse cx="${X}" cy="${Y + 3}" rx="20" ry="6" fill="url(#g-shadow)"/>` + cell(X - 10.5, Y - 6, '#f6c75a') + cell(X + 10.5, Y - 6, '#f0b845') + cell(X, Y - 12, '#ffd476') + cell(X, Y, '#eab040') + `<path d="M${X + 4},${Y + 4} q1,6 -1,9 q-3,2 -2,-4Z" fill="#e89a20" stroke="#7a420f" stroke-width="1"/>`;
   }
-  const img = k !== 'f' && isoImg(k === 'r' ? 'rock' : 'bush', X, Y);
-  if (img) return `<ellipse cx="${X}" cy="${Y + 2}" rx="12" ry="4.5" fill="url(#g-shadow)"/>` + img;
+  if (k === 'r') return `<ellipse cx="${X}" cy="${Y + 2}" rx="12" ry="4" fill="url(#g-shadow)"/><path d="M${X - 11},${Y + 2} Q${X - 10},${Y - 9} ${X},${Y - 11} Q${X + 11},${Y - 9} ${X + 11},${Y + 2}Z" fill="url(#g-wax)" stroke="#3a1c06" stroke-width="1.4"/><path d="M${X - 4},${Y - 10} q-1,7 1,9 q2,1 1,-5Z" fill="#ffb52e"/>`;
+  if (k === 'b') return isoTree(x, y, 2).replace(/r="(\d+(?:\.\d+)?)"/g, (m, r) => `r="${(r * 0.7).toFixed(1)}"`);
   if (k === 'r') return `<ellipse cx="${X}" cy="${Y + 2}" rx="11" ry="4" fill="url(#g-shadow)"/><path d="M${X - 10},${Y + 2} Q${X - 9},${Y - 9} ${X},${Y - 10} Q${X + 10},${Y - 9} ${X + 10},${Y + 2}Z" fill="#a3a3ad" stroke="#1b1230" stroke-width="1.4"/><path d="M${X - 4},${Y - 6} l4,-1" stroke="#fff" stroke-width="1.4" opacity=".6"/>`;
   if (k === 'b') return `<circle cx="${X - 6}" cy="${Y - 4}" r="7" fill="url(#g-leaf)" stroke="#1b1230" stroke-width="1.3"/><circle cx="${X + 5}" cy="${Y - 5}" r="8" fill="url(#g-leaf)" stroke="#1b1230" stroke-width="1.3"/><circle cx="${X + 3}" cy="${Y - 8}" r="1.8" fill="#ffd23f"/>`;
   return [[-8, 0, '#ff7ab6'], [0, -4, '#ffd23f'], [7, 1, '#ffffff'], [-2, 4, '#c77dff']].map(([dx, dy, c]) => `<path d="M${X + dx},${Y + dy} v-6" stroke="#2f7d38" stroke-width="1.2"/><circle cx="${X + dx}" cy="${Y + dy - 7}" r="2.6" fill="${c}" stroke="#1b1230" stroke-width=".8"/>`).join('');
@@ -9108,12 +9366,12 @@ function bubble(x, y, icon, full, txt, attrs = '') {
 // Encaixa o SVG de um dragão dentro do mapa
 function placeDragon(d, x, y, w) {
   const h = w * 108 / 132;
-  return dragonSVG(d.els, d.rar, d.id).replace('<svg class="dg" viewBox="-6 -8 132 108" style="', `<svg class="dg" viewBox="-6 -8 132 108" x="${Math.round(x - w / 2)}" y="${Math.round(y - h * 0.9)}" width="${w}" height="${Math.round(h)}" style="width:${w}px;height:${Math.round(h)}px;`);
+  return dragonSVG(d.els, d.rar, d.id, d.skin).replace('<svg class="dg" viewBox="-6 -8 132 108" style="', `<svg class="dg" viewBox="-6 -8 132 108" x="${Math.round(x - w / 2)}" y="${Math.round(y - h * 0.9)}" width="${w}" height="${Math.round(h)}" style="width:${w}px;height:${Math.round(h)}px;`);
 }
 const HAB_THEME = {
   fogo: ['#7a4334', '#4f2a20', '#3a1e17'], agua: ['#f0dca0', '#b99a5a', '#9a7d44'], planta: ['#86d062', '#4f923a', '#3e7a2d'],
   terra: ['#c19466', '#87603a', '#6c4c2c'], eletrico: ['#9aa2b6', '#636a7c', '#4f5565'], gelo: ['#f0faff', '#a9cfe6', '#8db7d2'],
-  metal: ['#b6bfcd', '#78818f', '#626a78'], trevas: ['#55437a', '#33264b', '#271c3a'], luz: ['#fdf6e2', '#cfc29b', '#b6a980'], none: ['#b2dc86', '#6c9a48', '#5a843a'],
+  metal: ['#b6bfcd', '#78818f', '#626a78'], trevas: ['#55437a', '#33264b', '#271c3a'], luz: ['#fdf6e2', '#cfc29b', '#b6a980'], none: ['#f6c768', '#c98a2c', '#a8641a'],
 };
 function habTheme(ds) {
   if (!ds.length) return 'none';
@@ -9261,16 +9519,24 @@ function isoSpecial(k) {
 }
 function isoTree(x, y, n = 0) {
   const [X, Y] = iso(x, y);
-  const sh = `<ellipse cx="${X}" cy="${Y + 2}" rx="16" ry="6" fill="url(#g-shadow)"/>`;
-  const img = isoImg('tree:' + (n % 2), X, Y);
-  if (img) return sh + img;
-  if (n % 2) return `${sh}<rect x="${X - 3}" y="${Y - 10}" width="6" height="12" fill="#6b4a2b" stroke="#1b1230" stroke-width="1.2"/>
-    <path d="M${X},${Y - 56} L${X + 16},${Y - 24} L${X - 16},${Y - 24}Z M${X},${Y - 44} L${X + 19},${Y - 8} L${X - 19},${Y - 8}Z" fill="url(#g-pine)" stroke="#1b1230" stroke-width="1.5" stroke-linejoin="round"/>
-    <path d="M${X - 6},${Y - 40} l4,-6 M${X - 9},${Y - 20} l5,-7" stroke="#fff" stroke-width="1.4" opacity=".35"/>`;
-  return `${sh}<path d="M${X - 3},${Y + 1} L${X - 2},${Y - 20} L${X + 2},${Y - 20} L${X + 3},${Y + 1}Z" fill="#7a5230" stroke="#1b1230" stroke-width="1.2"/>
-    <circle cx="${X - 9}" cy="${Y - 24}" r="11" fill="url(#g-leaf)" stroke="#1b1230" stroke-width="1.5"/><circle cx="${X + 9}" cy="${Y - 25}" r="11" fill="url(#g-leaf)" stroke="#1b1230" stroke-width="1.5"/>
-    <circle cx="${X}" cy="${Y - 34}" r="13" fill="url(#g-leaf)" stroke="#1b1230" stroke-width="1.5"/><circle cx="${X - 5}" cy="${Y - 38}" r="5" fill="#b8f09a" opacity=".6"/>
-    <circle cx="${X + 6}" cy="${Y - 28}" r="2.2" fill="#ff5d5d"/><circle cx="${X - 8}" cy="${Y - 22}" r="2.2" fill="#ff5d5d"/>`;
+  const sh = `<ellipse cx="${X}" cy="${Y + 2}" rx="17" ry="6" fill="url(#g-shadow)"/>`, O = 'stroke="#3a1c06" stroke-width="1.5"';
+  if (n % 3 === 1) {
+    // coluna de cera com mel escorrendo
+    return `${sh}<path d="M${X - 11},${Y} L${X - 9},${Y - 44} Q${X},${Y - 52} ${X + 9},${Y - 44} L${X + 11},${Y}Z" fill="url(#g-wax)" ${O}/>
+      <ellipse cx="${X}" cy="${Y - 45}" rx="9" ry="4" fill="#ffe3a0" ${O}/>
+      <path d="M${X - 6},${Y - 44} q-1,10 1,14 q2,3 2,-4 l0,-10Z M${X + 4},${Y - 44} q0,6 2,8 q2,1 1,-4Z" fill="#ffb52e"/>
+      <path d="M${X - 6},${Y - 38} v30" stroke="#fff" stroke-width="2" opacity=".35"/>`;
+  }
+  if (n % 3 === 2) {
+    // monte de bolinhas de pólen
+    return `${sh}${[[-8, -6, 7, '#ffd23f'], [6, -7, 8, '#ff9a3c'], [-1, -16, 7, '#fff0a0'], [10, -17, 5, '#ffd23f'], [-11, -16, 4.5, '#ffb52e']].map(([dx, dy, r, c]) => `<circle cx="${X + dx}" cy="${Y + dy}" r="${r}" fill="${c}" ${O}/><circle cx="${X + dx - r * .35}" cy="${Y + dy - r * .35}" r="${r * .3}" fill="#fff" opacity=".6"/>`).join('')}`;
+  }
+  // pote de mel com concha
+  return `${sh}<path d="M${X - 13},${Y - 4} Q${X - 17},${Y - 22} ${X - 9},${Y - 30} L${X + 9},${Y - 30} Q${X + 17},${Y - 22} ${X + 13},${Y - 4} Q${X},${Y + 3} ${X - 13},${Y - 4}Z" fill="url(#g-pot)" ${O}/>
+    <rect x="${X - 11}" y="${Y - 35}" width="22" height="6" rx="3" fill="#d98a3a" ${O}/>
+    <path d="M${X - 9},${Y - 30} q2,8 0,11 q-2,3 -2,-3 l0,-8Z M${X + 3},${Y - 30} q1,5 3,6 q2,0 0,-6Z" fill="#ffb52e" ${O}/>
+    <path d="M${X + 4},${Y - 36} L${X + 14},${Y - 52}" stroke="#8a5a2e" stroke-width="3" stroke-linecap="round"/><ellipse cx="${X + 15}" cy="${Y - 54}" rx="4" ry="5.5" fill="#c98a4a" ${O}/>
+    <path d="M${X - 6},${Y - 22} q-2,8 2,14" stroke="#fff" stroke-width="2" fill="none" opacity=".4"/>`;
 }
 // ---------- Chão da ilha ----------
 // A ilha é um hexágono (um favo gigante) que contém a grade em losango dos lotes.
@@ -9297,22 +9563,40 @@ function groundImage() {
   const P2 = arr => arr.map(p => p.map(v => v.toFixed(1)).join(',')).join(' ');
   const onPath = (x, y, m = 0.15) => PATHS.some(([a, b, c, d]) => x > a - m && x < c + m && y > b - m && y < d + m) || (x > FIELD[0] - 0.3 && x < FIELD[2] + 0.3 && y > FIELD[1] - 0.3);
   let g = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 600">';
-  g += '<defs><linearGradient id="gg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#a4e46c"/><stop offset=".55" stop-color="#7cc84f"/><stop offset="1" stop-color="#4f9a38"/></linearGradient>'
-    + '<pattern id="cb" width="18" height="10.4" patternUnits="userSpaceOnUse"><rect width="18" height="10.4" fill="#b8822e"/>' + [[4.5, 2.6], [13.5, 7.8], [-4.5, 7.8], [22.5, 2.6], [4.5, 13], [13.5, -2.6]].map(([cx, cy], i) => `<polygon points="${[0, 60, 120, 180, 240, 300].map(a => `${(cx + Math.cos(a * Math.PI / 180) * 4.2).toFixed(2)},${(cy + Math.sin(a * Math.PI / 180) * 2.45).toFixed(2)}`).join(' ')}" fill="${['#f3c86a', '#eab955', '#f7d27c'][i % 3]}" stroke="#a8701f" stroke-width=".6"/>`).join('') + '</pattern>'
-    + '<pattern id="hx" width="36" height="20.8" patternUnits="userSpaceOnUse"><path d="M3,10.4 L7.5,5.2 L16.5,5.2 L21,10.4 L16.5,15.6 L7.5,15.6Z M21,10.4 L36,10.4 M16.5,5.2 L21,0 M16.5,15.6 L21,20.8" stroke="#d9f59a" stroke-width="1" fill="none" opacity=".22"/></pattern>'
+  // favo: hexágonos de cera vistos em perspectiva (achatados na vertical)
+  const HR = 13, HQ = Math.sqrt(3) * HR, SQ = 0.58;
+  const hexPts = (cx, cy, r, sq = SQ) => [0, 60, 120, 180, 240, 300].map(a => `${(cx + Math.cos(a * Math.PI / 180) * r).toFixed(1)},${(cy + Math.sin(a * Math.PI / 180) * r * sq).toFixed(1)}`).join(' ');
+  g += '<defs><linearGradient id="gw" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#ffd77a"/><stop offset=".5" stop-color="#eaa63a"/><stop offset="1" stop-color="#c47a1e"/></linearGradient>'
+    + `<pattern id="wc" width="${3 * HR}" height="${(HQ * SQ).toFixed(2)}" patternUnits="userSpaceOnUse">`
+    + [[0, 0], [1.5 * HR, HQ / 2], [3 * HR, 0], [0, HQ], [3 * HR, HQ], [1.5 * HR, -HQ / 2]].map(([x, y]) => `<polygon points="${hexPts(x, y * SQ, HR - 1.2)}" fill="#f0b54a" stroke="#b46d18" stroke-width="2.2"/><polygon points="${hexPts(x - 1, y * SQ - 1.2, HR - 5)}" fill="#ffd27a" opacity=".55"/>`).join('')
+    + '</pattern>'
+    + '<pattern id="cb" width="18" height="10.4" patternUnits="userSpaceOnUse"><rect width="18" height="10.4" fill="#9a5a14"/>' + [[4.5, 2.6], [13.5, 7.8], [-4.5, 7.8], [22.5, 2.6], [4.5, 13], [13.5, -2.6]].map(([cx, cy]) => `<polygon points="${[0, 60, 120, 180, 240, 300].map(a => `${(cx + Math.cos(a * Math.PI / 180) * 4.6).toFixed(1)},${(cy + Math.sin(a * Math.PI / 180) * 2.7).toFixed(1)}`).join(' ')}" fill="#c4802a" stroke="#7a420f" stroke-width=".8"/>`).join('') + '</pattern>'
+    + '<radialGradient id="hg" cx="40%" cy="35%" r="70%"><stop offset="0" stop-color="#ffe9a0"/><stop offset=".45" stop-color="#ffb52e"/><stop offset="1" stop-color="#c46a0c"/></radialGradient>'
     + '<linearGradient id="sl" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#8a5a2e"/><stop offset="1" stop-color="#6a4220"/></linearGradient></defs>';
-  // base hexagonal de grama com o desenho dos favos bem de leve
-  g += `<polygon points="${P2(HEX)}" fill="url(#gg)"/><polygon points="${P2(HEX)}" fill="url(#hx)"/>`;
-  // manchas de grama mais escura e mais clara
-  for (let i = 0; i < 60; i++) {
-    const X = 60 + rnd() * 880, Y = 60 + rnd() * 470, r = 14 + rnd() * 26;
-    if (!inHex(X, Y, 20)) { i--; continue; }
-    g += `<ellipse cx="${X.toFixed(1)}" cy="${Y.toFixed(1)}" rx="${r.toFixed(1)}" ry="${(r / 2).toFixed(1)}" fill="${rnd() < .55 ? '#3f8a2c' : '#c4f08a'}" opacity="${(0.1 + rnd() * 0.1).toFixed(2)}"/>`;
+  // base de cera com o favo inteiro
+  g += `<polygon points="${P2(HEX)}" fill="url(#gw)"/><polygon points="${P2(HEX)}" fill="url(#wc)"/>`;
+  // luz e sombra suaves
+  for (let i = 0; i < 26; i++) {
+    const X = 80 + rnd() * 840, Y = 70 + rnd() * 450, r = 40 + rnd() * 70;
+    if (!inHex(X, Y, 30)) { i--; continue; }
+    g += `<ellipse cx="${X.toFixed(1)}" cy="${Y.toFixed(1)}" rx="${r.toFixed(1)}" ry="${(r / 2).toFixed(1)}" fill="${rnd() < .5 ? '#7a3e08' : '#fff2c4'}" opacity="${(0.06 + rnd() * 0.06).toFixed(2)}"/>`;
+  }
+  // alvéolos cheios de mel, fechados com cera e com pólen
+  const cellAt = (j, k) => [j * 1.5 * HR, (k * HQ + (j % 2 ? HQ / 2 : 0)) * SQ];
+  for (let j = 0; j < 1000 / (1.5 * HR); j++) for (let k = 0; k < 600 / (HQ * SQ) + 1; k++) {
+    const [X, Y] = cellAt(j, k);
+    if (!inHex(X, Y, 14)) continue;
+    const [x, y] = isoInv(X, Y);
+    if (x > -0.3 && y > -0.3 && x < NG + 0.3 && y < NG + 0.3 && onPath(x, y, 0.35)) continue;
+    const r = rnd();
+    if (r < 0.08) g += `<polygon points="${hexPts(X, Y, HR - 2.6)}" fill="url(#hg)"/><ellipse cx="${(X - 3).toFixed(1)}" cy="${(Y - 2).toFixed(1)}" rx="3.4" ry="1.4" fill="#fff" opacity=".7"/>`;
+    else if (r < 0.13) g += `<polygon points="${hexPts(X, Y, HR - 2.6)}" fill="#fbe6b0" stroke="#e2b660" stroke-width="1"/><polygon points="${hexPts(X - 1, Y - 1, HR - 7)}" fill="#fff8e0" opacity=".8"/>`;
+    else if (r < 0.15) g += [[-3, 0], [2, -1], [0, 1.5]].map(([dx, dy]) => `<circle cx="${(X + dx).toFixed(1)}" cy="${(Y + dy).toFixed(1)}" r="2.2" fill="${['#ffd23f', '#ff9a3c', '#fff0a0'][Math.floor(rnd() * 3)]}" stroke="#a8641a" stroke-width=".5"/>`).join('');
   }
   // caminhos de pedra com meio-fio
   PATHS.forEach(([a, b, c, d]) => {
     const q = `${P(a, b)} ${P(c, b)} ${P(c, d)} ${P(a, d)}`;
-    g += `<polygon points="${q}" fill="#8a7550" transform="translate(0 2)"/><polygon points="${q}" fill="url(#cb)" stroke="#7a6440" stroke-width="2.4" stroke-linejoin="round"/>`;
+    g += `<polygon points="${q}" fill="#5a2f08" transform="translate(0 2)"/><polygon points="${q}" fill="url(#cb)" stroke="#7a420f" stroke-width="2.4" stroke-linejoin="round"/>`;
   });
   // lavoura: terra arada com sulcos e cerca
   const [fa, fb, fc, fd] = FIELD;
@@ -9321,32 +9605,13 @@ function groundImage() {
   for (let k = 1; k < 6; k++) { const y = fb + (fd - fb) * k / 6; g += `<path d="M${P(fa + 0.1, y)} L${P(fc - 0.1, y)}" stroke="${k % 2 ? '#4f3018' : '#9a6a3a'}" stroke-width="2" stroke-linecap="round"/>`; }
   for (let x = fa; x <= fc + 0.01; x += 0.5) {
     const [X, Y] = iso(x, fd + 0.08);
-    g += `<rect x="${(X - 1.6).toFixed(1)}" y="${(Y - 11).toFixed(1)}" width="3.2" height="12" rx="1" fill="#a8743c" stroke="#3d2412" stroke-width="1"/>`;
+    g += `<polygon points="${hexPts(X, Y - 4, 4.2, 0.9)}" fill="#f2b544" stroke="#8a4a10" stroke-width="1"/>`;
   }
-  g += `<path d="M${P(fa, fd + 0.08)} L${P(fc, fd + 0.08)}" stroke="#c48a4a" stroke-width="2.4" transform="translate(0 -8)"/><path d="M${P(fa, fd + 0.08)} L${P(fc, fd + 0.08)}" stroke="#a8743c" stroke-width="2" transform="translate(0 -3.5)"/>`;
-  // tufos de grama, trevos, florzinhas (com as cores do prado da partida) e pedrinhas
-  const wild = S && S.meadow ? S.meadow.map(e => EL[e].c) : ['#ffffff', '#ffd23f', '#ff7ab6', '#9ad0ff', '#c77dff'];
-  for (let i = 0; i < 700; i++) {
-    const X = 30 + rnd() * 940, Y = 50 + rnd() * 484;
-    if (!inHex(X, Y, 8)) continue;
-    const [x, y] = isoInv(X, Y);
-    if (x > -0.2 && y > -0.2 && x < NG + 0.2 && y < NG + 0.2 && onPath(x, y)) continue;
-    const r = rnd();
-    if (r < 0.7) {
-      const h = 4 + rnd() * 4, c = rnd() < .5 ? '#3d8a2c' : '#2f7424';
-      g += `<path d="M${(X - 3).toFixed(1)},${Y.toFixed(1)} l1.5,-${h.toFixed(1)} l1.5,${h.toFixed(1)} l1.4,-${(h * 1.25).toFixed(1)} l1.4,${(h * 1.25).toFixed(1)} l1.5,-${(h * .8).toFixed(1)} l1.5,${(h * .8).toFixed(1)}Z" fill="${c}"/><path d="M${(X + .4).toFixed(1)},${(Y - h).toFixed(1)} l.6,-1.2" stroke="#c4f08a" stroke-width="1" opacity=".8"/>`;
-    } else if (r < 0.82) {
-      const c = rnd() < 0.7 ? wild[Math.floor(rnd() * wild.length)] : ['#ffffff', '#ffd23f'][Math.floor(rnd() * 2)];
-      g += `<path d="M${X.toFixed(1)},${Y.toFixed(1)} v-5" stroke="#2f7d38" stroke-width="1"/>` + [0, 72, 144, 216, 288].map(a => `<circle cx="${(X + Math.cos(a * Math.PI / 180) * 2).toFixed(1)}" cy="${(Y - 6 + Math.sin(a * Math.PI / 180) * 1.3).toFixed(1)}" r="1.5" fill="${c}"/>`).join('') + `<circle cx="${X.toFixed(1)}" cy="${(Y - 6).toFixed(1)}" r="1" fill="#ffb703"/>`;
-    } else if (r < 0.9) {
-      g += `<ellipse cx="${X.toFixed(1)}" cy="${Y.toFixed(1)}" rx="3.2" ry="2" fill="#9a98a8" stroke="#55536a" stroke-width=".7"/><ellipse cx="${(X - .8).toFixed(1)}" cy="${(Y - .7).toFixed(1)}" rx="1.3" ry=".6" fill="#fff" opacity=".6"/>`;
-    } else {
-      g += [[-2, 0], [2, 0], [0, -2]].map(([dx, dy]) => `<circle cx="${(X + dx).toFixed(1)}" cy="${(Y + dy * .6).toFixed(1)}" r="2" fill="#5cb842"/>`).join('');
-    }
-  }
-  // borda: grama caindo sobre o penhasco
-  const lip = (a, b, n) => { let s = ''; for (let i = 0; i <= n; i++) { const t = i / n, X = a[0] + (b[0] - a[0]) * t, Y = a[1] + (b[1] - a[1]) * t; s += `<ellipse cx="${X.toFixed(1)}" cy="${(Y + 3).toFixed(1)}" rx="${(5 + (i * 7) % 4).toFixed(1)}" ry="${(4 + (i * 5) % 3).toFixed(1)}" fill="${i % 3 ? '#5aa83f' : '#4f9a38'}"/>`; } return s; };
-  g += lip(HEX[0], HEX[5], 40) + lip(HEX[5], HEX[4], 60) + lip(HEX[4], HEX[3], 40);
+  g += `<path d="M${P(fa, fd + 0.08)} L${P(fc, fd + 0.08)}" stroke="#ffd27a" stroke-width="2" opacity=".7" transform="translate(0 -6)"/>`;
+  // borda: cera com mel escorrendo pelo penhasco
+  const drip = (A, B, n) => { let o = ''; for (let i = 0; i <= n; i++) { const t = i / n, X = A[0] + (B[0] - A[0]) * t, Y = A[1] + (B[1] - A[1]) * t, w = 4 + rnd() * 5, h = rnd() < .3 ? 12 + rnd() * 20 : 3 + rnd() * 5; o += `<path d="M${(X - w).toFixed(1)},${(Y - 1).toFixed(1)} Q${(X - w).toFixed(1)},${(Y + h * .6).toFixed(1)} ${X.toFixed(1)},${(Y + h).toFixed(1)} Q${(X + w).toFixed(1)},${(Y + h * .6).toFixed(1)} ${(X + w).toFixed(1)},${(Y - 1).toFixed(1)}Z" fill="${rnd() < .5 ? '#ffb52e' : '#f29a1c'}"/>`; } return o; };
+  g += `<polyline points="${P2([HEX[0], HEX[5], HEX[4], HEX[3]])}" fill="none" stroke="#ffd77a" stroke-width="5" stroke-linejoin="round"/>`;
+  g += drip(HEX[0], HEX[5], 34) + drip(HEX[5], HEX[4], 52) + drip(HEX[4], HEX[3], 34);
   g += '</svg>';
   groundURI = 'data:image/svg+xml,' + encodeURIComponent(g);
   return groundURI;
@@ -9366,6 +9631,27 @@ function cropPlant(k, X, Y, p) {
     b = `<path d="M0,0 V-10 M0,-6 l-6,-6 M0,-8 l6,-7" stroke="#3f8a2c" stroke-width="2" fill="none"/><circle cx="-6" cy="-13" r="4" fill="#5cb842" ${O}/><circle cx="6" cy="-15" r="4" fill="#4fae3a" ${O}/><circle cx="0" cy="-13" r="4.4" fill="#66c04a" ${O}/>${p >= .6 ? [[-5, -11], [4, -13], [0, -17]].map(([x, y]) => `<circle cx="${x}" cy="${y}" r="2.2" fill="${p >= 1 ? '#ff4fa0' : '#e9a8c8'}" ${O}/>`).join('') : ''}`;
   }
   return `<g transform="translate(${X.toFixed(1)} ${Y.toFixed(1)}) scale(${s})">${b}</g>`;
+}
+// Parede de favos ao fundo (gerada uma vez): alvéolos escuros, alguns brilhando com mel
+let wallURI = null;
+function hiveWall() {
+  if (wallURI) return wallURI;
+  let seed = 11; const rnd = () => { seed = (seed * 16807) % 2147483647; return (seed - 1) / 2147483646; };
+  const r = 30, q = Math.sqrt(3) * r;
+  let g = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 600"><defs><radialGradient id="bg" cx="50%" cy="45%" r="75%"><stop offset="0" stop-color="#7a400c"/><stop offset=".6" stop-color="#46220a"/><stop offset="1" stop-color="#1e0e04"/></radialGradient><radialGradient id="lit" cx="45%" cy="40%" r="65%"><stop offset="0" stop-color="#ffd77a"/><stop offset=".6" stop-color="#e08a1a"/><stop offset="1" stop-color="#8a4a0c"/></radialGradient></defs><rect width="1000" height="600" fill="url(#bg)"/>';
+  for (let j = -1; j < 1000 / (1.5 * r) + 1; j++) for (let k = -1; k < 600 / q + 1; k++) {
+    const X = j * 1.5 * r, Y = k * q + (j % 2 ? q / 2 : 0);
+    const pts = (rr, dx = 0, dy = 0) => [0, 60, 120, 180, 240, 300].map(a => `${(X + dx + Math.cos(a * Math.PI / 180) * rr).toFixed(1)},${(Y + dy + Math.sin(a * Math.PI / 180) * rr).toFixed(1)}`).join(' ');
+    const lit = rnd() < 0.14;
+    g += `<polygon points="${pts(r - 2)}" fill="${lit ? 'url(#lit)' : '#3a1c06'}" stroke="#6b3a0c" stroke-width="3" opacity="${lit ? (0.45 + rnd() * 0.4).toFixed(2) : 0.85}"/>`;
+    if (!lit) g += `<polygon points="${pts(r - 9, 2, 3)}" fill="#24110300" stroke="#1a0c02" stroke-width="2" opacity=".6"/>`;
+    else g += `<ellipse cx="${(X - 8).toFixed(1)}" cy="${(Y - 8).toFixed(1)}" rx="7" ry="3" fill="#fff" opacity=".35"/>`;
+  }
+  // mel escorrendo do teto
+  for (let i = 0; i < 22; i++) { const X = rnd() * 1000, h = 20 + rnd() * 70, w = 5 + rnd() * 6; g += `<path d="M${(X - w).toFixed(1)},0 L${(X - w * .6).toFixed(1)},${h.toFixed(1)} Q${X.toFixed(1)},${(h + w * 2.4).toFixed(1)} ${(X + w * .6).toFixed(1)},${h.toFixed(1)} L${(X + w).toFixed(1)},0Z" fill="#f2a12a" opacity=".85"/>`; }
+  g += '<rect width="1000" height="600" fill="url(#bg)" opacity=".35"/></svg>';
+  wallURI = 'data:image/svg+xml,' + encodeURIComponent(g);
+  return wallURI;
 }
 function viewMap() {
   topLayer = [];
@@ -9390,10 +9676,11 @@ function viewMap() {
   const fliers = [...S.dragons].sort((a, c) => RARITY[c.rar].rv - RARITY[a.rar].rv || c.lvl - a.lvl).slice(0, Math.min(2, Math.floor(S.dragons.length / 3)));
   const flyPath = ['M500,40 C860,40 990,250 760,420 C520,580 120,470 90,260 C70,110 260,40 500,40Z', 'M520,560 C200,560 40,380 160,200 C260,60 760,20 900,200 C1000,340 820,560 520,560Z'];
   return `<svg class="iso" viewBox="0 0 1000 600" role="img" aria-label="Mapa da ilha">
-    <rect width="1000" height="600" fill="url(#g-sea)"/>
-    <rect width="1000" height="600" fill="url(#p-honey)" opacity=".8"/>
-    <g stroke="#ffd98a" stroke-width="2.2" stroke-linecap="round" fill="none" opacity=".5">
-      ${[[90, 90], [880, 120], [60, 420], [900, 470], [300, 560], [700, 40], [160, 250], [860, 320]].map(([x, y], n) => `<path class="wave" style="animation-delay:${-n * 0.7}s" d="M${x},${y} q10,-6 20,0 t20,0"/>`).join('')}
+    <image href="${hiveWall()}" x="0" y="0" width="1000" height="600" pointer-events="none"/>
+    <polygon points="${pts(hexGrow(60))}" fill="url(#g-sea)" transform="translate(0 22)"/>
+    <polygon points="${pts(hexGrow(60))}" fill="url(#p-honey)" opacity=".7" transform="translate(0 22)"/>
+    <g stroke="#ffe3a0" stroke-width="2.2" stroke-linecap="round" fill="none" opacity=".5">
+      ${[[110, 300], [890, 300], [250, 560], [750, 560], [480, 584]].map(([x, y], n) => `<path class="wave" style="animation-delay:${-n * 0.7}s" d="M${x},${y} q10,-6 20,0 t20,0"/>`).join('')}
     </g>
     <polygon points="${pts(foam)}" fill="#ffe2a0" opacity=".16" transform="translate(0 16)"/>
     <polygon class="foam" points="${pts(foam)}" fill="none" stroke="#ffe9b8" stroke-width="3" stroke-dasharray="14 10" opacity=".55" transform="translate(0 16)"/>
@@ -9401,32 +9688,33 @@ function viewMap() {
     ${face(H[0], H[5], 'url(#g-cliffL)')}${face(H[5], H[4], 'url(#g-cliffM)')}${face(H[4], H[3], 'url(#g-cliffR)')}
     <g opacity=".55">${face(H[0], H[5], 'url(#p-comb)')}${face(H[5], H[4], 'url(#p-comb)')}${face(H[4], H[3], 'url(#p-comb)')}</g>
     ${strata(H[0], H[5], 0)}${strata(H[5], H[4], 1)}${strata(H[4], H[3], 1)}
-    ${lipBand(H[0], H[5], '#4f9a3a')}${lipBand(H[5], H[4], '#468f34')}${lipBand(H[4], H[3], '#3e7f2e')}
+    ${lipBand(H[0], H[5], '#f2b544')}${lipBand(H[5], H[4], '#e0a23a')}${lipBand(H[4], H[3], '#c98a2c')}
     <image href="${groundImage()}" x="0" y="0" width="1000" height="600" pointer-events="none"/>
     ${objs.map(o => o.html).join('')}
     ${topLayer.join('')}
     ${fliers.map((d, n) => `<g><animateMotion dur="${26 + n * 9}s" repeatCount="indefinite" path="${flyPath[n]}"/><ellipse cx="0" cy="44" rx="22" ry="5" fill="rgba(0,0,0,.18)"/>${placeDragon(d, 0, 0, 84)}</g>`).join('')}
-    <g fill="#fff" opacity=".55" pointer-events="none">
-      <g class="cloud"><ellipse cx="0" cy="60" rx="60" ry="18"/><ellipse cx="30" cy="48" rx="34" ry="16"/></g>
-      <g class="cloud c2"><ellipse cx="0" cy="300" rx="70" ry="20"/><ellipse cx="-30" cy="288" rx="30" ry="14"/></g>
-      <g class="cloud c3"><ellipse cx="0" cy="520" rx="50" ry="14"/></g>
+    <g fill="#ffe9a0" opacity=".7" pointer-events="none">
+      <g class="cloud">${[[0, 60], [40, 90], [-30, 130], [70, 40]].map(([x, y]) => `<circle cx="${x}" cy="${y}" r="2.6"/>`).join('')}</g>
+      <g class="cloud c2">${[[0, 300], [-50, 260], [30, 340], [-20, 220]].map(([x, y]) => `<circle cx="${x}" cy="${y}" r="2.2"/>`).join('')}</g>
+      <g class="cloud c3">${[[0, 500], [40, 470], [-40, 540]].map(([x, y]) => `<circle cx="${x}" cy="${y}" r="3"/>`).join('')}</g>
     </g>
   </svg>`;
 }
 function viewHud() {
-  const crops = Object.entries(CROPS).filter(([k]) => unlockedCrop(k)).map(([k, c]) => `<button class="crop" aria-pressed="${S.selCrop === k}" data-a="selCrop" data-k="${k}" title="${c.n}: ${c.dur}s, +${cropFood(k)} de néctar, ${c.cost} de mel${k === S.nativeFlower ? ' (flor nativa)' : ''}">${c.i} 🪙${c.cost}</button>`).join('');
+  const crops0 = Object.entries(CROPS).filter(([k]) => unlockedCrop(k)).map(([k, c]) => `<button class="crop" aria-pressed="${S.selCrop === k}" data-a="selCrop" data-k="${k}" title="${c.n}: ${c.dur}s, +${cropFood(k)} de néctar, ${c.cost} de mel${k === S.nativeFlower ? ' (flor nativa)' : ''}">${c.i} 🪙${c.cost}</button>`).join('');
   const acts = (S.level >= 3 ? '<button class="btn small primary" data-a="harvestAll">🧺 Colher e replantar</button>' : '')
     + (S.level >= 5 ? '<button class="btn small primary" data-a="collectAll">🪙 Coletar tudo</button>' : '');
-  return `<div class="box"><span class="hint hud-lbl" style="font-weight:800">Flor</span>${crops}</div>${acts ? `<div class="box">${acts}</div>` : ''}`;
+  const ready = S.farms.filter(f => f.crop && f.prog >= CROPS[f.crop].dur).length;
+  return `<div class="box"><button class="btn small go" data-a="tab" data-k="jardim">🌱 Jardim${ready ? ` <span class="badge">${ready}</span>` : ''}</button>${S.gardener ? '<span class="hint hud-lbl">👩‍🌾 Jardineira trabalhando</span>' : ''}</div>${acts ? `<div class="box">${acts}</div>` : ''}`;
 }
 function dragonCard(d) {
   const maxed = d.lvl >= MAX_DLVL;
   const fc = feedCost(d.lvl);
-  return `<div class="dcard r-${d.rar}">${dIcon(d.els, d.rar, 'm', '', d.id)}
+  return `<div class="dcard r-${d.rar}">${dIcon(d.els, d.rar, 'm', '', d.id, d.skin)}
     <div class="info">
-      <span class="name">${d.name} <span class="muted">Nv ${d.lvl}</span></span>
+      <span class="name">${d.name} <span class="muted">Nv ${d.lvl}</span> <button class="ren" data-a="rename" data-id="${d.id}" title="Renomear" aria-label="Renomear ${d.name}">🏷️</button></span>
       <span class="meta"><span class="rar-${d.rar}">${RARITY[d.rar].f}</span> · ${elTags(d.els)}</span>
-      <span class="meta num">🪙 ${gpsOf(d).toFixed(1).replace('.', ',')}/s${isNative(d) ? ' 🌻' : ''} · ❤️ ${myHp(d)} · 🗡️ ${myAtk(d)}</span>
+      <span class="meta num">🪙 ${gpsOf(d).toFixed(1).replace('.', ',')}/s${isNative(d) ? ' 🌻' : ''} · ❤️ ${myHp(d)} · 🗡️ ${myAtk(d)}</span>${d.move && ATTACKS[d.move] ? `<span class="meta">${ATTACKS[d.move].i} ${ATTACKS[d.move].n}</span>` : ''}
       <div class="row">
         <button class="btn small" data-a="feed" data-id="${d.id}" ${maxed ? 'disabled' : ''}>${maxed ? 'Nível máximo' : `Alimentar ${costTag(fc, 'f')}`}</button>
         <button class="btn small" data-a="sell" data-id="${d.id}">${d._confirm ? 'Confirmar venda?' : `Vender ${costTag(sellValue(d))}`}</button>
@@ -9448,14 +9736,14 @@ function viewDragons() {
     <section class="panel" style="grid-column:1/-1">
       <div class="panel-head"><h2>Abelhário</h2><span class="muted num">${found}/${ALL_SPECIES.length} espécies</span></div>
       <div class="bar"><i style="width:${pct(found, ALL_SPECIES.length)}%"></i></div>
-      <div class="dex">${dex}</div>
+      <div class="dex">${dex}${S.dex[BETMEL.key] ? `<div class="cell">${dIcon(BETMEL.els, 'L', 's')}<span class="rar-L">BetMel</span></div>` : ''}</div>
     </section>
   </div>`;
 }
 function viewBreed() {
   const a = S.dragons.find(d => d.id === S.breedA), b = S.dragons.find(d => d.id === S.breedB);
   const slot = (d, w) => d
-    ? `<button class="parent set" data-a="clearParent" data-k="${w}">${dIcon(d.els, d.rar, 'l', '', d.id)}<span>${d.name}</span><span class="muted">Nv ${d.lvl} · toque para trocar</span></button>`
+    ? `<button class="parent set" data-a="clearParent" data-k="${w}">${dIcon(d.els, d.rar, 'l', '', d.id, d.skin)}<span>${d.name}</span><span class="muted">Nv ${d.lvl} · toque para trocar</span></button>`
     : `<div class="parent">Escolha o ${w === 'A' ? 'primeiro' : 'segundo'} dragão abaixo</div>`;
   let out = '';
   if (a && b) {
@@ -9465,7 +9753,7 @@ function viewBreed() {
   }
   const chips = S.dragons.map(d => {
     const sel = d.id === S.breedA || d.id === S.breedB;
-    return `<button class="chip" aria-pressed="${sel}" data-a="pickParent" data-id="${d.id}" ${d.lvl < 3 ? 'disabled title="Precisa de nível 3"' : ''}>${dIcon(d.els, d.rar, 's', '', d.id)}${d.name} · Nv ${d.lvl}</button>`;
+    return `<button class="chip" aria-pressed="${sel}" data-a="pickParent" data-id="${d.id}" ${d.lvl < 3 ? 'disabled title="Precisa de nível 3"' : ''}>${dIcon(d.els, d.rar, 's', '', d.id, d.skin)}${d.name} · Nv ${d.lvl}</button>`;
   }).join('');
   const legends = LEGENDS.map(L => `<div class="outcome">${dIcon(L.els, 'L', 's', S.dex['L:' + L.k] ? '' : 'unknown')}<span>${S.dex['L:' + L.k] ? L.n : '???'}</span><span class="pct muted">${L.els.map(e => EL[e].i).join(' + ')} · ${Math.round(L.ch * 100)}%</span></div>`).join('');
   return `<div class="grid">
@@ -9491,7 +9779,7 @@ function fighterView(f, side, bench, active, B) {
       <span class="muted" style="font-size:.8rem">${f.boss ? 'Ataca com elementos aleatórios' : elTags(f.els)}</span>
       <div class="hpw"><div class="bar hp ${f.hp / f.hpMax < 0.3 ? 'low' : ''}"><i style="width:${pct(f.hp, f.hpMax)}%"></i></div><span class="hpn num">❤️ ${f.hp} / ${f.hpMax}</span></div>
     </div>
-    <div class="stand">${dIcon(disp, f.rar, f.boss ? 'xl' : 'l', side === 'foe' ? 'flip' : '', f.did || 3)}</div>
+    <div class="stand">${dIcon(disp, f.rar, f.boss ? 'xl' : 'l', side === 'foe' ? 'flip' : '', f.did || 3, f.skin)}</div>
     <div class="bench">${bench.map((x, i) => i === active ? '' : `<span class="${x.hp <= 0 ? 'ko' : ''}">${dIcon(x.disp || x.els, x.rar, 's')}</span>`).join('')}</div>
   </div>`;
 }
@@ -9510,6 +9798,7 @@ function viewBattle() {
     controls = `<div class="row fight-ctl" style="justify-content:center">
       <button class="btn primary" data-a="move" data-k="b">Ataque ${EL[bEl].i}${effTxt(bEl)}</button>
       <button class="btn primary" data-a="move" data-k="sp" ${p.cd > 0 ? 'disabled' : ''}>Especial ${EL[sEl].i} x${movePower(p, 'sp')}${p.cd > 0 ? ` (${p.cd})` : effTxt(sEl)}</button>
+      ${p.move && ATTACKS[p.move] ? (() => { const A = ATTACKS[p.move], xe = moveEl(p, 'x'); return `<button class="btn go" data-a="move" data-k="x" ${p.xcd > 0 ? 'disabled' : ''}>${A.i} ${A.n} x${String(A.pow).replace('.', ',')}${p.xcd > 0 ? ` (${p.xcd})` : xe ? effTxt(xe) : ''}</button>`; })() : ''}
       <button class="btn" data-a="auto" aria-pressed="${S.autoBattle}">${S.autoBattle ? '⏸ Auto ligado' : '▶ Batalha automática'}</button>
       <button class="btn danger" data-a="surrender">🏳️ Desistir</button></div>`;
   }
@@ -9523,7 +9812,7 @@ function viewBattle() {
 function viewArena() {
   if (S.battle) return viewBattle();
   if (S.finalPhase) {
-    const chips = [...S.dragons].sort((a, b) => powerOf(b) - powerOf(a)).map(d => `<button class="chip" aria-pressed="${S.team.includes(d.id)}" data-a="team" data-id="${d.id}">${dIcon(d.els, d.rar, 's', '', d.id)}${d.name} · Nv ${d.lvl} · ⚡${powerOf(d)}</button>`).join('');
+    const chips = [...S.dragons].sort((a, b) => powerOf(b) - powerOf(a)).map(d => `<button class="chip" aria-pressed="${S.team.includes(d.id)}" data-a="team" data-id="${d.id}">${dIcon(d.els, d.rar, 's', '', d.id, d.skin)}${d.name} · Nv ${d.lvl} · ⚡${powerOf(d)}</button>`).join('');
     const boss = bossTeam(true)[0];
     teamDragons();
     return `<section class="panel"><div class="panel-head"><h2>Ataque final</h2><span class="muted num">Vespa Rainha: ❤️ ${fmt(boss.hpMax)} · 🗡️ ${boss.atk}</span></div>
@@ -9534,11 +9823,11 @@ function viewArena() {
   }
   const team = teamDragons();
   const ladder = LEAGUES.map((n, i) => `<div class="rung ${i + 1 < S.league ? 'done' : i + 1 === S.league ? 'cur' : ''}">${n}</div>`).join('');
-  const chips = [...S.dragons].sort((a, b) => powerOf(b) - powerOf(a)).map(d => `<button class="chip" aria-pressed="${S.team.includes(d.id)}" data-a="team" data-id="${d.id}">${dIcon(d.els, d.rar, 's', '', d.id)}${d.name} · Nv ${d.lvl} · ⚡${powerOf(d)}</button>`).join('');
+  const chips = [...S.dragons].sort((a, b) => powerOf(b) - powerOf(a)).map(d => `<button class="chip" aria-pressed="${S.team.includes(d.id)}" data-a="team" data-id="${d.id}">${dIcon(d.els, d.rar, 's', '', d.id, d.skin)}${d.name} · Nv ${d.lvl} · ⚡${powerOf(d)}</button>`).join('');
   const champion = S.league > LEAGUES.length;
   const wild = S.event && S.event.type === 'selvagem' && S.event.until > S.t;
   const nextFoes = champion ? '' : `${Math.min(3, Math.ceil((S.league + S.leagueFight) / 2))} oponente(s) de nível ${clamp(1 + (S.league - 1) * 2 + S.leagueFight, 1, MAX_DLVL)}`;
-  const stands = team.map(d => `<div class="stand">${dIcon(d.els, d.rar, 'l', '', d.id)}<span class="tag">${d.name} · Nv ${d.lvl}</span></div>`).join('')
+  const stands = team.map(d => `<div class="stand">${dIcon(d.els, d.rar, 'l', '', d.id, d.skin)}<span class="tag">${d.name} · Nv ${d.lvl}</span></div>`).join('')
     + '<div class="stand empty-stand"><span>Vaga</span></div>'.repeat(Math.max(0, 3 - team.length));
   return `<div class="grid">
     <div class="arena-stage">
@@ -9616,7 +9905,7 @@ function viewShop() {
       ${card('🌱', 'Canteiro de flores', 'Mais um canteiro para plantar flores e colher néctar.', `Você tem ${S.farms.length}/${FARM_LOTS.length}`, S.farms.length < FARM_LOTS.length ? `<button class="btn primary" data-a="buyFarm">${costTag(farmCost())}</button>` : '<span class="slock">Jardim cheio</span>')}
       ${card('🪺', 'Ninho na chocadeira', 'Choque mais ovos ao mesmo tempo.', `Você tem ${S.hatchSlots}/4`, hc !== undefined ? `<button class="btn primary" data-a="buyHatch">${costTag(Math.round(hc * MOD('shop')))}</button>` : '<span class="slock">Máximo</span>')}
     </div>`;
-  } else {
+  } else if (tab === 'tesouros') {
     const gg = 150 * S.level + Math.round(totalGps() * 30);
     const card = (ic, n, d, btn, cls = '') => `<div class="sitem gemi ${cls}"><span class="bigic">${ic}</span><b class="sname">${n}</b><span class="hint">${d}</span>${btn}</div>`;
     body = `<div class="sgrid">
@@ -9626,12 +9915,79 @@ function viewShop() {
       ${card('💰', 'Pote de Mel', `Troque 5 de geleia real por ${fmt(gg)} de mel.`, '<button class="btn gemb" data-a="gemGold">💎 5</button>')}
     </div>`;
   }
-  const tabs = [['dragoes', '🐉', 'Abelhas'], ['construcoes', '🏛️', 'Construções'], ['tesouros', '💎', 'Tesouros']]
+  if (tab === 'ataques') body = viewAttacks();
+  if (tab === 'roleta') body = viewWheel();
+  if (tab === 'visual') body = viewSkins();
+  const tabs = [['dragoes', '🐉', 'Abelhas'], ['construcoes', '🏛️', 'Construções'], ['ataques', '🗡️', 'Ataques'], ['roleta', '🍀', 'Roleta'], ['visual', '👑', 'Visual'], ['tesouros', '💎', 'Tesouros']]
     .map(([k, ic, n]) => `<button class="stab" aria-pressed="${tab === k}" data-a="shopTab" data-k="${k}">${ic} ${n}${k === 'tesouros' && merch ? '<span class="badge">!</span>' : ''}</button>`).join('');
   return `<div class="shop-top"><div class="shop-sign"><b>Mercado do Favo</b><small>Abelhas, construções e tesouros</small></div>
     <div class="shop-wallet"><span class="cost g">🪙 ${fmt(S.gold)}</span><span class="cost m">💎 ${fmt(S.gems)}</span></div></div>
     <div class="stabs">${tabs}</div>
     <section class="panel shop-panel">${body}</section>`;
+}
+function viewAttacks() {
+  const cards = Object.entries(ATTACKS).map(([k, A]) => `<div class="sitem build ${S.atkPick === k ? 'picked' : ''}"><span class="bigic">${A.i}</span><b class="sname">${A.n}</b><span class="hint">${A.d}</span><span class="own">+${Math.round(A.up * 100)}% de ataque permanente · abelha nível ${A.lvl}+</span>
+    <button class="btn ${A.gems ? 'gemb' : 'primary'}" data-a="atkPick" data-k="${k}" aria-pressed="${S.atkPick === k}">${S.atkPick === k ? 'Escolha a abelha abaixo' : A.gems ? `💎 ${A.gems}` : costTag(Math.round(A.gold * MOD('shop')))}</button></div>`).join('');
+  const A = ATTACKS[S.atkPick];
+  const pickBees = A ? `<div class="panel-head"><h2>Quem aprende ${A.n}?</h2><span class="hint">A abelha troca o golpe que já tinha. O bônus de ataque se soma.</span></div><div class="chips">${S.dragons.map(d => `<button class="chip" data-a="learn" data-id="${d.id}" ${d.lvl < A.lvl ? `disabled title="Precisa do nível ${A.lvl}"` : ''}>${dIcon(d.els, d.rar, 's', '', d.id, d.skin)}${d.name} · Nv ${d.lvl}${d.move ? ' · ' + ATTACKS[d.move].i : ''}</button>`).join('')}</div>` : '';
+  return `<p class="hint deal-hint">🗡️ Compre um golpe e ensine a uma abelha. Ela usa o golpe na batalha e fica mais forte para sempre.</p><div class="sgrid">${cards}</div>${pickBees}`;
+}
+function viewSkins() {
+  const cards = Object.entries(SKINS).map(([k, K]) => `<div class="sitem build ${S.skinPick === k ? 'picked' : ''}"><span class="bigic">${K.i}</span><b class="sname">${K.n}</b><span class="hint">${K.t === 'hat' ? 'Chapéu' : 'Asas'}</span>
+    <button class="btn gemb" data-a="skinPick" data-k="${k}" aria-pressed="${S.skinPick === k}">${S.skinPick === k ? 'Escolha a abelha abaixo' : `💎 ${K.gems}`}</button></div>`).join('');
+  const K = SKINS[S.skinPick];
+  const pickBees = K ? `<div class="panel-head"><h2>Quem vai usar ${K.n}?</h2><span class="hint">Troca o ${K.t === 'hat' ? 'chapéu' : 'par de asas'} que a abelha já usava.</span></div><div class="chips">${S.dragons.map(d => `<button class="chip" data-a="skin" data-id="${d.id}">${dIcon(d.els, d.rar, 's', '', d.id, d.skin)}${d.name}</button>`).join('')}</div>` : '';
+  const dressed = S.dragons.filter(d => d.skin && (d.skin.hat || d.skin.wing));
+  const wearing = dressed.length ? `<div class="panel-head"><h2>Usando agora</h2></div><div class="chips">${dressed.map(d => ['hat', 'wing'].filter(t => d.skin[t]).map(t => `<button class="chip" data-a="unskin" data-id="${d.id}" data-k="${t}" title="Tirar">${dIcon(d.els, d.rar, 's', '', d.id, d.skin)}${d.name} · tirar ${SKINS[d.skin[t]].n}</button>`).join('')).join('')}</div>` : '';
+  return `<p class="hint deal-hint">👑 Deixe suas abelhas com a sua cara. O visual não muda os atributos.</p><div class="sgrid">${cards}</div>${pickBees}${wearing}`;
+}
+function viewWheel() {
+  const n = SPIN_PRIZES.length, seg = 360 / n;
+  const grad = SPIN_PRIZES.map((z, i) => `${z.c} ${i * seg}deg ${(i + 1) * seg}deg`).join(', ');
+  const labels = SPIN_PRIZES.map((z, i) => `<span class="wl" style="transform:rotate(${i * seg + seg / 2}deg) translateY(-34%)"><span>${z.i}</span></span>`).join('');
+  const sp = S.spin, spinning = sp && sp.until > performance.now();
+  const res = sp && sp.done ? SPIN_PRIZES[sp.idx] : null;
+  return `<div class="wheel-wrap">
+    <div class="wheel-box"><div class="wheel-pin"></div><div class="wheel" style="background:conic-gradient(${grad});transform:rotate(${sp ? sp.deg : 0}deg)">${labels}<div class="wheel-hub">🍀</div></div></div>
+    <div class="wheel-side">
+      <h2 class="wheel-t">Roleta da BetMel</h2>
+      <p class="hint">Gire para ganhar prêmios. Com sorte vem a <b>BetMel</b>, uma abelha lendária exclusiva que produz o dobro de mel.</p>
+      <div class="wprizes">${SPIN_PRIZES.map(z => `<span>${z.i} ${z.n} <b class="num">${String(Math.round(z.p * 1000) / 10).replace('.', ',')}%</b></span>`).join('')}</div>
+      <div class="row"><button class="btn primary" data-a="spin" data-k="gold" ${spinning ? 'disabled' : ''}>Girar ${costTag(Math.round(SPIN.gold * MOD('shop')))}</button><button class="btn gemb" data-a="spin" data-k="gems" ${spinning ? 'disabled' : ''}>Girar 💎 ${SPIN.gems}</button></div>
+      <p class="wres">${spinning ? 'Girando…' : res ? `Você ganhou: ${res.i} <b>${res.n}</b>` : '&nbsp;'}</p>
+    </div></div>`;
+}
+function viewGarden() {
+  const crops = Object.entries(CROPS);
+  const flowerBtns = (i, cur) => crops.map(([k, c]) => `<button class="fbtn ${k === S.nativeFlower ? 'nat' : ''}" aria-pressed="${cur === k}" data-a="farmCrop" data-i="${i}" data-k="${k}" ${unlockedCrop(k) ? '' : 'disabled'} title="${c.n}${unlockedCrop(k) ? '' : ' · nível ' + c.lvl}">${c.i}</button>`).join('');
+  const cards = S.farms.map((f, i) => {
+    const lvl = f.lvl || 1, c = f.crop ? CROPS[f.crop] : null, p = c ? Math.min(1, f.prog / c.dur) : 0, ready = c && p >= 1;
+    const pk = CROPS[f.pick || 'trigo'];
+    const state = !c ? `Vazio · vai plantar ${pk.i} ${pk.n}` : ready ? `${c.i} ${c.n} pronta!` : `${c.i} ${c.n} · ${Math.ceil((c.dur - f.prog) / (farmSpeed(f) * MOD('farm')))}s`;
+    return `<div class="gcard ${ready ? 'ready' : ''} ${S.jardimSel === i ? 'sel' : ''}">
+      <div class="ghead"><b>Canteiro ${i + 1}</b><span class="stars">${'★'.repeat(lvl)}${'☆'.repeat(FARM_MAX - lvl)}</span></div>
+      <svg class="gpot" viewBox="-30 -36 60 44" aria-hidden="true"><ellipse cx="0" cy="2" rx="26" ry="6" fill="#5a3518"/><ellipse cx="0" cy="0" rx="24" ry="5" fill="#7a4a24"/>${[[-12, 0], [0, -1], [12, 0]].map(([x, y]) => cropPlant(c ? f.crop : (f.pick || 'trigo'), x, y, c ? p : 0.15)).join('')}</svg>
+      <span class="hint">${state}</span>
+      <div class="bar"><i style="width:${Math.round(p * 100)}%"></i></div>
+      <div class="frow">${flowerBtns(i, f.pick || 'trigo')}</div>
+      <span class="hint num">🍖 ${Math.round(cropFood(f.pick || 'trigo') * farmYield(f))} por colheita</span>
+      <div class="row">
+        ${ready ? `<button class="btn small go" data-a="plantOne" data-i="${i}">🧺 Colher</button>` : !c ? `<button class="btn small primary" data-a="plantOne" data-i="${i}">🌱 Plantar ${costTag(pk.cost)}</button>` : ''}
+        ${lvl < FARM_MAX ? `<button class="btn small" data-a="farmUp" data-i="${i}">⬆️ Nível ${lvl + 1} ${costTag(farmUpCost(lvl))}</button>` : '<span class="slock">Nível máximo</span>'}
+      </div></div>`;
+  }).join('');
+  const gc = Math.round(GARDENER.cost * MOD('shop'));
+  const gard = S.gardener
+    ? `<div class="gard on"><span class="bigic">👩‍🌾</span><div><b>Abelha Jardineira</b><span class="hint">Trabalhando: colhe e replanta um canteiro a cada ${String(GARDENER.every).replace('.', ',')}s, usando a flor escolhida em cada um.</span></div></div>`
+    : `<div class="gard"><span class="bigic">👩‍🌾</span><div><b>Abelha Jardineira</b><span class="hint">Contrate uma abelha que colhe e replanta os canteiros sozinha.</span></div>${S.level >= GARDENER.lvl ? `<button class="btn primary" data-a="gardener">Contratar ${costTag(gc)}</button>` : `<span class="slock">🔒 Nível ${GARDENER.lvl}</span>`}</div>`;
+  return `<section class="panel">
+    ${gard}
+    <div class="panel-head"><h2>Canteiros</h2><span class="hint">Escolha a flor de cada canteiro. A flor nativa (${CROPS[S.nativeFlower].i} ${CROPS[S.nativeFlower].n}) dá 50% mais néctar.</span></div>
+    <div class="row gall"><span class="hint">Todos:</span>${flowerBtns('all', null)}
+      ${S.level >= 3 ? '<button class="btn small primary" data-a="harvestAll">🧺 Colher e replantar tudo</button>' : ''}
+      ${S.farms.length < FARM_LOTS.length ? `<button class="btn small" data-a="buyFarm">+ Canteiro ${costTag(farmCost())}</button>` : ''}</div>
+    <div class="gardens">${cards}</div>
+  </section>`;
 }
 function viewAch() {
   const total = ACH.length, got = Object.keys(S.ach).length;
@@ -9789,7 +10145,18 @@ const ACTIONS = {
   tab: el => { S.tab = el.dataset.k; },
   collect: (el, ev) => collect(+el.dataset.i, ev),
   collectAll: (el, ev) => collectAll(ev),
-  farm: (el, ev) => harvest(+el.dataset.i, ev),
+  farm: (el, ev) => { const i = +el.dataset.i, f = S.farms[i]; if (f && f.crop && f.prog >= CROPS[f.crop].dur) { harvest(i, ev); if (S.tab === 'jardim') return; } else { S.jardimSel = i; S.tab = 'jardim'; } },
+  plantOne: (el, ev) => harvest(+el.dataset.i, ev),
+  farmCrop: el => setFarmCrop(el.dataset.i === 'all' ? 'all' : +el.dataset.i, el.dataset.k),
+  farmUp: el => upgradeFarm(+el.dataset.i),
+  gardener: () => hireGardener(),
+  spin: el => spinWheel(el.dataset.k),
+  atkPick: el => { S.atkPick = S.atkPick === el.dataset.k ? null : el.dataset.k; },
+  learn: el => learnAttack(+el.dataset.id),
+  rename: el => renameBee(+el.dataset.id),
+  skinPick: el => { S.skinPick = S.skinPick === el.dataset.k ? null : el.dataset.k; },
+  skin: el => applySkin(+el.dataset.id),
+  unskin: el => removeSkin(+el.dataset.id, el.dataset.k),
   selCrop: el => { if (unlockedCrop(el.dataset.k)) S.selCrop = el.dataset.k; },
   harvestAll: () => harvestAll(),
   buyHab: () => buyHabitat(), buyFarm: () => buyFarm(), buyHatch: () => buyHatch(),
@@ -9888,5 +10255,5 @@ function boot(data) {
 }
 window.claude?.hot?.ready ? window.claude.hot.ready(boot) : boot(window.claude?.hot?.data ?? {});
 // Gancho para testes automatizados
-window.__game = { get S() { return S; }, startGame, tick, ACTIONS, endGame, ALL_SPECIES };
+window.__game = { get S() { return S; }, startGame, tick, ACTIONS, endGame, ALL_SPECIES, givePrize };
 </script>
