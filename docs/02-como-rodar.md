@@ -6,7 +6,7 @@ O jogo é um único arquivo, `dragoncity/index.html` (cerca de 2,9 MB, porque os
 
 1. Baixe ou copie a pasta `dragoncity/`.
 2. Dê dois cliques em `index.html`. Ele abre no navegador padrão.
-3. Escolha um modo (Rápida, Padrão, Longa ou Infinito) e jogue.
+3. Clique em **Jogar**.
 
 Funciona em qualquer navegador atual (Chrome, Edge, Firefox, Safari), no computador ou no celular. No celular, o mapa da ilha rola para os lados e os painéis sobem de baixo.
 

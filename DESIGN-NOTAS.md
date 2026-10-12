@@ -75,6 +75,41 @@ O jogo **pausa sozinho** quando a aba fica oculta. Botão Pausar e tecla `P` tam
 - **Vila da colmeia:** o chão virou cera lisa, sem o desenho de alvéolos. No meio fica uma praça com a fonte de mel, de onde saem caminhos curvos. As construções ficam num arco no fundo: Arena no topo, Mercado e Chocadeira dos lados, Mural de Missões e Jardim do Amor nas pontas. São até 9 colmeias, dos dois lados e embaixo da praça. O jardim fica na frente, um canteiro de terra com borda de cera e 12 vagas em 2 fileiras. Enfeites: poças de mel, potes, colunas de cera e flores do prado.
 - **Relíquias:** agora a cada 300 s (antes, 150 s).
 
+## Novidades da v3: partidas únicas (12/10/2026)
+- **Só um botão Jogar.** A tela inicial não tem mais escolha de modo. A partida usa o modo Padrão: 20 minutos até a Vespa Rainha. Os outros modos (Rápida, Longa, Infinito) ficam no código, mas não aparecem no menu. Onde a documentação abaixo fala de modos, vale só o Padrão.
+- **Estação da partida** (sorteada; aplicada junto com a rainha). Abelhas do tipo da estação ganham +20% de vida e ataque. O chão da vila ganha um véu de cor e detalhes próprios.
+
+| Estação | Tipo forte | Efeito |
+|---|---|---|
+| 🌻 Primavera | Flor | Néctar +25%, flores 20% mais rápidas; pétalas no chão |
+| 🔥 Verão | Fogo | Mel +25%, néctar -20%; luz quente |
+| 🌧️ Estação das Chuvas | Água | Chuva de Mel cerca de 2x mais frequente (30% dos eventos são forçados a Chuva), ovos 15% mais lentos; poças |
+| ❄️ Inverno | Gelo | Ovos 25% e flores 15% mais lentos, +2 de geleia real por nível; geada |
+
+- **Inimigo da partida** (sorteado). Invade aos 33% e aos 66% do tempo (6:36 e 13:12 na partida de 20 min), com aviso 30 s antes. A invasão espera acabar uma batalha ou relíquia em andamento. Aparece um cartão com **Defender** (abre a batalha) ou **Deixar** (sofre o saque). Sem decisão em 60 s, o saque acontece. Inimigos: 2 na 1ª invasão e 3 na 2ª, dos tipos do rival, nível `2 × liga + nº da invasão` (até 15). Vencer: mel `max(60 s de produção, 400)` + recompensa normal da liga, geleia real `5 + 3 × nº da invasão`, XP em dobro e uma relíquia extra (não atrasa a próxima relíquia normal). Perder ou deixar: o saque.
+
+| Inimigo | Tipos | Particularidade | Saque |
+|---|---|---|---|
+| 🗡️ Formigas Ladras | Deserto + Veneno | | 30% do mel |
+| 🔥 Vespas Batedoras | Fogo + Sombra | | Queimam as flores de todos os canteiros |
+| 🛡️ Besouros Blindados | Deserto + Gelo | +40% de vida | Ovos voltam metade do caminho |
+| 🔮 Mariposas da Noite | Sombra + Luz | | 50% do néctar |
+
+- **Mutações.** Cada ovo chocado tem 35% de chance de nascer com uma mutação (🧬 no cartão da abelha e na revelação). Sorteio por peso: Gulosa +40% mel (20), Robusta +25% vida (20), Ferrão de Aço +20% ataque (20), Brilhante +15% em tudo (10), Preguiçosa -25% mel e +35% ataque (15), Sortuda +15% de crítico (15). A abelha inicial e as compradas no mercado não têm mutação.
+- **Caminho da Arena.** No lugar do botão Lutar, cada etapa da liga oferece 3 caminhos sorteados por peso. Cada etapa concluída avança 1 das 3 da liga. A 3ª etapa de cada liga é sempre Luta ou Elite, e toda escolha tem pelo menos uma luta.
+
+| Caminho | Peso | Efeito |
+|---|---|---|
+| ⚔️ Luta | 40 | Luta normal da liga |
+| ☠️ Elite | 20 | Inimigos +2 níveis e +30% de vida; mel x2, +5 geleia real e uma relíquia extra |
+| 💰 Tesouro | 15 | `1,5 × 90 × liga^1,9` de mel e `2 + liga` de geleia real, sem lutar |
+| ⬆️ Treino | 15 | Abelhas do time sobem 1 nível |
+| 💫 Mistério | 10 | 30% emboscada (luta de Elite), 35% ovo Raro ou Épico, 35% pote de `2,5 × 90 × liga^1,9` de mel |
+
+Perder uma luta mantém os mesmos caminhos. Etapas sem luta também dão `10 × liga` de XP.
+- **Pontuação:** nova linha "Invasões repelidas" = 1.500 por invasão vencida. O placar mostra estação, inimigo, invasões repelidas e mutantes.
+- **Estatísticas novas:** `raidsWon`, `raidsLost`, `mutants`, `routeNodes`, `elites`.
+
 ## Recursos
 - **Mel (🪙)**: produzido pelas abelhas dentro das colmeias; precisa ser coletado com clique.
 - **Néctar (🍖)**: colhido nos canteiros de flores; usada para subir o nível das abelhas.

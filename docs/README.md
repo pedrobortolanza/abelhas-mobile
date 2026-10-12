@@ -2,7 +2,9 @@
 
 Jogo de navegador inspirado em Dragon City, para uma única sessão: crie, cruze, evolua e batalhe com abelhas antes que o relógio zere e a Vespa Rainha desperte para a Invasão Final. Nada é salvo; ao fim você recebe nota, pontuação e um relatório completo de estatísticas e conquistas.
 
-**Para jogar:** abra `dragoncity/index.html` no navegador.
+**Para jogar:** abra `index.html` no navegador.
+
+> **v3:** o menu tem só o botão Jogar (partida de 20 min, o antigo modo Padrão). Estação, inimigo da partida, mutações e caminho da Arena estão descritos em `DESIGN-NOTAS.md`, seção "Novidades da v3". Trechos destes documentos sobre os modos Rápida, Longa e Infinito descrevem código que continua lá, mas não é mais acessível pelo menu.
 
 ## Índice
 
