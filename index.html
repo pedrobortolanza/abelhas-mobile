@@ -7983,12 +7983,14 @@ const M3 = (() => {
       for (let i = 0; i < 7; i++) { const t = i / 6; mesh(new T.BoxGeometry(0.62, 0.05, 0.16), i % 2 ? wd : wdD, g, [0, -t * 0.72 + 0.02, 0.1 + t * 1.15], [1, 1, 1], [0.55, (i % 3 - 1) * 0.04, 0]); }
       [-0.33, 0.33].forEach(x => { mesh(new T.BoxGeometry(0.05, 0.05, 1.4), wdD, g, [x, -0.32, 0.68], [1, 1, 1], [0.55, 0, 0]); [0, 1].forEach(k => mesh(new T.CylinderGeometry(0.035, 0.035, 0.32, 8), wdD, g, [x, 0.1 - k * 0.7, 0.12 + k * 1.1])); });
     } else if (kind === 'morro') {
-      const rk = mat('#9a94a0', { flatShading: true, roughness: 0.9 }), rk2 = mat('#7c7684', { flatShading: true, roughness: 0.9 });
+      const rk = mat('#a8927a', { flatShading: true, roughness: 0.9 }), rk2 = mat('#86705c', { flatShading: true, roughness: 0.9 });
       // pedras só atrás e dos lados (para não tapar o castelo)
       for (let i = 0; i < 13; i++) {
         const an = Math.PI * 1.25 + (i / 12 - 0.5) * Math.PI * 1.15, rr = 1.7 + (i % 3) * 0.14, sz = 0.24 + ((i * 7) % 5) * 0.05;
         const back = Math.max(0, Math.cos(an - Math.PI * 1.25));
-        mesh(ICO, i % 2 ? rk : rk2, g, [Math.cos(an) * rr, sz * 0.45 + back * 0.25, Math.sin(an) * rr], [sz, sz * (0.85 + back * 0.6), sz * 0.9], [i, i * 2, 0]);
+        const px = Math.cos(an) * rr, pz = Math.sin(an) * rr;
+        if (G.rockA && G.rockC) { const r = glb(i % 2 ? 'rockA' : 'rockC', g, [px, 0, pz], sz * 2.4, i * 1.9); r.scale.y = 1 + back * 0.7; }
+        else mesh(ICO, i % 2 ? rk : rk2, g, [px, sz * 0.45 + back * 0.25, pz], [sz, sz * (0.85 + back * 0.6), sz * 0.9], [i, i * 2, 0]);
       }
       [[-1.5, -0.6], [-0.7, -1.55], [-1.2, -1.2], [-1.75, 0.15], [0.15, -1.8]].forEach(([x, z], i) => { const h = 0.9 + (i % 2) * 0.4; mesh(new T.CylinderGeometry(0.07, 0.11, h, 8), honey, g, [x * 0.95, h / 2, z * 0.95], [1, 1, 0.6], [0, 0, 0], false); mesh(SPH_LO, honey, g, [x * 0.92, 0.04, z * 0.92], [0.2, 0.05, 0.16], [0, 0, 0], false); });
     } else if (kind === 'carga') {
@@ -8048,10 +8050,10 @@ const M3 = (() => {
     const cell = (x, y) => {
       const rr = hr * 0.86;
       const gr = g.createLinearGradient(x - rr, y - rr, x + rr, y + rr);
-      gr.addColorStop(0, '#ffe07a'); gr.addColorStop(0.45, '#f7bd36'); gr.addColorStop(1, '#d98a14');
+      gr.addColorStop(0, '#ffd866'); gr.addColorStop(0.45, '#f2ac28'); gr.addColorStop(1, '#c9780c');
       g.beginPath(); for (let k = 0; k < 6; k++) { const an = k * Math.PI / 3; g.lineTo(x + Math.cos(an) * rr, y + Math.sin(an) * rr * 0.98); } g.closePath();
       g.fillStyle = gr; g.fill();
-      g.strokeStyle = 'rgba(255,240,180,.55)'; g.lineWidth = 2.5; g.stroke();
+      g.strokeStyle = 'rgba(122,64,6,.55)'; g.lineWidth = 3.5; g.stroke(); g.strokeStyle = 'rgba(255,236,170,.5)'; g.lineWidth = 1.5; g.stroke();
       g.beginPath(); for (let k = 0; k < 6; k++) { const an = k * Math.PI / 3; g.lineTo(x + Math.cos(an) * rr * 0.62, y + Math.sin(an) * rr * 0.6); } g.closePath();
       g.fillStyle = 'rgba(255,214,90,.35)'; g.fill();
     };
@@ -8141,6 +8143,30 @@ const M3 = (() => {
     // ---- construções e enfeites ----
     const objs = new Map();
     let wheel = null;
+    // visual de desenho: sombra em 3 tons chapados + contorno escuro também nos modelos prontos
+    const ramp = new T.DataTexture(new Uint8Array([88, 160, 225]), 3, 1, T.RedFormat);
+    ramp.minFilter = ramp.magFilter = T.NearestFilter; ramp.needsUpdate = true;
+    const toonCache = new Map();
+    const toonOf = m => {
+      if (!m || m.type !== 'MeshStandardMaterial') return m;
+      if (toonCache.has(m)) return toonCache.get(m);
+      const t = new T.MeshToonMaterial({ color: m.color.clone().offsetHSL(0, 0.08, -0.02).multiplyScalar(0.86), map: m.map || null, gradientMap: ramp,
+        emissive: m.emissive ? m.emissive.clone() : 0, emissiveIntensity: m.emissiveIntensity, emissiveMap: m.emissiveMap || null,
+        transparent: m.transparent, opacity: m.opacity, side: m.side, vertexColors: m.vertexColors, depthWrite: m.depthWrite });
+      toonCache.set(m, t); return t;
+    };
+    const isLine = n => n.material && n.material.type === 'ShaderMaterial' && n.material.side === T.BackSide;
+    function toonify(root) {
+      const add = [];
+      root.traverse(n => {
+        if (!n.isMesh || isLine(n)) return;
+        n.material = Array.isArray(n.material) ? n.material.map(toonOf) : toonOf(n.material);
+        const sib = n.parent && n.parent.children.some(c => c !== n && c.isMesh && isLine(c) && c.geometry === n.geometry);
+        const big = n.geometry.boundingSphere || (n.geometry.computeBoundingSphere(), n.geometry.boundingSphere);
+        if (!sib && !n.isSkinnedMesh && !(n.material.transparent) && big && big.radius > 0.02) add.push(n);
+      });
+      add.forEach(n => { const o = new T.Mesh(n.geometry, outlineMat(0.02)); o.raycast = () => {}; n.add(o); });
+    }
     function setLots(list) {
       OUT = 0.022;
       const want = new Set(list.map(o => o.id));
@@ -8150,6 +8176,7 @@ const M3 = (() => {
         let m; try { m = o.a === undefined ? B[o.k]() : B[o.k](o.a); } catch (e) { return; }
         m.position.set(o.x, o.y || 0, o.z); if (o.ry) m.rotation.y = o.ry;
         m.traverse(n => { if (n.isMesh && n.material && n.material.type !== 'ShaderMaterial') { n.castShadow = true; n.receiveShadow = true; } });
+        toonify(m);
         scene.add(m); objs.set(o.id, m);
         if (o.k === 'roleta') wheel = m.getObjectByName('wheel');
       });
@@ -8163,7 +8190,7 @@ const M3 = (() => {
         [-0.3, 0.25].forEach(x => mesh(new T.TorusGeometry(0.78, 0.13, 6, 16), blk, b, [x, 0, 0], [1, 1, 1], [0, Math.PI / 2, 0], false));
         mesh(SPH_LO, blk, b, [0.95, 0.1, 0], [0.45, 0.45, 0.45], [0, 0, 0], false);
         const wings = [-1, 1].map(sd => { const w = new T.Mesh(new T.CircleGeometry(0.75, 12), wingM); w.position.set(0.05, 0.7, sd * 0.35); w.rotation.set(Math.PI / 2 + sd * 0.4, 0, 0); b.add(w); return w; });
-        b.scale.setScalar(sc); scene.add(b);
+        b.scale.setScalar(sc); toonify(b); scene.add(b);
         bees.push({ b, wings, ph: i * 1.7, r: 3 + (i % 4) * 1.6, sp: 0.18 + (i % 5) * 0.05, h: 1.1 + (i % 3) * 0.5, cx: 7 + ((i * 37) % 7) - 3, cz: 7 + ((i * 53) % 7) - 3 });
       } }
     let lastT = 0;
