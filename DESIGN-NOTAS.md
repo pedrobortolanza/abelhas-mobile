@@ -1,15 +1,15 @@
-# Dragões Relâmpago — notas de design (fonte para a documentação)
+# Honey Troop — notas de design (fonte para a documentação)
 
 Este arquivo descreve o que está **implementado** em `index.html`. Os números vêm das tabelas no topo do `<script>` (entre `DATA-START` e `DATA-END`) e das funções de fórmula logo abaixo. Se o código mudar, atualize aqui.
 
 ## Conceito
 - Jogo de navegador de **uma sessão**: o estado vive só na memória da aba. Fechou, perdeu. Sem contas, sem servidor, sem localStorage.
 - Inspirado em Dragon City, mas com tempos curtos (ovos de 8 a 40s, colheitas de 5 a 90s) para caber em 10 ou 20 minutos.
-- **Motivo para acabar:** o Dragão Ancestral dorme sob a ilha e desperta quando o relógio zera. Aí começa a **Invasão Final**, uma batalha obrigatória contra ele. O resultado decide o final da história e pesa na pontuação.
+- **Motivo para acabar:** a Vespa Rainha está a caminho e ataca quando o relógio zera. Aí começa a **Invasão Final**, uma batalha obrigatória contra ela. O resultado decide o final da história e pesa na pontuação.
 - Ao fim, tela de placar com nota (S/A/B/C/D), texto do final, pontuação detalhada, conquistas da partida e todas as estatísticas.
 
 ## Modos de partida
-| Modo | Ancestral desperta em | Ancestral na Invasão Final | Observação |
+| Modo | Vespa Rainha desperta em | Vespa Rainha na Invasão Final | Observação |
 |---|---|---|---|
 | Rápida | 10 min | 1.200 de vida, 48 de ataque | Faixas de nota e pontos da Invasão valem 50% |
 | Padrão | 20 min | 2.400 de vida, 70 de ataque | Referência de balanceamento |
@@ -19,129 +19,148 @@ Este arquivo descreve o que está **implementado** em `index.html`. Os números 
 Peso do modo (`modeFactor`): duração/20 min; no Infinito, tempo jogado/20 min (mínimo 0,5).
 
 ### Modo Infinito
-- O Ancestral invade aos 15:00, 30:00, 45:00… O relógio mostra o tempo até a próxima invasão e o número da onda.
-- Vencer uma invasão: +3.000 × número da onda em ouro, +20 gemas, +300 XP, e a ilha volta a funcionar normalmente. A próxima invasão fica 35% mais forte.
+- A Vespa Rainha invade aos 15:00, 30:00, 45:00… O relógio mostra o tempo até a próxima invasão e o número da onda.
+- Vencer uma invasão: +3.000 × número da onda em mel, +20 geleia real, +300 XP, e a ilha volta a funcionar normalmente. A próxima invasão fica 35% mais forte.
 - Perder uma invasão encerra a partida.
-- Pontos da Invasão no Infinito: 12.000 por invasão vencida + 3.000 por invasão vencida sem perder dragões + 6.000 × fração de dano na invasão perdida.
+- Pontos da Invasão no Infinito: 12.000 por invasão vencida + 3.000 por invasão vencida sem perder abelhas + 6.000 × fração de dano na invasão perdida.
 
 ### Invasão Final
 - Avisos de tremor faltando 5 min, 2 min, 1 min e 30s.
-- No zero, o relógio para, a produção para, eventos acabam e abre o anúncio "O Dragão Ancestral despertou!". O jogador escolhe até 3 dragões na Arena e clica em "Defender a ilha".
-- O Ancestral ataca com elemento aleatório a cada turno, é neutro na defesa (sem fraquezas) e usa o Sopro Ancestral (poder 2,0) com recarga de 3 turnos.
-- Se o jogador venceu o **Ancestral adormecido** na Arena (liberado após a liga Campeões) depois da última invasão, a próxima invasão começa com 30% menos vida. O efeito é consumido quando a invasão começa.
-- Vitória: final "A ilha resistiu". Derrota: final "O Ancestral tomou a ilha", mostrando a % de dano causada. Desistir conta como derrota. Encerrar antes do despertar dá o final "ilha sem defesa".
+- No zero, o relógio para, a produção para, eventos acabam e abre o anúncio "A Vespa Rainha chegou!". O jogador escolhe até 3 abelhas na Arena e clica em "Defender a colmeia".
+- A Vespa Rainha ataca com elemento aleatório a cada turno, é neutro na defesa (sem fraquezas) e usa o Ferroada Real (poder 2,0) com recarga de 3 turnos.
+- Se o jogador venceu o **Vespa Rainha adormecida** na Arena (liberado após a liga Campeões) depois da última invasão, a próxima invasão começa com 30% menos vida. O efeito é consumido quando a invasão começa.
+- Vitória: final "A colmeia resistiu". Derrota: final "A Vespa Rainha tomou a ilha", mostrando a % de dano causada. Desistir conta como derrota. Encerrar antes do despertar dá o final "ilha sem defesa".
 
 O jogo **pausa sozinho** quando a aba fica oculta. Botão Pausar e tecla `P` também pausam. "Encerrar" pede confirmação na própria tela.
 
-## Recursos
-- **Ouro (🪙)**: produzido pelos dragões dentro dos habitats; precisa ser coletado com clique.
-- **Comida (🍖)**: colhida nas fazendas; usada para subir o nível dos dragões.
-- **Gemas (💎)**: vêm de subir de nível, arena, missões, conquistas e do Mercador. Servem para acelerar ovos, trocar por ouro e comprar Ovo Misterioso.
-- **XP / Nível do jogador** (máx. 30): XP necessário para passar do nível `l` = `round(40 · l^1,6)`. Cada nível dá `2 + floor(nível/5)` gemas.
+## Cada partida é única (roguelite)
+- **Prado sorteado:** no início, 3 tipos básicos (Fogo, Água, Flor, Deserto, Elétrica, Gelo) nascem no prado. Eles ficam liberados no nível 1 e produzem **+25% de mel** (`MEADOW_GOLD`). Uma das flores é a **flor nativa** e dá **+50% de néctar** (`NATIVE_FLOWER`). A abelha inicial é uma nativa sorteada. Os outros tipos básicos liberam nos níveis 2, 3 e 4. Veneno libera no 6, Sombra e Luz no 8. A ilha mostra flores silvestres nas cores do prado.
+- **Rainha:** antes do relógio começar, o jogador escolhe 1 entre 3 rainhas sorteadas. Cada uma tem uma vantagem e um defeito:
 
-Início: 250 ouro, 30 comida, 5 gemas, 1 Dragão de Fogo nv1, 1 habitat, 2 fazendas, 1 espaço de chocadeira.
+| Rainha | Vantagem | Defeito |
+|---|---|---|
+| Ardente | +30% de ataque | −15% de mel |
+| Doceira | +35% de mel | ovos 25% mais lentos |
+| Jardineira | +50% de néctar | mercado 20% mais caro |
+| Fértil | ovos 40% mais rápidos | −15% de vida |
+| Sortuda | dobro de chance de Lendária | cruzar custa 50% mais |
+| Guerreira | +25% de vida | −25% de néctar |
+| Sábia | +40% de experiência | começa com metade do mel |
+| Mercadora | mercado 20% mais barato | alimentar custa 25% mais |
+| Real | +3 de geleia real por nível | −10% de mel |
+
+- **Relíquias:** a cada **150 s** de jogo (`RELIC_EVERY`, sem batalha aberta) o relógio para e o jogador escolhe 1 entre 3 relíquias. Os efeitos multiplicam ou somam e valem até o fim da partida. As 15 relíquias: Favo Dourado (+20% de mel), Pólen Mágico (flores 25% mais rápidas), Néctar Concentrado (+30% de néctar), Ninho Quentinho (ovos 25% mais rápidos), Ferrão Afiado (+15% de ataque), Cera Resistente (+15% de vida), Mel de Lavanda (cura 6% da vida por turno), Olho Composto (+8% de crítico), Ferrão Elemental (vantagem de tipo x1,8, uma vez só), Bênção da Tropa (+25% de XP), Feromônio (cruzar 30% mais barato), Moeda de Cera (mercado 15% mais barato), Pote de Mel (90 s de produção na hora, mínimo 500), Geleia Fresca (+15 de geleia real) e Ovo da Tropa (ovo Raro ou Épico na chocadeira).
+- Tudo isso vive em `S.mods` (padrão em `MODS0`) e é lido por `MOD(k)`. A tela final mostra a rainha, o prado e o número de relíquias.
+
+## Recursos
+- **Mel (🪙)**: produzido pelas abelhas dentro das colmeias; precisa ser coletado com clique.
+- **Néctar (🍖)**: colhido nos canteiros de flores; usada para subir o nível das abelhas.
+- **Geleia real (💎)**: vem de subir de nível, arena, missões, conquistas e do Mercador. Serve para acelerar ovos, trocar por mel e comprar Ovo Misterioso.
+- **XP / Nível do jogador** (máx. 30): XP necessário para passar do nível `l` = `round(40 · l^1,6)`. Cada nível dá `2 + floor(nível/5)` geleia real.
+
+Início: 250 mel, 30 néctar, 5 geleia real, 1 abelha nativa do prado nv1 (sorteada), 1 colmeia, 2 canteiros de flores, 1 espaço de chocadeira.
 
 ## Elementos (9)
 | Elemento | Nível p/ comprar | Preço | Forte contra (x1,5) |
 |---|---|---|---|
-| 🔥 Fogo | 1 | 100 | Planta, Gelo, Metal |
-| 💧 Água | 1 | 150 | Fogo, Terra |
-| 🌿 Planta | 1 | 150 | Água, Terra |
-| 🪨 Terra | 2 | 250 | Elétrico, Fogo, Metal |
-| ⚡ Elétrico | 3 | 600 | Água, Metal |
-| ❄️ Gelo | 4 | 900 | Planta, Terra |
-| ⚙️ Metal | 6 | 2.500 | Gelo, Luz |
-| 🌑 Trevas | 8 | 6.000 | Luz, Elétrico |
-| ✨ Luz | 8 | 6.000 | Trevas, Gelo |
+| 🔥 Fogo | 1 | 100 | Flor, Gelo, Veneno |
+| 💧 Água | 1 | 150 | Fogo, Deserto |
+| 🌿 Flor | 1 | 150 | Água, Deserto |
+| 🪨 Deserto | 2 | 250 | Elétrica, Fogo, Veneno |
+| ⚡ Elétrica | 3 | 600 | Água, Veneno |
+| ❄️ Gelo | 4 | 900 | Flor, Deserto |
+| ⚙️ Veneno | 6 | 2.500 | Gelo, Luz |
+| 🌑 Sombra | 8 | 6.000 | Luz, Elétrica |
+| ✨ Luz | 8 | 6.000 | Sombra, Gelo |
 
 Se o defensor é forte contra o elemento do golpe, o dano é x0,7. Com dois elementos no defensor, os multiplicadores se multiplicam.
 
-## Espécies e raridade (50 no Dragonário)
-- **Puros (9)**: um elemento. Comum, exceto Metal/Trevas/Luz que são Raros.
-- **Híbridos (36)**: dois elementos. Nome = prefixo do 1º + sufixo do 2º (ex.: Fogo+Água = *Piromaris*). Raro; Épico se tiver Metal, Trevas ou Luz.
-- **Lendários (5)**, por receita: se os elementos dos dois pais juntos contêm a receita, há chance de lendário.
+## Espécies e raridade (50 no Abelhário)
+- **Puras (9)**: um elemento. Comum, exceto Veneno/Sombra/Luz, que são Raras.
+- **Híbridas (36)**: dois elementos. Nome = prefixo do 1º + sufixo do 2º (ex.: Fogo+Água = *Piromaris*). Rara; Épica se tiver Veneno, Sombra ou Luz.
+- **Lendárias (5)**, por receita: se os elementos dos dois pais juntos contêm a receita, há chance de lendária.
 
-| Lendário | Receita | Chance |
+| Lendária | Receita | Chance |
 |---|---|---|
-| Eclipse | Luz + Trevas | 25% |
+| Eclipse | Luz + Sombra | 25% |
 | Aurora | Gelo + Luz | 20% |
-| Titã de Aço | Terra + Metal | 18% |
-| Tempestade | Água + Elétrico | 15% |
-| Vulcano | Fogo + Terra | 12% |
+| Escorpiona | Deserto + Veneno | 18% |
+| Tempestade | Água + Elétrica | 15% |
+| Vulcana | Fogo + Deserto | 12% |
 
-| Raridade | Ouro/s base | Vida base | Ataque base | Tempo de ovo |
+| Raridade | Mel/s base | Vida base | Ataque base | Tempo de ovo |
 |---|---|---|---|---|
 | Comum | 1 | 100 | 20 | 8s |
-| Raro | 2,5 | 125 | 25 | 15s |
-| Épico | 6 | 160 | 33 | 25s |
-| Lendário | 15 | 230 | 46 | 40s |
+| Rara | 2,5 | 125 | 25 | 15s |
+| Épica | 6 | 160 | 33 | 25s |
+| Lendária | 15 | 230 | 46 | 40s |
 
-## Fórmulas dos dragões (nível 1 a 15)
-- Ouro/s = base · (1 + 0,4 · (nível − 1))
+## Fórmulas das abelhas (nível 1 a 15)
+- Mel/s = base · (1 + 0,4 · (nível − 1))
 - Vida = base · (1 + 0,2 · (nível − 1))
 - Ataque = base · (1 + 0,16 · (nível − 1))
 - Poder (para ordenar o time) = vida/4 + ataque·2
-- Alimentar do nível `n` para `n+1` custa `round(10 · 1,5^(n−1))` de comida
+- Alimentar do nível `n` para `n+1` custa `round(10 · 1,5^(n−1))` de néctar
 - Vender rende `25 · valorRaridade · nível` (valor: Comum 1, Raro 2, Épico 3, Lendário 5). Pede confirmação com um segundo clique.
 
 ## Ilha
-- **Habitat**: 3 dragões cada. Acumula até 60s da produção dos seus dragões (mínimo 50). Clique para coletar. Custo do próximo: `150 · 2,1^(habitats − 1)`.
+- **Colmeia**: 3 abelhas cada. Acumula até 60s da produção das suas abelhas (mínimo 50). Clique para coletar. Custo do próximo: `150 · 2,1^(habitats − 1)`.
 - **Coletar tudo**: libera no nível 5 (tecla `C`).
-- **Fazendas**: custo `100 · 1,8^(fazendas − 2)`.
+- **Canteiros de flores**: custo `100 · 1,8^(fazendas − 2)`.
 
-| Plantação | Tempo | Comida | Custo | Nível |
+| Plantação | Tempo | Néctar | Custo | Nível |
 |---|---|---|---|---|
-| 🌾 Trigo | 5s | 12 | 10 | 1 |
-| 🌽 Milho | 20s | 60 | 40 | 2 |
-| 🎃 Abóbora | 45s | 180 | 120 | 4 |
-| 🍇 Fruta-dragão | 90s | 520 | 350 | 7 |
+| 🌾 Margarida | 5s | 12 | 10 | 1 |
+| 🌽 Girassol | 20s | 60 | 40 | 2 |
+| 🎃 Rosa | 45s | 180 | 120 | 4 |
+| 🍇 Lótus | 90s | 520 | 350 | 7 |
 
 - **Colher e replantar tudo**: libera no nível 3.
-- **Chocadeira**: 1 espaço inicial; compra do 2º, 3º e 4º por 300 / 1.500 / 6.000. Ovo pronto precisa de vaga no habitat para chocar. Acelerar custa `ceil(segundos restantes / 8)` gemas.
+- **Chocadeira**: 1 espaço inicial; compra do 2º, 3º e 4º por 300 / 1.500 / 6.000. Ovo pronto precisa de vaga na colmeia para chocar. Acelerar custa `ceil(segundos restantes / 8)` geleia real.
 
 ## Cruzamento
-- Os dois pais precisam de **nível 3+**. Custo: `30 · (valorRaridadeA + valorRaridadeB)` de ouro.
-- O filhote herda um elemento sorteado de cada pai. A tela mostra as probabilidades de cada resultado antes de cruzar.
+- Os dois pais precisam de **nível 3+**. Custo: `30 · (valorRaridadeA + valorRaridadeB)` de mel.
+- A larva herda um elemento sorteado de cada pai. A tela mostra as probabilidades de cada resultado antes de cruzar.
 - Ordem do sorteio: primeiro cada receita lendária aplicável, em sequência; o restante é dividido igualmente entre as combinações de elementos.
 
 ## Arena
-- 8 ligas: Bronze, Prata, Ouro, Platina, Diamante, Mestre, Grão-Mestre, Campeões. 3 lutas por liga.
-- Oponentes: quantidade `min(3, ceil((liga + luta)/2))`, nível `1 + (liga−1)·2 + luta` (máx. 15), stats x0,95. Raridades por liga: Bronze C; Prata C/R; Ouro R/C; Platina R/E; Diamante E/R; Mestre E/R; Grão-Mestre E/L; Campeões L/E.
-- Time de até 3 dragões (padrão: os 3 mais fortes). Todos começam com vida cheia.
+- 8 ligas: Bronze, Prata, Mel, Platina, Diamante, Mestre, Grão-Mestre, Campeões. 3 lutas por liga.
+- Oponentes: quantidade `min(3, ceil((liga + luta)/2))`, nível `1 + (liga−1)·2 + luta` (máx. 15), stats x0,95. Raridades por liga: Bronze C; Prata C/R; Mel R/C; Platina R/E; Diamante E/R; Mestre E/R; Grão-Mestre E/L; Campeões L/E.
+- Time de até 3 abelhas (padrão: as 3 mais fortes). Todas começam com vida cheia.
 - Turnos: você ataca primeiro, depois o oponente. Ataque = elemento principal, poder 1,0. Especial = segundo elemento (ou o principal), poder 1,7 (2,0 em Lendários), recarga de 3 turnos.
 - Dano = ataque · poder · vantagem · (1,5 se crítico, chance 12%) · aleatório 0,9–1,1.
 - **Batalha automática** escolhe o melhor golpe a cada 0,6s.
-- Vitória: ouro `90 · liga^1,9 · (1 + 0,5·luta)`, gemas = liga, XP `15·liga + 5·luta`. Derrota: 5 XP, sem perda.
-- **Ancestral adormecido**: após vencer Campeões, luta opcional contra o Ancestral com 80% da vida e do ataque da Invasão Final do modo. Vitória: 8.000 ouro (4.000 no Rápido), 30 gemas, 400 XP e, na primeira vez, deixa o Ancestral com 30% menos vida na Invasão Final. Pode ser repetido, mas o enfraquecimento não acumula.
+- Vitória: mel `90 · liga^1,9 · (1 + 0,5·luta)`, geleia real = liga, XP `15·liga + 5·luta`. Derrota: 5 XP, sem perda.
+- **Vespa Rainha adormecida**: após vencer Campeões, luta opcional contra a Vespa Rainha com 80% da vida e do ataque da Invasão Final do modo. Vitória: 8.000 mel (4.000 no Rápido), 30 geleia real, 400 XP e, na primeira vez, deixa a Vespa Rainha com 30% menos vida na Invasão Final. Pode ser repetido, mas o enfraquecimento não acumula.
 
 ## Missões
-3 ativas. As iniciais são tutoriais (coletar 1x, colher 2x, alimentar 2x). Depois sorteadas entre: ganhar ouro, colher comida, chocar ovos, vencer batalhas, alimentar, cruzar, colher, coletar. Meta e recompensa crescem com o nível do jogador (ouro `80 · 1,45^(nível−1)`, 1–3 gemas, XP `20 + 8·nível`).
+3 ativas. As iniciais são tutoriais (coletar 1x, colher 2x, alimentar 2x). Depois sorteadas entre: ganhar mel, colher néctar, chocar ovos, vencer batalhas, alimentar, cruzar, colher, coletar. Meta e recompensa crescem com o nível do jogador (mel `80 · 1,45^(nível−1)`, 1–3 geleia real, XP `20 + 8·nível`).
 
 ## Eventos (a cada 60–100s, o primeiro aos 50s)
 | Evento | Efeito | Duração |
 |---|---|---|
-| 🌧️ Chuva de Ouro | ouro dos habitats x2 | 30s |
-| 🌻 Colheita Farta | fazendas x3 mais rápidas | 30s |
+| 🌧️ Chuva de Mel | mel das colmeias x2 | 30s |
+| 🌻 Colheita Farta | canteiros de flores x3 mais rápidas | 30s |
 | 🥚 Ovo Perdido | ovo Raro/Épico flutua na tela; clicar coloca na chocadeira sem ocupar vaga | 10s |
-| 🐲 Dragão Selvagem | luta especial na Arena com recompensa x3 | 45s |
-| 🧳 Mercador Viajante | 10 gemas por `400 · nível` de ouro | 30s |
+| 🐲 Abelha Selvagem | luta especial na Arena com recompensa x3 | 45s |
+| 🧳 Mercador Viajante | 10 geleia real por `400 · nível` de mel | 30s |
 
 ## Loja
 "Mercado da Ilha", com três abas:
-- **Dragões:** os 9 dragões puros, em vitrines com pódio, faixa de raridade, ouro/s, vida e ataque de nível 1, "forte contra" e selo NOVO! para espécie ainda não descoberta. Bloqueados aparecem escuros com cadeado e o nível. **Oferta do momento:** um dragão desbloqueado custa 25% menos; troca a cada 90 s de jogo (`floor(t/90)` pela lista de elementos liberados).
-- **Construções:** habitat, fazenda e ninho na chocadeira, com quantos você tem.
-- **Tesouros:** Mercador Viajante (quando o evento está ativo, com selo "!" na aba), Ovo misterioso (20 gemas → Épico garantido, chance de Lendário), **Nuvem de Ouro** (12 gemas → ouro dos habitats em dobro por 45 s, o mesmo efeito do evento Chuva de Ouro, e soma tempo se já estiver ativo), **Adubo Mágico** (8 gemas → fazendas 3x mais rápidas por 45 s, o mesmo efeito da Colheita Farta) e Saco de ouro (5 gemas → `150·nível + 30s de produção`).
+- **Abelhas:** os 9 abelhas puros, em vitrines com pódio, faixa de raridade, mel/s, vida e ataque de nível 1, "forte contra" e selo NOVO! para espécie ainda não descoberta. Bloqueados aparecem escuros com cadeado e o nível. **Oferta do momento:** uma abelha desbloqueado custa 25% menos; troca a cada 90 s de jogo (`floor(t/90)` pela lista de elementos liberados).
+- **Construções:** colmeia, canteiro e favo na chocadeira, com quantos você tem.
+- **Tesouros:** Mercador Viajante (quando o evento está ativo, com selo "!" na aba), Ovo misterioso (20 geleia real → Épico garantido, chance de Lendário), **Nuvem de Mel** (12 geleia real → mel das colmeias em dobro por 45 s, o mesmo efeito do evento Chuva de Mel, e soma tempo se já estiver ativo), **Adubo Mágico** (8 geleia real → canteiros de flores 3x mais rápidas por 45 s, o mesmo efeito da Colheita Farta) e Saco de mel (5 geleia real → `150·nível + 30s de produção`).
 
 ## Conquistas (65, em 9 categorias)
-Cada uma dá gemas ao desbloquear (1 a 20). Lista completa com condições está no array `ACH` em `index.html`. Categorias: Primeiros passos (7), Riqueza (9), Coleção (11), Evolução (6), Fazenda (4), Arena (12), Ilha (7), Jogador (6), Invasão (3). Destaques: *Guardião da ilha* (vencer a Invasão Final), *Ilha intocável* (vencer sem perder dragões), *Cicatriz no Ancestral* (tirar 50% da vida dele), *Golpe no sono* (vencer o Ancestral adormecido), *Enciclopédia viva* (40 espécies), *Relâmpago* (nível 5 em 5 min), *Sorte de principiante* (Lendário em 10 min), *Arco-íris elemental* (9 elementos ao mesmo tempo).
+Cada uma dá geleia real ao desbloquear (1 a 20). Lista completa com condições está no array `ACH` em `index.html`. Categorias: Primeiros passos (7), Riqueza (9), Coleção (11), Evolução (6), Canteiro (4), Arena (12), Ilha (7), Jogador (6), Invasão (3). Destaques: *Guardião da ilha* (vencer a Invasão Final), *Ilha intocável* (vencer sem perder abelhas), *Cicatriz na Vespa Rainha* (tirar 50% da vida dele), *Golpe no sono* (vencer a Vespa Rainha adormecida), *Enciclopédia viva* (40 espécies), *Relâmpago* (nível 5 em 5 min), *Sorte de principiante* (Lendário em 10 min), *Arco-íris elemental* (9 elementos ao mesmo tempo).
 
 ## Estatísticas rastreadas
-Aba Estatísticas (e tela final): gráfico de ouro acumulado e ouro/s ao longo da partida, dragões por elemento e tabelas em 7 grupos: Geral (tempo, modo, nível, XP, cliques, cliques/min, pontuação), Economia (ouro ganho/gasto, média por minuto, ouro/s atual e pico, coletas, maior coleta, gemas), Fazenda, Dragões (inclusive obtidos por raridade e poder total), Cruzamento (inclusive tempo do primeiro Lendário), Arena (liga, vitórias, derrotas, taxa, sequências, dano, maior golpe, críticos, super eficazes, nocautes, vitórias perfeitas, selvagens, chefe) e Progresso.
+Aba Estatísticas (e tela final): gráfico de mel acumulado e mel/s ao longo da partida, abelhas por elemento e tabelas em 7 grupos: Geral (tempo, modo, nível, XP, cliques, cliques/min, pontuação), Economia (mel ganho/gasto, média por minuto, mel/s atual e pico, coletas, maior coleta, geleia real), Canteiro, Abelhas (inclusive obtidos por raridade e poder total), Cruzamento (inclusive tempo do primeiro Lendário), Arena (liga, vitórias, derrotas, taxa, sequências, dano, maior golpe, críticos, super eficazes, nocautes, vitórias perfeitas, selvagens, chefe) e Progresso.
 
 ## Pontuação e nota
-Pontos = ouro ganho/10 + Σ dragões (100·valorRaridade + 15·nível) + 150 por espécie + 250 por conquista + Arena ((liga−1)·600 + 200 por luta da liga atual + 40 por vitória) + 2.000 se venceu o Ancestral adormecido + **Invasão Final** + 200 por nível do jogador + 100 por missão.
+Pontos = mel ganho/10 + Σ abelhas (100·valorRaridade + 15·nível) + 150 por espécie + 250 por conquista + Arena ((liga−1)·600 + 200 por luta da liga atual + 40 por vitória) + 2.000 se venceu a Vespa Rainha adormecida + **Invasão Final** + 200 por nível do jogador + 100 por missão.
 
-Invasão Final (Padrão; metade no Rápido): vitória = 12.000 (+3.000 sem perder dragões); derrota = 6.000 × fração da vida do Ancestral removida; sem invasão = 0.
+Invasão Final (Padrão; metade no Rápido): vitória = 12.000 (+3.000 sem perder abelhas); derrota = 6.000 × fração da vida da Vespa Rainha removida; sem invasão = 0.
 
 Nota no modo Padrão: S ≥ 60.000 · A ≥ 35.000 · B ≥ 18.000 · C ≥ 8.000 · D abaixo. No modo Rápido as faixas valem metade.
 
@@ -151,17 +170,17 @@ Clique/toque em tudo. Teclas: `1`–`9` abrem os painéis do dock (1 = Ilha), `E
 ## Interface (visão isométrica, estilo Dragon City)
 - A tela principal é a **ilha em visão isométrica**: um mapa SVG de 14×14 lotes em losango (proporção 2:1), com mar animado, ondas, nuvens passando, praia, penhasco de terra, caminhos e árvores.
 - **Construções clicáveis:**
-  - **Habitats** (até 10 lotes): mostram até 3 dragões passeando. O balão de moeda mostra o ouro acumulado e pulsa quando está cheio. Clique para coletar. O próximo lote livre aparece tracejado, com o preço para comprar.
-  - **Fazendas** (até 12 lotes, numa fileira na beira da ilha): terra arada, broto que cresce com o progresso, barra de progresso e a planta com o balão ✋ quando pronta. O próximo lote livre aparece tracejado.
+  - **Colmeias** (até 10 lotes): mostram até 3 abelhas passeando. O balão de moeda mostra o mel acumulado e pulsa quando está cheio. Clique para coletar. O próximo lote livre aparece tracejado, com o preço para comprar.
+  - **Canteiros de flores** (até 12 lotes, numa fileira na beira da ilha): terra arada, broto que cresce com o progresso, barra de progresso e a planta com o balão ✋ quando pronta. O próximo lote livre aparece tracejado.
   - **Mural de Missões**: tem balão com o número de missões prontas para resgatar.
-  - **Montanha do Amor** (cruzamento): coração pulsando.
+  - **Jardim do Amor** (cruzamento): coração pulsando.
   - **Chocadeira**: mostra os ovos na frente, coloridos pela raridade, e um balão 🐣 quando algum está pronto.
   - **Mercado** (loja).
-  - **Arena**: coliseu com bandeiras. Mostra balão 🐲 quando há Dragão Selvagem, ⚔️ quando há batalha em andamento e ☠️ quando o Ancestral desperta.
-- Os 2 dragões mais raros voam em volta da ilha (com 6+ dragões; 1 com 3 a 5 dragões).
+  - **Arena**: coliseu com bandeiras. Mostra balão 🐲 quando há Abelha Selvagem, ⚔️ quando há batalha em andamento e ☠️ quando a Vespa Rainha desperta.
+- Os 2 abelhas mais raros voam em volta da ilha (com 6+ abelhas; 1 com 3 a 5 abelhas).
 - Rótulos e balões ficam numa camada acima de tudo. As construções são desenhadas em ordem de profundidade (x+y).
 - **HUD sobre o mapa:** escolha da semente; botões Colher e replantar (nível 3+) e Coletar tudo (nível 5+).
-- **Barra inferior (dock):** Ilha, Dragões, Cruzar, Chocadeira, Arena, Missões, Loja, Conquistas, Estatísticas, com selos de contagem na Chocadeira e nas Missões. Cada item, ou um clique na construção, abre um **painel** sobre a ilha. No celular, o painel sobe de baixo. Fecha com ✕, com clique fora ou com Esc.
+- **Barra inferior (dock):** Ilha, Abelhas, Cruzar, Chocadeira, Arena, Missões, Loja, Conquistas, Estatísticas, com selos de contagem na Chocadeira e nas Missões. Cada item, ou um clique na construção, abre um **painel** sobre a ilha. No celular, o painel sobe de baixo. Fecha com ✕, com clique fora ou com Esc.
 - **Celular:** o mapa mantém 920px de largura e rola de lado dentro da própria área, começando centralizado.
 
 ### Ícones (v6)
@@ -169,52 +188,40 @@ Clique/toque em tudo. Teclas: `1`–`9` abrem os painéis do dock (1 = Ilha), `E
 
 ### Chão da ilha (v6)
 - Grama em ladrilhos com variação de tom, manchas claras e escuras, tufos de grama, florzinhas de várias cores, pedrinhas e trevos; caminhos de pedra com meio-fio; borda de grama caindo sobre o penhasco. Tudo vira uma única imagem gerada uma vez (o mapa continua leve).
-- **Lavoura:** faixa de terra arada com sulcos e cerca de madeira na beira da ilha, onde ficam as fazendas. Cada fazenda é um canteiro elevado com 4 plantas desenhadas por cultura (trigo, milho, abóbora, fruta-dragão), que crescem com o progresso e mudam de cor quando maduras.
+- **Lavoura:** faixa de terra arada com sulcos e cerca de madeira na beira da ilha, onde ficam os canteiros de flores. Cada canteiro é um canteiro elevado com 4 plantas desenhadas por cultura (margarida, girassol, rosa, fruta-abelha), que crescem com o progresso e mudam de cor quando maduras.
 
 ### Visual da interface (estilo jogo, v5)
-- **Botões grossos** com borda escura, brilho em cima e um "degrau" embaixo que afunda ao clicar. Cores por função: laranja (ação principal), verde (Chocar, Cruzar), azul (gemas), vermelho (Desistir, Encerrar, Fechar), roxo-pedra (o resto). Texto na fonte Lilita One.
-- **Barra superior** com cápsulas de recurso (ícone numa moeda redonda), estrela de nível, relógio vermelho do Ancestral. **Doca** com botões redondos em relevo; o menu aberto sobe e fica laranja; selos vermelhos com contorno branco.
-- **Janelas de menu** com moldura dourada e faixa de título na cor do menu (Dragões roxo, Cruzar rosa, Chocadeira madeira, Arena vermelho, Missões marrom, Loja verde, Conquistas dourado, Estatísticas azul) e botão ✕ redondo.
-- **Fundo único por menu** (cenários em SVG embutido): Dragões = santuário nas montanhas ao entardecer; Cruzar = jardim rosa com corações; Chocadeira = celeiro de madeira com lâmpadas e palha; Missões = quadro de cortiça; Loja = toldo listrado e balcão; Conquistas = salão de troféus; Estatísticas = planta azul quadriculada. Tela inicial e placar usam o santuário.
-- **Arena com um cenário por liga:** Bronze deserto, Prata neve, Ouro campo dourado, Platina verde-água, Diamante cristais, Mestre noite roxa, Grão-Mestre vulcão, Campeões aurora; a Invasão Final e o Ancestral adormecido têm um céu de tempestade com raios. Todos com arquibancada, torcida e bandeiras.
+- **Botões grossos** com borda escura, brilho em cima e um "degrau" embaixo que afunda ao clicar. Cores por função: laranja (ação principal), verde (Chocar, Cruzar), azul (geleia real), vermelho (Desistir, Encerrar, Fechar), roxo-pedra (o resto). Texto na fonte Lilita One.
+- **Barra superior** com cápsulas de recurso (ícone numa moeda redonda), estrela de nível, relógio vermelho da Vespa Rainha. **Doca** com botões redondos em relevo; o menu aberto sobe e fica laranja; selos vermelhos com contorno branco.
+- **Janelas de menu** com moldura dourada e faixa de título na cor do menu (Abelhas roxo, Cruzar rosa, Chocadeira madeira, Arena vermelho, Missões marrom, Loja verde, Conquistas dourado, Estatísticas azul) e botão ✕ redondo.
+- **Fundo único por menu** (cenários em SVG embutido): Abelhas = santuário nas montanhas ao entardecer; Cruzar = jardim rosa com corações; Chocadeira = celeiro de madeira com lâmpadas e palha; Missões = quadro de cortiça; Loja = toldo listrado e balcão; Conquistas = salão de troféus; Estatísticas = planta azul quadriculada. Tela inicial e placar usam o santuário.
+- **Arena com um cenário por liga:** Bronze deserto, Prata neve, Mel campo dourado, Platina verde-água, Diamante cristais, Mestre noite roxa, Grão-Mestre vulcão, Campeões aurora; a Invasão Final e a Vespa Rainha adormecida têm um céu de tempestade com raios. Todos com arquibancada, torcida e bandeiras.
 - **Arena (fora da luta):** faixa com a liga atual, o time em pódios (vagas vazias aparecem) e um botão grande "Lutar!". Escada de ligas em escudos com a cor de cada liga.
-- **Batalha:** placas com nome e barra de vida com o número dentro, dragões em pódios, selo "VS" no meio, controles e registro em caixas escuras sobre o cenário.
-- **Chocadeira:** cada ovo é um desenho com as cores dos elementos da espécie, deitado num ninho de palha dentro de um caixote de madeira; brilha e balança quando está pronto. Mostra os segundos restantes. Vagas livres aparecem como ninhos vazios.
+- **Batalha:** placas com nome e barra de vida com o número dentro, abelhas em pódios, selo "VS" no meio, controles e registro em caixas escuras sobre o cenário.
+- **Chocadeira:** cada ovo é um desenho com as cores dos elementos da espécie, deitado num favo de palha dentro de um caixote de madeira; brilha e balança quando está pronto. Mostra os segundos restantes. Vagas livres aparecem como favos vazios.
 
-## Visual dos dragões
-- **Formatos próprios (v5, atual):** o Pedro não gostou do dragão pronto da v4 e pediu pelo menos 3 modelos diferentes. Nenhum dragão pronto, gratuito e no estilo fofo estava disponível, então os dragões viraram modelos 3D próprios em quatro formatos de corpo, um por raridade:
-  - **Comum, Filhote:** quadrúpede gordinho, cabeça enorme, pernas curtas e asinhas.
-  - **Raro, Serpe:** bípede em pé, esguio, pescoço comprido, bracinhos, placas na barriga e asas grandes abertas.
-  - **Épico, Serpente:** dragão oriental flutuando em S, corpo em gomos que ondula, crina, bigodes, presas, chifres longos, quatro perninhas e barbatanas.
-  - **Lendário, Titã:** bípede robusto, ombreiras e espinhos dourados, chifres de carneiro, presas, asas enormes e coroa.
-  - Todos têm olhos grandes com brilho e íris na cor do elemento, contorno escuro de desenho animado, corpo na cor do 1º elemento e asas/barriga na cor do 2º, ponta da cauda e enfeites nas costas conforme o elemento (chama, raio, folha, barbatana, cristal de trevas, pedras, cristais de gelo, rebites de metal) e auréola para Luz. Animação em 8 quadros (asas, cauda, cabeça; a Serpente ondula o corpo inteiro).
-  - **Abertura sem modelos antigos:** uma tela de carregamento ("Despertando os dragões…") espera os modelos da ilha e os dragões da tela inicial. Durante o jogo, um dragão cujo modelo ainda não ficou pronto aparece só como um brilho pulsando no lugar, nunca no desenho antigo. Dragões que estão na tela passam na frente da fila de preparo.
-- **Modelos prontos (v4, substituída nos dragões):** a pedido do Pedro, dragões e construções principais usam modelos 3D feitos por artistas, todos CC0 (domínio público), embutidos no `index.html` como GLB em base64 (entre `GLB-START`/`GLB-END`) e carregados com o GLTFLoader do three.js r147.
-  - **Dragão:** "Dragon Evolved" do pacote Ultimate Monsters, de Quaternius (quaternius.com). Um único modelo, recolorido por elemento (corpo na cor do 1º elemento, barriga e membrana das asas na cor do 2º), com a animação de voo "Flying_Idle" em 8 quadros. Raridade muda o tamanho (Comum 0,9× até Lendário 1,14×), Lendário ganha chifres e coroa dourados, Luz ganha auréola, e partículas do elemento giram em volta (chamas, gotas, folhas, pedras, raios, cristais de gelo, anéis de metal, cristais de trevas, brilhos).
-  - **Construções:** KayKit Medieval Hexagon Pack, de Kay Lousberg (kaylousberg.com): Arena = castelo, Mercado = barraca de mercado, Mural de Missões = taverna, Montanha do Amor = montanha com árvores (mais o coração), além de pinheiros, pedras, vitórias-régias, barris, caixotes, sacos, bandeiras, um moinho perto das fazendas e um poço no cruzamento central dos caminhos. Chocadeira, fazendas e as bases dos habitats continuam com os modelos procedurais da v3.
-  - Se os GLBs não carregarem, o jogo cai para os modelos procedurais da v3; sem WebGL, para o SVG.
-- **Modelos 3D procedurais (v3):** dragões e construções são modelos 3D procedurais feitos com three.js (r149, embutido no `index.html` entre `THREE-START`/`THREE-END`; os modelos ficam entre `MODELS-START`/`MODELS-END`, objeto global `M3`). Eles são renderizados uma vez em segundo plano e viram sprites (imagens `blob:`), como o Dragon City faz com sprites pré-renderizados. Enquanto um sprite não fica pronto, ou se o navegador não tiver WebGL, o jogo mostra o desenho SVG descrito abaixo.
-  - **Dragão:** estilo fofo (corpo redondo, cabeça grande, olhos enormes com íris na cor do elemento, focinho claro, bochechas rosadas, chifres curvos, barriga clara, pernas curtas com garras, cauda com ponta do elemento, asas de morcego com ossos). Contorno escuro de desenho animado. Corpo na cor do 1º elemento; asas, barriga e espinhos na cor do 2º. Raro e acima ganham mais espinhos; Épico e acima ganham asas maiores e crista; Lendário ganha coroa dourada com gema, espinhos dourados e aura.
-  - **Animação:** cada espécie vira uma tira de 8 quadros (240×200 px cada) com as asas batendo, a cauda balançando e o corpo subindo e descendo; a troca de quadros usa SMIL (`<animate>`), com fase própria por dragão. A flutuação geral e a aura continuam em CSS.
-  - **Construções:** câmera isométrica 2:1 igual à do mapa (1 tile = 1 unidade, renderizado em 2x). Arena (coliseu com torres e bandeiras), Montanha do Amor (montanhas roxas com neve e coração), Chocadeira (ovo gigante em ninho), Mercado (barraca com toldo listrado, moedas e gemas), Mural de Missões (quadro com telhado), fazenda, árvores (frutífera e pinheiro), pedras e arbustos. Cada habitat tem um modelo por tema de elemento, com borda de pedras.
-  - Os sprites de todas as espécies e construções são preparados aos poucos logo ao abrir o jogo (um por vez, sem travar a tela).
+## Visual das abelhas
+- **Modelos 3D próprios** em three.js (objeto `M3`), um formato de corpo por raridade, todos fofos, com olhos grandes, antenas, asas translúcidas e abdômen listrado:
+  - **Comum, Operária:** abelha gordinha e redonda.
+  - **Rara, Guardiã:** carrega um escudo hexagonal de favo.
+  - **Épica, Guerreira:** elmo e lança.
+  - **Lendária, Soberana:** coroa e gola real.
+  - **Chefe, Vespa Rainha:** vespa preta e laranja com cintura fina, ferrão e coroa.
+- Listras e corpo nas cores do 1º e do 2º tipo. Enfeites por tipo: flor na ponta para Flor, gota de veneno para Veneno, bolhas verdes nas costas para Veneno, auréola para Luz.
+- Cada espécie vira uma tira de 8 quadros (240×200 px) com asas batendo e o corpo flutuando. A troca de quadros usa SMIL, com fase própria por abelha. Enquanto o sprite não fica pronto, aparece um brilho pulsando.
+- **Construções:** as mesmas do jogo base, renderizadas como sprites isométricos. Cada colmeia tem uma colmeia de palha e um tema por tipo (por exemplo, dunas e cacto no Deserto, poça de veneno e cogumelos no Veneno). As bases são hexagonais com borda de cera.
 
-### Reserva em SVG (sem WebGL ou antes do sprite ficar pronto)
-- Cada dragão é desenhado em SVG (função `dragonSVG`), de perfil e olhando para a direita: asas de morcego, cauda, corpo com barriga listrada, patas com garras, cabeça com chifres, focinho, presa e olho.
-- **Cores:** corpo na cor do 1º elemento; asas e barriga na cor do 2º.
-- **Acabamento (v2):** corpo, asas e barriga com gradientes por elemento (definidos uma vez em um `<svg><defs>` oculto no topo da página, função `buildDefs()`), placas na barriga, escamas, brilho no dorso, ossos e garra nas asas, ponta de lança na cauda quando o elemento não tem acessório na ponta, crânio e focinho em um só traço com dentes, narina e sobrancelha, e íris na cor do elemento com pupila em fenda. Épico e acima ganham crista; Lendário ganha coroa dourada com gema.
-- **Acessórios por elemento:** Fogo (chama na cauda e fumaça no focinho), Água (barbatanas e gota), Planta (folhas nas costas e na cauda), Terra (placas de pedra), Elétrico (raio na cauda e faísca), Gelo (cristais nas costas e nos chifres), Metal (armadura com rebites e elmo), Trevas (fumaça roxa e olhos roxos), Luz (brilhos ao redor e olhos dourados).
-- **Por raridade:** Comum é simples; Raro ganha espinhos nas costas e na cauda; Épico ganha asas 18% maiores e crista; Lendário ganha coroa, chifres e espinhos dourados e aura pulsante. Uma base colorida pela raridade fica sob os pés.
-- **Animações (CSS):** flutuar, bater asas, balançar a cauda, mover a cabeça, piscar, chama tremulando, raio piscando, brilhos e fumaça. Cada dragão tem um atraso próprio, para não se mexerem em sincronia. Tudo é desligado com `prefers-reduced-motion`.
-- **Batalha:** o atacante dá uma investida, um projétil com o emoji do elemento voa até o alvo, o alvo pisca e treme, e o dano sobe em número (verde se super eficaz, dourado se crítico). O oponente aparece espelhado; o Ancestral aparece em tamanho maior.
-- **Nascimento:** espécie nova ou raridade Épica ou Lendária abre uma tela de revelação com o dragão surgindo.
-- Dragonário: espécies não descobertas aparecem como silhueta.
-- **Ilha (v2):** mar em gradiente com espuma animada na borda, areia e penhascos com camadas de rocha, grama com textura, caminhos de pedra, árvores frutíferas e pinheiros, flores, pedras e arbustos. Cada habitat ganha o tema do elemento da maioria dos seus dragões: lago de lava (Fogo), lagoa (Água), arbustos e flores (Planta), rochas (Terra), bobina elétrica (Elétrico), cristais de gelo (Gelo), engrenagem (Metal), cristais roxos (Trevas) e pilares dourados (Luz). Construções com sombras e gradientes (Arena de pedra, Montanha do Amor, cúpula da Chocadeira, Mercado com toldo, Mural de Missões com telhado).
-- **Correção:** os dragões dentro do mapa são `<svg>` aninhados e recebem `width`/`height` também como atributos, além do CSS. Sem isso, alguns navegadores mostravam um dragão gigante flutuando no canto.
+### Reserva em SVG (sem WebGL)
+- A função `dragonSVG` desenha uma abelha simples (ou a vespa, para a chefe) quando o navegador não tem WebGL.
+- **Batalha:** o atacante dá uma investida, um projétil com o emoji do elemento voa até o alvo, o alvo pisca e treme, e o dano sobe em número (verde se super eficaz, dourado se crítico). O oponente aparece espelhado; a Vespa Rainha aparece em tamanho maior.
+- **Nascimento:** espécie nova ou raridade Épica ou Lendária abre uma tela de revelação com a abelha surgindo.
+- Abelhário: espécies não descobertas aparecem como silhueta.
+- **Ilha:** um hexágono, como um favo, com padrão de alvéolos bem leve no chão, flores silvestres nas cores do prado, penhascos de cera nas três faces de baixo e um mar de mel âmbar (escuro na borda, para não ficar amarelo demais), com brilho e espuma.
+- **Correção:** as abelhas dentro do mapa são `<svg>` aninhados e recebem `width`/`height` também como atributos, além do CSS. Sem isso, alguns navegadores mostravam uma abelha gigante flutuando no canto.
 
 ## Lore e cutscenes
-- História completa em `lore/HISTORIA.md` (Ilha Relâmpago, o Selo dos Nove, Mestra Iara e Vorágon, o Dragão Ancestral). O módulo `lore/cutscene.js` está copiado no `index.html` entre `CUTSCENE-START`/`CUTSCENE-END`.
-- Cenas: **abertura** (ao começar a partida), **despertar** (quando o Ancestral acorda; no Infinito, `despertarOnda` a partir da 2ª invasão), **ondaVencida** (ao fechar uma invasão vencida no Infinito), **sonho** (na primeira vez que se ataca o Ancestral adormecido; o botão da Arena agora diz "Entrar no sonho do Ancestral") e os finais **vitoria**, **derrota** e **semDefesa** (antes do placar).
+- História completa em `lore/HISTORIA.md` (Ilha Favo, a Primeira Flor, a Tropa do Mel, a Vespa Rainha e o Ninho de Papel). O módulo `lore/cutscene.js` está copiado no `index.html` entre `CUTSCENE-START`/`CUTSCENE-END`.
+- Cenas: **abertura** (ao começar a partida), **despertar** (quando a Vespa Rainha chega; no Infinito, `despertarOnda` a partir da 2ª invasão), **ondaVencida** (ao fechar uma invasão vencida no Infinito), **sonho** (na primeira vez que se ataca a Vespa Rainha adormecida; o botão da Arena agora diz "Entrar no sonho da Vespa Rainha") e os finais **vitoria**, **derrota** e **semDefesa** (antes do placar).
 - O relógio fica parado durante as cenas. Clique, Espaço, Enter ou → avançam; Esc ou "Pular" encerram.
 
 ## Sons e música
@@ -223,16 +230,16 @@ Clique/toque em tudo. Teclas: `1`–`9` abrem os painéis do dock (1 = Ilha), `E
 - **Músicas:** `ilha` (partida normal; fica mais tensa com `Som.tensao` nos avisos de tremor), `batalha` (lutas na Arena), `invasao` (Invasão Final) e `placar` (tela final). As trocas são feitas com fade.
 - **Efeitos ligados no jogo:**
   - Interface: clique, troca de aba e erro (todo aviso vermelho).
-  - Economia: coletar (mais moedas quanto maior a coleta), coletar tudo, plantar, colher, colher tudo, comprar, vender, gemas (Mercador).
-  - Progresso: alimentar e nível do dragão, nível do jogador, conquista e missão.
+  - Economia: coletar (mais moedas quanto maior a coleta), coletar tudo, plantar, colher, colher tudo, comprar, vender, geleia real (Mercador).
+  - Progresso: alimentar e nível da abelha, nível do jogador, conquista e missão.
   - Ovos: ovo colocado, ovo pronto, chocar, e revelação por raridade na tela de espécie nova, Épico ou Lendário.
   - Cruzamento.
-  - Batalha: início, ataque e especial por elemento, Sopro Ancestral, acerto, crítico, super eficaz, pouco eficaz, nocaute, vitória e derrota. Os sons de golpe seguem a animação: o lançamento sai junto com o projétil, e o impacto toca quando ele chega.
+  - Batalha: início, ataque e especial por elemento, Ferroada Real, acerto, crítico, super eficaz, pouco eficaz, nocaute, vitória e derrota. Os sons de golpe seguem a animação: o lançamento sai junto com o projétil, e o impacto toca quando ele chega.
   - Eventos: um som próprio para cada evento, mais ovo pego.
-  - Ancestral: tremor com intensidade crescente aos 5 min, 2 min, 1 min e 30 s, despertar, e o final de vitória ou de derrota.
+  - Vespa Rainha: tremor com intensidade crescente aos 5 min, 2 min, 1 min e 30 s, despertar, e o final de vitória ou de derrota.
 
 ## Arquitetura técnica
 - Um único `index.html` com HTML, CSS e JavaScript puro, sem dependências nem build. Fontes do Google Fonts (com fallback).
 - Laço de jogo a cada 250ms (`tick`), tempo real com `dt` limitado a 2s.
-- Interface gerada como strings de HTML e aplicada com um "morph" próprio (`morph`/`patchNode`), que só altera os nós e atributos que mudaram. Isso mantém as animações dos dragões rodando sem reiniciar a cada quadro. Ações via atributos `data-a` com um único ouvinte: mouse age no `pointerdown` (para não perder cliques durante a re-renderização), toque age no `pointerup` sem arrasto (para não disparar ao rolar).
+- Interface gerada como strings de HTML e aplicada com um "morph" próprio (`morph`/`patchNode`), que só altera os nós e atributos que mudaram. Isso mantém as animações das abelhas rodando sem reiniciar a cada quadro. Ações via atributos `data-a` com um único ouvinte: mouse age no `pointerdown` (para não perder cliques durante a re-renderização), toque age no `pointerup` sem arrasto (para não disparar ao rolar).
 - `window.__game` expõe o estado e as ações para testes automatizados.

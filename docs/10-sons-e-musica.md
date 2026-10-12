@@ -15,13 +15,13 @@ Todo o áudio do jogo é **sintetizado no navegador** com a Web Audio API. Não 
 | Faixa | Quando toca | Clima |
 |---|---|---|
 | **Ilha** | Durante a partida e ao voltar de uma batalha | Alegre, em Dó maior |
-| **Batalha** | Lutas na Arena (ligas, Dragão Selvagem, Ancestral adormecido) | Agitada |
-| **Invasão** | Do despertar do Ancestral até o fim da Invasão Final | Sombria, com tambores taiko |
+| **Batalha** | Lutas na Arena (ligas, Abelha Selvagem, Vespa Rainha adormecida) | Agitada |
+| **Invasão** | Do despertar da Vespa Rainha até o fim da Invasão Final | Sombria, com tambores taiko |
 | **Placar** | Tela de fim de partida | Calma |
 
 As trocas de faixa têm um fade de cerca de 1 segundo.
 
-**Tensão:** conforme o Ancestral se aproxima, a música da ilha fica mais tensa. A cada aviso de tremor (5 min, 2 min, 1 min e 30 s antes da invasão) ela ganha camadas de batimento grave, drone e chimbal, com intensidade 0,25, 0,5, 0,75 e 1. A tensão volta a zero no fim da partida e, no modo Infinito, depois de cada invasão repelida.
+**Tensão:** conforme a Vespa Rainha se aproxima, a música da ilha fica mais tensa. A cada aviso de tremor (5 min, 2 min, 1 min e 30 s antes da invasão) ela ganha camadas de batimento grave, drone e chimbal, com intensidade 0,25, 0,5, 0,75 e 1. A tensão volta a zero no fim da partida e, no modo Infinito, depois de cada invasão repelida.
 
 ## Efeitos sonoros
 
@@ -29,15 +29,15 @@ As trocas de faixa têm um fade de cerca de 1 segundo.
 |---|---|---|
 | Interface | Clique em qualquer botão ou construção | `clique` |
 | | Trocar de painel | `aba` |
-| | Ação negada (todo aviso vermelho: sem ouro, ilha cheia...) | `erro` |
+| | Ação negada (todo aviso vermelho: sem mel, ilha cheia...) | `erro` |
 | | Pausar / retomar | `pausar` / `retomar` |
-| Economia | Coletar ouro de um habitat (mais moedas tilintando quanto maior a coleta, de 1 a 5) | `coletar` |
+| Economia | Coletar mel de uma colmeia (mais moedas tilintando quanto maior a coleta, de 1 a 5) | `coletar` |
 | | Coletar tudo | `coletarTudo` |
 | | Plantar / colher / colher e replantar tudo | `plantar` / `colher` / `colherTudo` |
-| | Comprar (dragão, habitat, fazenda, espaço de chocadeira, saco de ouro) | `comprar` |
-| | Vender dragão | `vender` |
-| | Trocar ouro por gemas com o Mercador Viajante | `gemas` |
-| Progresso | Alimentar dragão / dragão sobe de nível | `alimentar` / `nivelDragao` |
+| | Comprar (abelha, colmeia, canteiro, espaço de chocadeira, saco de mel) | `comprar` |
+| | Vender abelha | `vender` |
+| | Trocar mel por geleia real com o Mercador Viajante | `gemas` |
+| Progresso | Alimentar abelha / abelha sobe de nível | `alimentar` / `nivelDragao` |
 | | Jogador sobe de nível | `nivelJogador` |
 | | Conquista desbloqueada | `conquista` |
 | | Missão resgatada | `missao` |
@@ -48,15 +48,15 @@ As trocas de faixa têm um fade de cerca de 1 segundo.
 | Cruzamento | Cruzar | `cruzar` |
 | Batalha | Início da luta | `batalhaInicio` |
 | | Ataque e Especial, com timbre próprio para cada um dos 9 elementos | `ataque` / `especial` |
-| | Sopro Ancestral | `soproAncestral` |
+| | Ferroada Real | `soproAncestral` |
 | | Golpe acerta / acerto crítico | `acerto` / `critico` |
 | | Golpe super eficaz / pouco eficaz (soma ao acerto) | `superEficaz` / `poucoEficaz` |
-| | Dragão nocauteado | `nocaute` |
+| | Abelha nocauteado | `nocaute` |
 | | Vitória / derrota | `vitoria` / `derrota` |
-| Eventos | Chuva de Ouro, Colheita Farta, Ovo Perdido, Dragão Selvagem, Mercador Viajante | um som para cada |
+| Eventos | Chuva de Mel, Colheita Farta, Ovo Perdido, Abelha Selvagem, Mercador Viajante | um som para cada |
 | | Pegar o Ovo Perdido | `ovoPego` |
-| Ancestral | Avisos de tremor, cada vez mais fortes | `tremor` |
-| | O Ancestral desperta | `despertar` |
+| Vespa Rainha | Avisos de tremor, cada vez mais fortes | `tremor` |
+| | A Vespa Rainha desperta | `despertar` |
 | | Fim da partida com a ilha defendida / tomada | `finalVitoria` / `finalDerrota` |
 
 Os sons de golpe acompanham a animação: o lançamento toca quando o projétil sai, e o impacto (acerto, crítico, eficácia, nocaute) quando ele chega no alvo.

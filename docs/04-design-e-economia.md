@@ -7,70 +7,70 @@ Este documento explica **como cada sistema funciona**. Os números exatos em tab
 - O jogo roda num laço de 4 atualizações por segundo; cada atualização avança o relógio pelo tempo real decorrido (no máximo 2 segundos por passo, para não "pular" a partida se o navegador travar).
 - Tudo é medido em **segundos de partida** (`S.t`), não em hora do relógio. Pausar congela tudo: produção, plantações, ovos, eventos e o cronômetro.
 - O jogo pausa sozinho quando a aba fica oculta.
-- O cronômetro (☠️) conta o tempo até o despertar do Dragão Ancestral (no Infinito, até a próxima invasão, com o número da onda). Avisos aparecem a 5 min, 2 min, 1 min e 30 s; no último minuto ele fica vermelho e pulsa.
+- O cronômetro (☠️) conta o tempo até o despertar da Vespa Rainha (no Infinito, até a próxima invasão, com o número da onda). Avisos aparecem a 5 min, 2 min, 1 min e 30 s; no último minuto ele fica vermelho e pulsa.
 - Ao zerar, começa a fase final: a ilha congela (sem produção, plantações, ovos ou eventos; buffs e o ovo perdido somem; uma batalha em andamento é cancelada sem contar) e só resta a Invasão Final.
 
-## Habitats e ouro
+## Colmeias e mel
 
-- Cada habitat comporta **3 dragões**. Os dragões ocupam os habitats na ordem em que chegaram (os 3 primeiros no habitat 1, e assim por diante).
-- Cada dragão produz ouro por segundo conforme raridade e nível: `ouro/s = base da raridade × (1 + 0,4 × (nível − 1))`.
-- O ouro produzido fica **guardado no habitat** até ser coletado. O limite é **60 segundos de produção** daquele habitat (mínimo de 50 de ouro). Ao encher, o habitat ganha borda dourada e para de acumular.
-- Coletar um habitat dá +2 XP. "Coletar tudo" (nível 5, tecla C) recolhe todos de uma vez e também dá +2 XP no total.
-- Preço do próximo habitat: `150 × 2,1^(habitats − 1)`.
-- A ilha tem lotes para no máximo **10 habitats** (30 dragões). O próximo lote livre aparece tracejado no mapa, com o preço.
-- Sem espaço nos habitats você não pode comprar dragões nem chocar ovos.
+- Cada colmeia comporta **3 abelhas**. As abelhas ocupam as colmeias na ordem em que chegaram (os 3 primeiros na colmeia 1, e assim por diante).
+- Cada abelha produz mel por segundo conforme raridade e nível: `ouro/s = base da raridade × (1 + 0,4 × (nível − 1))`.
+- O mel produzido fica **guardado na colmeia** até ser coletado. O limite é **60 segundos de produção** daquele colmeia (mínimo de 50 de mel). Ao encher, a colmeia ganha borda dourada e para de acumular.
+- Coletar uma colmeia dá +2 XP. "Coletar tudo" (nível 5, tecla C) recolhe todos de uma vez e também dá +2 XP no total.
+- Preço do próximo colmeia: `150 × 2,1^(habitats − 1)`.
+- A ilha tem lotes para no máximo **10 colmeias** (30 abelhas). O próximo lote livre aparece tracejado no mapa, com o preço.
+- Sem espaço nos colmeias você não pode comprar abelhas nem chocar ovos.
 
-## Fazendas e comida
+## Canteiros de flores e néctar
 
-- A partida começa com 2 fazendas, numa fileira na beira da ilha, e pode chegar a **12**. Preço da próxima: `100 × 1,8^(fazendas − 2)`.
-- Escolha a semente no seletor sobre o mapa; clicar numa fazenda vazia planta (paga ouro), clicar numa fazenda pronta (balão ✋) colhe.
-- Plantações liberam por nível do jogador: 🌾 Trigo (1), 🌽 Milho (2), 🎃 Abóbora (4), 🍇 Fruta-dragão (7).
+- A partida começa com 2 canteiros de flores, numa fileira na beira da ilha, e pode chegar a **12**. Preço da próxima: `100 × 1,8^(fazendas − 2)`.
+- Escolha a semente no seletor sobre o mapa; clicar numa canteiro vazia planta (paga mel), clicar numa canteiro pronta (balão ✋) colhe.
+- Plantações liberam por nível do jogador: 🌾 Margarida (1), 🌽 Girassol (2), 🎃 Rosa (4), 🍇 Lótus (7).
 - Colher dá `1 + comida ÷ 15` de XP.
-- No nível 3 libera **Colher e replantar tudo**: colhe tudo o que estiver pronto e replanta a plantação selecionada em toda fazenda vazia, enquanto houver ouro.
-- Comida serve para **alimentar dragões**. Cada alimentação sobe 1 nível; o custo é `10 × 1,5^(nível atual − 1)` e cresce rápido (do nível 14 para o 15 custa 1.946).
+- No nível 3 libera **Colher e replantar tudo**: colhe tudo o que estiver pronto e replanta a plantação selecionada em toda canteiro vazia, enquanto houver mel.
+- Néctar serve para **alimentar abelhas**. Cada alimentação sobe 1 nível; o custo é `10 × 1,5^(nível atual − 1)` e cresce rápido (do nível 14 para o 15 custa 1.946).
 
 ## Nível do jogador e XP
 
 - XP necessário para passar do nível `L`: `40 × L^1,6`. Nível máximo: 30.
-- Cada nível novo dá `2 + ⌊nível ÷ 5⌋` gemas e pode desbloquear elementos na loja, plantações e atalhos (veja a tabela de níveis).
+- Cada nível novo dá `2 + ⌊nível ÷ 5⌋` geleia real e pode desbloquear elementos na loja, plantações e atalhos (veja a tabela de níveis).
 
 **De onde vem o XP:**
 
 | Ação | XP |
 |---|---|
-| Coletar um habitat (ou "coletar tudo") | 2 |
-| Colher | 1 + comida ÷ 15 |
-| Comprar dragão | 10 |
-| Alimentar dragão | 3 + novo nível do dragão |
-| Comprar habitat / espaço de chocadeira / fazenda | 8 / 8 / 5 |
+| Coletar uma colmeia (ou "coletar tudo") | 2 |
+| Colher | 1 + néctar ÷ 15 |
+| Comprar abelha | 10 |
+| Alimentar abelha | 3 + novo nível da abelha |
+| Comprar colmeia / espaço de chocadeira / canteiro | 8 / 8 / 5 |
 | Cruzar | 5 |
 | Chocar ovo | 10 × valor da raridade, +15 se for espécie nova |
 | Vencer batalha de liga | 15 × liga + 5 × luta |
-| Vencer Dragão Selvagem | o dobro de uma luta de liga |
-| Vencer o Ancestral adormecido | 400 |
+| Vencer Abelha Selvagem | o dobro de uma luta de liga |
+| Vencer a Vespa Rainha adormecida | 400 |
 | Repelir uma invasão (só no Infinito) | 300 |
 | Perder batalha | 5 |
 | Resgatar missão | 20 + 8 × nível do jogador |
 
-## Gemas
+## Geleia real
 
-**Ganhar:** subir de nível, conquistas (1 a 20 cada), missões (1 a 3), vitórias na Arena (gemas = número da liga), Mercador Viajante (10), Ancestral adormecido (30), cada invasão repelida no Infinito (20).
+**Ganhar:** subir de nível, conquistas (1 a 20 cada), missões (1 a 3), vitórias na Arena (geleia real = número da liga), Mercador Viajante (10), Vespa Rainha adormecida (30), cada invasão repelida no Infinito (20).
 
 **Gastar:**
 
 | Uso | Custo |
 |---|---|
-| Acelerar ovo (choca na hora) | 1 gema a cada 8 segundos restantes, arredondando para cima |
-| 🔮 Ovo misterioso | 20 gemas. Sorteia entre todos os Épicos e cerca de metade dos Lendários (cada Lendário entra no sorteio com 50% de chance), o que dá por volta de 10% de Lendário. Ocupa um espaço da chocadeira. |
-| 💰 Saco de ouro | 5 gemas = `150 × nível do jogador + 30 segundos da produção atual` de ouro |
+| Acelerar ovo (choca na hora) | 1 geleia real a cada 8 segundos restantes, arredondando para cima |
+| 🔮 Ovo misterioso | 20 geleia real. Sorteia entre todos os Épicos e cerca de metade dos Lendários (cada Lendário entra no sorteio com 50% de chance), o que dá por volta de 10% de Lendário. Ocupa um espaço da chocadeira. |
+| 💰 Saco de mel | 5 geleia real = `150 × nível do jogador + 30 segundos da produção atual` de mel |
 
 ## Loja
 
-- **Dragões puros** dos 9 elementos, liberados por nível do jogador. Cada compra dá 10 XP.
-- **Habitat**, **Fazenda** e **Espaço na chocadeira** (até 4 espaços: 300, 1.500 e 6.000 de ouro).
-- **Saco de ouro** e **Ovo misterioso**, pagos com gemas.
+- **Abelhas puros** dos 9 elementos, liberados por nível do jogador. Cada compra dá 10 XP.
+- **Colmeia**, **Canteiro** e **Espaço na chocadeira** (até 4 espaços: 300, 1.500 e 6.000 de mel).
+- **Saco de mel** e **Ovo misterioso**, pagos com geleia real.
 
-Vender um dragão (painel Dragões, com confirmação em dois cliques) devolve `25 × valor da raridade × nível` de ouro. É preciso manter pelo menos um dragão.
+Vender uma abelha (painel Abelhas, com confirmação em dois cliques) devolve `25 × valor da raridade × nível` de mel. É preciso manter pelo menos uma abelha.
 
 ## Missões
 
@@ -80,16 +80,16 @@ Vender um dragão (painel Dragões, com confirmação em dois cliques) devolve `
 
 | Tipo | Meta no nível L |
 |---|---|
-| 🪙 Ganhar ouro | `250 × 1,55^(L−1)` |
-| 🌾 Colher comida | `60 × 1,45^(L−1)` |
+| 🪙 Ganhar mel | `250 × 1,55^(L−1)` |
+| 🌾 Colher néctar | `60 × 1,45^(L−1)` |
 | 🥚 Chocar ovos | `1 + ⌊L ÷ 4⌋` |
 | ⚔️ Vencer batalhas | `1 + ⌊L ÷ 3⌋` |
-| 🍖 Alimentar dragões | `3 + L` |
+| 🍖 Alimentar abelhas | `3 + L` |
 | 💞 Cruzar | `1 + ⌊L ÷ 4⌋` |
 | 🧺 Fazer colheitas | `4 + L` |
-| 🏛️ Coletar ouro | `5 + 2 × L` |
+| 🏛️ Coletar mel | `5 + 2 × L` |
 
-**Recompensa:** ouro `80 × 1,45^(L−1)`, gemas 1 (2 a partir do nível 6, 3 a partir do 12) e XP `20 + 8 × L`. Metas e ouro acima de 50 são arredondados para múltiplos de 5.
+**Recompensa:** mel `80 × 1,45^(L−1)`, geleia real 1 (2 a partir do nível 6, 3 a partir do 12) e XP `20 + 8 × L`. Metas e mel acima de 50 são arredondados para múltiplos de 5.
 
 ## Eventos aleatórios
 
@@ -97,11 +97,11 @@ O primeiro evento chega aos **50 segundos**; depois, um novo a cada **60 a 100 s
 
 | Evento | Efeito | Duração |
 |---|---|---|
-| 🌧️ Chuva de Ouro | Habitats produzem o dobro | 30 s |
+| 🌧️ Chuva de Mel | Colmeias produzem o dobro | 30 s |
 | 🌻 Colheita Farta | Plantações crescem 3x mais rápido | 30 s |
 | 🥚 Ovo Perdido | Um ovo aparece num ponto aleatório da tela; clique nele para ganhar um ovo **Raro ou Épico** de bônus, que **não ocupa** espaço na chocadeira | 10 s |
-| 🐲 Dragão Selvagem | Botão especial na Arena: um único oponente com 160% de vida e recompensa x3 em ouro e gemas, x2 em XP. Some ao ser enfrentado. | 45 s |
-| 🧳 Mercador Viajante | Troque `400 × nível do jogador` de ouro por 10 gemas (uma vez) | 30 s |
+| 🐲 Abelha Selvagem | Botão especial na Arena: um único oponente com 160% de vida e recompensa x3 em mel e geleia real, x2 em XP. Some ao ser enfrentado. | 45 s |
+| 🧳 Mercador Viajante | Troque `400 × nível do jogador` de mel por 10 geleia real (uma vez) | 30 s |
 
 Os efeitos ativos aparecem como selos na barra superior, com contagem regressiva.
 
@@ -111,13 +111,13 @@ A pontuação é calculada a qualquer momento (aparece nas estatísticas) e fech
 
 | Parte | Cálculo |
 |---|---|
-| Ouro ganho | ouro ganho no total ÷ 10 |
-| Dragões | para cada dragão na ilha: 100 × valor da raridade + 15 × nível |
+| Mel ganho | mel ganho no total ÷ 10 |
+| Abelhas | para cada abelha na ilha: 100 × valor da raridade + 15 × nível |
 | Espécies descobertas | 150 por espécie |
 | Conquistas | 250 por conquista |
 | Arena | 600 por liga concluída + 200 por luta vencida na liga atual + 40 por vitória (qualquer batalha) |
-| Ancestral adormecido | 2.000 se vencido ao menos uma vez na Arena |
-| **Invasão Final** | Rápida, Padrão e Longa: vitória 12.000, +3.000 se nenhum dragão cair; derrota 6.000 × fração da vida que você tirou; tudo multiplicado pelo peso do modo. Zero se você encerrou antes. Infinito: 12.000 por invasão repelida + 3.000 por invasão repelida sem perder dragões + 6.000 × fração de dano na invasão perdida (sem multiplicar). |
+| Vespa Rainha adormecida | 2.000 se vencido ao menos uma vez na Arena |
+| **Invasão Final** | Rápida, Padrão e Longa: vitória 12.000, +3.000 se nenhum abelha cair; derrota 6.000 × fração da vida que você tirou; tudo multiplicado pelo peso do modo. Zero se você encerrou antes. Infinito: 12.000 por invasão repelida + 3.000 por invasão repelida sem perder abelhas + 6.000 × fração de dano na invasão perdida (sem multiplicar). |
 | Nível do jogador | 200 por nível |
 | Missões | 100 por missão concluída |
 

@@ -3,11 +3,11 @@
 ## Onde aparecem
 
 - **Painel 📊 Estatísticas** (tecla 9), atualizado ao vivo:
-  - 6 indicadores no topo: ouro ganho, dragões, espécies, vitórias/batalhas, conquistas e pontos;
-  - **gráfico de ouro ao longo da partida** (linha laranja = ouro ganho acumulado; tracejado azul = ouro por segundo), com um ponto a cada 5 segundos, redesenhado a cada 5 segundos;
-  - barras de **dragões por elemento** (híbridos contam nos dois elementos);
+  - 6 indicadores no topo: mel ganho, abelhas, espécies, vitórias/batalhas, conquistas e pontos;
+  - **gráfico de mel ao longo da partida** (linha laranja = mel ganho acumulado; tracejado azul = mel por segundo), com um ponto a cada 5 segundos, redesenhado a cada 5 segundos;
+  - barras de **abelhas por elemento** (híbridos contam nos dois elementos);
   - tabelas de todas as estatísticas, por grupo.
-- **Tela de fim de partida:** nota, pontuação detalhada, desfecho da ilha, indicadores (inclusive o dano causado ao Ancestral), conquistas da partida com o minuto de cada uma, e todas as estatísticas num painel expansível.
+- **Tela de fim de partida:** nota, pontuação detalhada, desfecho da ilha, indicadores (inclusive o dano causado à Vespa Rainha), conquistas da partida com o minuto de cada uma, e todas as estatísticas num painel expansível.
 
 ## Lista de estatísticas
 
@@ -22,29 +22,29 @@
 | Pontuação atual | Pontuação que você teria se a partida acabasse agora |
 
 ### Economia
-Ouro ganho, ouro gasto, ouro por minuto (média), ouro por segundo agora, pico de ouro por segundo, coletas, maior coleta, gemas ganhas, gemas gastas.
+Mel ganho, mel gasto, mel por minuto (média), mel por segundo agora, pico de mel por segundo, coletas, maior coleta, geleia real ganhas, geleia real gastas.
 
-### Fazenda
-Plantios, colheitas, comida colhida, comida gasta, número de fazendas.
+### Canteiro
+Plantios, colheitas, néctar colhida, néctar gasta, número de canteiros de flores.
 
-### Dragões
-Dragões na ilha, comprados, vendidos, espécies descobertas (de 50), maior nível alcançado, alimentações, dragões obtidos por raridade (o dragão inicial conta como 1 Comum), poder total do time (soma do poder de todos os dragões).
+### Abelhas
+Abelhas na ilha, comprados, vendidos, espécies descobertas (de 50), maior nível alcançado, alimentações, abelhas obtidos por raridade (a abelha inicial conta como 1 Comum), poder total do time (soma do poder de todos as abelhas).
 
 ### Cruzamento
 Cruzamentos, ovos chocados, ovos acelerados, minuto do primeiro Lendário, ovos perdidos pegos.
 
 ### Arena
-Liga atual, batalhas, vitórias, derrotas, taxa de vitória, sequência atual, melhor sequência, dano causado, dano recebido, maior golpe, golpes críticos, golpes super eficazes, nocautes, dragões nocauteados, vitórias perfeitas, selvagens derrotados, vitórias sobre o Ancestral adormecido e invasões repelidas e o resultado da Invasão Final (vencida, ou derrota com a % de dano).
+Liga atual, batalhas, vitórias, derrotas, taxa de vitória, sequência atual, melhor sequência, dano causado, dano recebido, maior golpe, golpes críticos, golpes super eficazes, nocautes, abelhas nocauteados, vitórias perfeitas, selvagens derrotados, vitórias sobre a Vespa Rainha adormecida e invasões repelidas e o resultado da Invasão Final (vencida, ou derrota com a % de dano).
 
 ### Progresso
 Missões concluídas, eventos presenciados, conquistas desbloqueadas.
 
 ## Conquistas
 
-São **65 conquistas** em 9 categorias, somando **301 gemas**. Cada conquista:
+São **65 conquistas** em 9 categorias, somando **301 geleia real**. Cada conquista:
 
 - é verificada várias vezes por segundo e logo após cada clique;
-- dá suas gemas na hora e mostra um aviso dourado 🏆;
+- dá suas geleia real na hora e mostra um aviso dourado 🏆;
 - registra o **minuto da partida** em que foi desbloqueada;
 - vale **250 pontos** na pontuação final.
 
@@ -53,26 +53,26 @@ Como não há salvamento, as conquistas valem por partida: toda partida nova com
 | Categoria | Quantidade | Foco |
 |---|---|---|
 | Primeiros passos | 7 | Primeira vez de cada ação; guiam o jogador iniciante |
-| Riqueza | 9 | Ouro total, ouro por segundo, gemas |
-| Coleção | 11 | Quantidade de dragões, raridades, todos os elementos, espécies descobertas |
-| Evolução | 6 | Níveis de dragão, alimentações, cruzamentos, acelerar ovos |
-| Fazenda | 4 | Comida colhida, colheitas, número de fazendas |
-| Arena | 12 | Vitórias, ligas, Ancestral adormecido, sequências, críticos, vitória perfeita, golpe de 300 |
-| Ilha | 7 | Habitats, chocadeira, vender, missões, ovos perdidos, eventos |
+| Riqueza | 9 | Mel total, mel por segundo, geleia real |
+| Coleção | 11 | Quantidade de abelhas, raridades, todos os elementos, espécies descobertas |
+| Evolução | 6 | Níveis de abelha, alimentações, cruzamentos, acelerar ovos |
+| Canteiro | 4 | Néctar colhida, colheitas, número de canteiros de flores |
+| Arena | 12 | Vitórias, ligas, Vespa Rainha adormecida, sequências, críticos, vitória perfeita, golpe de 300 |
+| Ilha | 7 | Colmeias, chocadeira, vender, missões, ovos perdidos, eventos |
 | Jogador | 6 | Nível do jogador, desafios de tempo, cliques |
-| Invasão | 3 | Vencer a Invasão Final, vencê-la sem perder dragões, tirar metade da vida do Ancestral |
+| Invasão | 3 | Vencer a Invasão Final, vencê-la sem perder abelhas, tirar metade da vida da Vespa Rainha |
 
 Conquistas de destaque:
 
-- **Golpe no sono** (20 gemas): derrotar o Ancestral adormecido na Arena, depois da liga Campeões.
-- **Ilha intocável** (15): vencer a Invasão Final sem perder nenhum dragão.
+- **Golpe no sono** (20 geleia real): derrotar a Vespa Rainha adormecida na Arena, depois da liga Campeões.
+- **Ilha intocável** (15): vencer a Invasão Final sem perder nenhum abelha.
 - **Guardião da ilha** (10): vencer a Invasão Final.
 - **Enciclopédia viva** (12): descobrir 40 das 50 espécies.
 - **Relâmpago** (5): chegar ao nível 5 em até 5 minutos.
 - **Sorte de principiante** (8): obter um Lendário em até 10 minutos.
-- **Arco-íris elemental** (8): ter dragões dos 9 elementos ao mesmo tempo.
+- **Arco-íris elemental** (8): ter abelhas dos 9 elementos ao mesmo tempo.
 
-A tabela completa, com requisito e gemas de cada uma, está em [09-tabelas-de-referencia.md](09-tabelas-de-referencia.md#conquistas-65-total-de-301-gemas).
+A tabela completa, com requisito e geleia real de cada uma, está em [09-tabelas-de-referencia.md](09-tabelas-de-referencia.md#conquistas-65-total-de-301-gemas).
 
 ## Como adicionar uma estatística ou conquista
 
