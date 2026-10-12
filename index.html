@@ -822,6 +822,39 @@ svg.gi { width: 1.2em; height: 1.2em; vertical-align: -.25em; display: inline-bl
   .rotate p { margin: 0; max-width: 300px; color: #ffe9c4; }
 }
 @keyframes girar { 0%, 20% { transform: rotate(0); } 50%, 80% { transform: rotate(-90deg); } 100% { transform: rotate(0); } }
+
+/* Tema mel (v6.4): favo dourado, mel escorrendo e botões de mel brilhante */
+:root { --ink: #3a1d06; --stone1: #f2b23a; --stone2: #c2740e; --card1: #8a5524; --card2: #5a3410; --honey: #f4a51c; --honey-l: #ffd968; }
+.btn, .iconbtn { background: linear-gradient(180deg, #ffe48e 0%, #f6b733 48%, #d07c0c 100%); text-shadow: 0 2px 0 #6a3606; overflow: hidden; }
+.btn::after, .iconbtn::after, .dock .tab::after { content: ""; position: absolute; left: 6%; right: 6%; top: 2px; height: 42%; border-radius: 10px 10px 40% 40%;
+  background: linear-gradient(180deg, rgba(255,255,255,.55), rgba(255,255,255,.08)); pointer-events: none; }
+.btn.go { background: linear-gradient(180deg, #c6f77e 0%, #6bd043 48%, #2c8f22 100%); }
+.btn.primary { background: linear-gradient(180deg, #ffe98a 0%, #ffb12e 48%, #e86a0c 100%); }
+.top { background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='42' height='72' viewBox='0 0 42 72'%3E%3Cpath d='M21 2 L39 12 L39 34 L21 44 L3 34 L3 12 Z M21 44 L21 72 M0 0 L3 12 M42 0 L39 12' fill='none' stroke='%23ffd27a' stroke-opacity='.10' stroke-width='2'/%3E%3C/svg%3E"), linear-gradient(180deg, #f9c34a 0%, #e0951c 60%, #b8680a 100%); background-size: 42px 72px, auto; border-bottom: 0; position: relative; z-index: 5;
+  box-shadow: inset 0 3px 0 rgba(255,255,255,.35), 0 4px 0 var(--ink), 0 10px 18px rgba(0,0,0,.35); }
+.top::after { content: ""; position: absolute; left: 0; right: 0; bottom: -17px; height: 18px; background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='18' viewBox='0 0 120 18'%3E%3Cpath d='M0 0 H120 V5 C112 5 112 15 106 15 C100 15 102 5 94 5 C86 5 88 9 82 9 C76 9 78 5 66 5 C58 5 60 17 52 17 C44 17 47 5 38 5 C30 5 32 10 25 10 C18 10 20 5 10 5 C4 5 4 8 0 8 Z' fill='%23f2a41c'/%3E%3Cpath d='M0 0 H120 V3 H0 Z' fill='%23ffd968'/%3E%3C/svg%3E"); background-size: 120px 18px; pointer-events: none; filter: drop-shadow(0 3px 0 rgba(58,29,6,.55)); }
+.brand { color: #fff3c4; }
+.res { background: linear-gradient(180deg, #5a2f08, #7a4210); border-color: var(--ink); box-shadow: inset 0 3px 5px rgba(0,0,0,.5), 0 0 0 2px #ffd968, 0 3px 0 var(--ink); }
+.timer { box-shadow: inset 0 2px 0 rgba(255,255,255,.2), 0 0 0 2px #ffd968, 0 3px 0 var(--ink); }
+.dock { background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='42' height='72' viewBox='0 0 42 72'%3E%3Cpath d='M21 2 L39 12 L39 34 L21 44 L3 34 L3 12 Z M21 44 L21 72 M0 0 L3 12 M42 0 L39 12' fill='none' stroke='%23ffd27a' stroke-opacity='.10' stroke-width='2'/%3E%3C/svg%3E"), linear-gradient(180deg, #f2b23a 0%, #d68612 55%, #a85a08 100%); background-size: 42px 72px, auto; border-top: 0;
+  box-shadow: inset 0 3px 0 rgba(255,255,255,.35), 0 -4px 0 var(--ink), 0 -8px 16px rgba(0,0,0,.35); }
+.dock .tab { position: relative; background: linear-gradient(180deg, #a8682a 0%, #7a4515 55%, #5a300a 100%); border-radius: 18px 18px 14px 14px; }
+.dock .tab[aria-selected="true"] { background: linear-gradient(180deg, #fff1a0 0%, #ffc13a 48%, #e8800c 100%); text-shadow: 0 2px 0 #7a3a06; box-shadow: inset 0 2px 0 rgba(255,255,255,.5), 0 4px 0 var(--ink), 0 0 0 2px #fff3c4, 0 0 18px rgba(255,200,60,.8); }
+.sheet { background: #4a2a0c; border: 5px solid #ffc53a; box-shadow: 0 0 0 3px var(--ink), inset 0 0 0 3px #a8600c, 0 0 30px rgba(255,190,60,.35), 0 24px 60px rgba(0,0,0,.6); }
+.sheet .sheet-body { background-color: #4a2a0c; }
+.sheet > header { border-bottom: 0; overflow: visible; }
+.sheet > header::after { content: ""; position: absolute; left: 0; right: 0; bottom: -16px; height: 18px; background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='18' viewBox='0 0 120 18'%3E%3Cpath d='M0 0 H120 V5 C112 5 112 15 106 15 C100 15 102 5 94 5 C86 5 88 9 82 9 C76 9 78 5 66 5 C58 5 60 17 52 17 C44 17 47 5 38 5 C30 5 32 10 25 10 C18 10 20 5 10 5 C4 5 4 8 0 8 Z' fill='%23f2a41c'/%3E%3Cpath d='M0 0 H120 V3 H0 Z' fill='%23ffd968'/%3E%3C/svg%3E"); background-size: 120px 18px; pointer-events: none; filter: drop-shadow(0 3px 0 rgba(58,29,6,.5)); }
+.sheet > header h2 .hic { background: radial-gradient(circle at 35% 30%, #fffb, transparent 55%), #ffc53a; clip-path: polygon(25% 3%, 75% 3%, 100% 50%, 75% 97%, 25% 97%, 0 50%); border-radius: 0; border: 0; box-shadow: none; }
+.panel { background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='42' height='72' viewBox='0 0 42 72'%3E%3Cpath d='M21 2 L39 12 L39 34 L21 44 L3 34 L3 12 Z M21 44 L21 72 M0 0 L3 12 M42 0 L39 12' fill='none' stroke='%23ffd27a' stroke-opacity='.10' stroke-width='2'/%3E%3C/svg%3E"), linear-gradient(180deg, rgba(122,72,24,.95), rgba(74,40,10,.95)); background-size: 42px 72px, auto; border-color: var(--ink);
+  box-shadow: inset 0 0 0 2px rgba(255,210,104,.35), inset 0 3px 0 rgba(255,255,255,.16), 0 6px 0 rgba(40,18,2,.6), 0 10px 22px rgba(0,0,0,.35); }
+.panel h2, .panel-head h2 { color: #ffd968; }
+.dcard, .item, .mission, .ach, .kpi, .dex .cell, .chip { background: linear-gradient(180deg, #9a6228, #6a3c12); box-shadow: inset 0 2px 0 rgba(255,220,140,.3), inset 0 -3px 0 rgba(0,0,0,.22), 0 3px 0 rgba(40,18,2,.65); }
+.dex .cell { clip-path: polygon(12% 0, 88% 0, 100% 50%, 88% 100%, 12% 100%, 0 50%); border-radius: 0; }
+.mission .ic, .ach .ic { background: radial-gradient(circle at 35% 30%, #fff8, transparent 55%), #ffc53a; clip-path: polygon(25% 3%, 75% 3%, 100% 50%, 75% 97%, 25% 97%, 0 50%); border-radius: 0; border: 0; }
+.hud .box, .somctl { background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='42' height='72' viewBox='0 0 42 72'%3E%3Cpath d='M21 2 L39 12 L39 34 L21 44 L3 34 L3 12 Z M21 44 L21 72 M0 0 L3 12 M42 0 L39 12' fill='none' stroke='%23ffd27a' stroke-opacity='.10' stroke-width='2'/%3E%3C/svg%3E"), linear-gradient(180deg, rgba(242,178,58,.95), rgba(176,96,10,.95)); background-size: 42px 72px, auto; box-shadow: inset 0 2px 0 rgba(255,255,255,.35), 0 0 0 2px #ffe08a, 0 4px 0 var(--ink); color: #fff; text-shadow: 0 1px 0 var(--ink); }
+.toast { background: linear-gradient(180deg, #f2b23a, #b8680a); border-left-color: #fff3c4; text-shadow: 0 1px 0 var(--ink); }
+.btn .cost, .btn .cost.g, .btn .cost.f, .btn .cost.m { color: #fff; text-shadow: 0 2px 0 #6a3606; }
+body { background: #7a420c; }
 /* UI-END */
 </style>
 
