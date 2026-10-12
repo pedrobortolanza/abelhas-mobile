@@ -859,6 +859,28 @@ body { background: #7a420c; }
 .overlay .card { background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='42' height='72' viewBox='0 0 42 72'%3E%3Cpath d='M21 2 L39 12 L39 34 L21 44 L3 34 L3 12 Z M21 44 L21 72 M0 0 L3 12 M42 0 L39 12' fill='none' stroke='%23ffd27a' stroke-opacity='.10' stroke-width='2'/%3E%3C/svg%3E"), linear-gradient(180deg, #8a5420, #4a2808); background-size: 42px 72px, auto;
   border: 5px solid #ffc53a; box-shadow: 0 0 0 3px var(--ink), inset 0 0 0 3px #a8600c, 0 0 40px rgba(255,200,80,.5), 0 24px 60px rgba(0,0,0,.5); }
 .overlay .card h1 { color: #ffd968; }
+#fxl { position: fixed; inset: 0; pointer-events: none; z-index: 80; overflow: hidden; }
+.fxp { position: absolute; width: 10px; height: 10px; border-radius: 50%; background: var(--c, #ffd968); box-shadow: 0 0 6px var(--c, #ffd968); }
+.fxp.star { width: 14px; height: 14px; border-radius: 0; clip-path: polygon(50% 0, 61% 35%, 98% 35%, 68% 57%, 79% 91%, 50% 70%, 21% 91%, 32% 57%, 2% 35%, 39% 35%); box-shadow: none; }
+.fxp.coin { width: 12px; height: 12px; background: radial-gradient(circle at 35% 30%, #fff9c8, #ffc53a 55%, #c27a0c); border: 1px solid #7a4a06; box-shadow: none; }
+.fxp.drop { width: 14px; height: 17px; border-radius: 50% 50% 50% 50% / 60% 60% 40% 40%; background: radial-gradient(circle at 35% 30%, #fff3b0, #ffb81c 45%, #d0700a); border: 1.5px solid #6a3606; box-shadow: 0 2px 4px rgba(0,0,0,.3); }
+.fxp.drop.food { background: radial-gradient(circle at 35% 30%, #ffe0f0, #ff7eb6 50%, #c2306e); }
+.res.bump > span:first-child { animation: resbump .28s ease-out; }
+@keyframes resbump { 40% { transform: scale(1.35) rotate(-8deg); } }
+.float { font-family: var(--font-display); font-weight: 400; font-size: 1.45rem; color: #ffd968; text-shadow: 0 3px 0 var(--ink), 2px 0 0 var(--ink), -2px 0 0 var(--ink), 0 -2px 0 var(--ink); animation: floatpop 1s cubic-bezier(.2,.8,.3,1) forwards; }
+@keyframes floatpop { 0% { transform: scale(.4); opacity: 0; } 18% { transform: scale(1.25); opacity: 1; } 35% { transform: scale(1) translateY(-8px); } 100% { transform: translateY(-62px); opacity: 0; } }
+.fxlvl { position: absolute; left: 50%; top: 42%; transform: translate(-50%, -50%); display: grid; place-items: center; width: 260px; height: 260px; border-radius: 50%;
+  background: radial-gradient(circle, rgba(255,240,180,.9), rgba(255,200,60,.45) 45%, transparent 70%); animation: lvlring 1.6s ease-out forwards; }
+.fxlvl span { font-family: var(--font-display); font-size: 3.4rem; color: #fff3c4; text-shadow: 0 4px 0 var(--ink), 3px 0 0 var(--ink), -3px 0 0 var(--ink), 0 -3px 0 var(--ink); animation: lvltext 1.6s cubic-bezier(.2,.8,.3,1) forwards; }
+@keyframes lvlring { 0% { transform: translate(-50%,-50%) scale(.2); opacity: 0; } 20% { opacity: 1; } 100% { transform: translate(-50%,-50%) scale(1.6); opacity: 0; } }
+@keyframes lvltext { 0% { transform: scale(.3); } 25% { transform: scale(1.2); } 40%, 80% { transform: scale(1); opacity: 1; } 100% { transform: scale(1) translateY(-30px); opacity: 0; } }
+.btn:active:not(:disabled) { transform: translateY(3px) scale(.97); }
+/* polén brilhando no ar da ilha */
+.mapwrap::after { content: ""; position: absolute; inset: 0; pointer-events: none; z-index: 2;
+  background-image: radial-gradient(circle, rgba(255,246,200,.9) 0 2px, transparent 3px), radial-gradient(circle, rgba(255,226,140,.8) 0 1.5px, transparent 2.5px), radial-gradient(circle, rgba(255,255,230,.7) 0 2.5px, transparent 3.5px);
+  background-size: 230px 190px, 170px 260px, 310px 240px; background-position: 0 0, 60px 90px, 140px 30px; animation: pollen 18s linear infinite; opacity: .7; }
+@keyframes pollen { to { background-position: 40px -190px, 100px -170px, 180px -240px; } }
+@media (prefers-reduced-motion: reduce) { .mapwrap::after { animation: none; } .float { animation: rise .9s ease-out forwards; } }
 /* UI-END */
 </style>
 
@@ -1283,6 +1305,9 @@ body { background: #7a420c; }
     pausar(t) { arpejo([76, 69, 64], t, 0.07, { dur: 0.12, vol: 0.12, tipo: 'triangle' }); },
     retomar(t) { arpejo([64, 69, 76], t, 0.07, { dur: 0.12, vol: 0.12, tipo: 'triangle' }); },
     confirmar(t) { arpejo([72, 79], t, 0.06, { dur: 0.15, vol: 0.12, tipo: 'triangle' }); },
+    // gota de mel caindo no pote (plop) e zumbido de abelha
+    gota(t) { tom({ at: t, f: rnd(700, 820), f2: 240, dur: 0.09, vol: 0.09, tipo: 'sine' }); tom({ at: t + 0.04, f: rnd(1300, 1500), f2: 900, dur: 0.05, vol: 0.035, tipo: 'sine' }); },
+    zumbido(t) { for (let i = 0; i < 6; i++) tom({ at: t + i * 0.07, f: 205 + (i % 2 ? 18 : 0), f2: 225 - (i % 2 ? 0 : 14), lin: true, dur: 0.09, vol: 0.035, tipo: 'sawtooth', filtro: 'lowpass', ff: 900, a: 0.02 }); },
 
     // --- economia ---
     coletar(t, o) {
@@ -1463,7 +1488,7 @@ body { background: #7a420c; }
   };
 
   // Espaçamento mínimo entre repetições do mesmo som (ms), para cliques em rajada.
-  const INTERVALO = { tique: 25, coletar: 45, colher: 45, clique: 30, acerto: 40, aba: 40, plantar: 40, erro: 120, tremor: 800 };
+  const INTERVALO = { gota: 55, zumbido: 600, tique: 25, coletar: 45, colher: 45, clique: 30, acerto: 40, aba: 40, plantar: 40, erro: 120, tremor: 800 };
 
   function play(nome, o) {
     if (!AC || st.mudo || st.volEfeitos <= 0) return false;
@@ -8652,7 +8677,14 @@ const SKINS = {
 // ============================================================
 const $ = sel => document.querySelector(sel);
 // Som: atalho seguro para o objeto global criado por audio.js
-const sfx = (nome, opts) => { try { window.Som && Som.play(nome, opts); } catch (e) { /* áudio é opcional */ } };
+const sfx = (nome, opts) => {
+  try { window.Som && Som.play(nome, opts); } catch (e) { /* áudio é opcional */ }
+  try { // cada som importante ganha um efeitinho no lugar do toque
+    if (nome === 'comprar' || nome === 'vender') fxSpark(fxPtr.x, fxPtr.y, 12, ['#ffd968', '#ffb12e', '#fff3c4'], 70, 'coin');
+    else if (nome === 'gemas' || nome === 'nivelDragao' || nome === 'alimentar') fxSpark(fxPtr.x, fxPtr.y, 14, ['#ff8fb8', '#fff3c4', '#c8a2ff', '#ffd968'], 80, 'star');
+    else if (nome === 'conquista' || nome === 'missao') fxSpark(innerWidth / 2, 90, 18, ['#ffd968', '#fff3c4', '#ffb12e'], 140, 'star');
+  } catch (e) { /* efeito é opcional */ }
+};
 const music = nome => { try { window.Som && Som.musica(nome); } catch (e) { /* áudio é opcional */ } };
 const tension = v => { try { window.Som && Som.tensao(v); } catch (e) { /* áudio é opcional */ } };
 const RAR_SOM = { C: 'comum', R: 'raro', E: 'epico', L: 'lendario' };
@@ -8801,7 +8833,7 @@ function addXp(n) {
   S.xp += n; S.stats.xpTotal += n;
   while (S.level < MAX_PLVL && S.xp >= xpNeed(S.level)) {
     S.xp -= xpNeed(S.level); S.level++; S.stats.levelUps++;
-    sfx('nivelJogador');
+    sfx('nivelJogador'); fxLevel(`Nível ${S.level}!`);
     const gems = 2 + Math.floor(S.level / 5) + MOD('lvlGems');
     addGems(gems);
     const unlocks = [];
@@ -8821,7 +8853,7 @@ function collect(i, ev) {
   addGold(amt); S.stats.collects++; S.stats.bestCollect = Math.max(S.stats.bestCollect, amt);
   sfx('coletar', { quantidade: clamp(Math.ceil(Math.log10(amt + 1)), 1, 5) });
   addXp(2);
-  if (ev) floatText(`+${fmt(amt)}`, ev.clientX, ev.clientY);
+  if (ev) { floatText(`+${fmt(amt)}`, ev.clientX, ev.clientY); fxHoney(ev.clientX, ev.clientY, 2 + Math.ceil(Math.log10(amt + 1))); }
 }
 function collectAll(ev) {
   let total = 0;
@@ -8829,7 +8861,7 @@ function collectAll(ev) {
   if (!total) return;
   addGold(total); S.stats.bestCollect = Math.max(S.stats.bestCollect, total); addXp(2);
   sfx('coletarTudo');
-  if (ev) floatText(`+${fmt(total)}`, ev.clientX, ev.clientY);
+  if (ev) { floatText(`+${fmt(total)}`, ev.clientX, ev.clientY); fxHoney(ev.clientX, ev.clientY, 10); }
 }
 function plant(i, silent) {
   const f = S.farms[i];
@@ -8850,7 +8882,7 @@ function harvest(i, ev, silent) {
   const got = Math.round(cropFood(f.crop) * farmYield(f));
   S.food += got; S.stats.foodHarvested += got; S.stats.cropsHarvested++;
   addXp(1 + c.food / 15);
-  if (ev) floatText(`+${got} 🍖`, ev.clientX, ev.clientY, 'var(--food)');
+  if (ev) { floatText(`+${got} 🍖`, ev.clientX, ev.clientY, 'var(--food)'); fxHoney(ev.clientX, ev.clientY, 4, '.res.food'); }
   f.crop = null; f.prog = 0;
   if (!silent) sfx('colher');
   return true;
@@ -9990,6 +10022,46 @@ function toast(title, sub = '', cls = '') {
   box.appendChild(el);
   while (box.children.length > (innerWidth < 560 ? 3 : 5)) box.firstChild.remove();
   setTimeout(() => el.remove(), 3800);
+}
+// ---------- Efeitos: gotas de mel voando até o pote, estrelinhas, brilho de nível ----------
+let fxPtr = { x: innerWidth / 2, y: innerHeight / 2 };
+addEventListener('pointerdown', e => { fxPtr = { x: e.clientX, y: e.clientY }; const b = e.target.closest && e.target.closest('.btn, .iconbtn, .tab'); if (b) fxSpark(e.clientX, e.clientY, 5, ['#fff3c4', '#ffd968', '#ffb12e'], 26); }, true);
+const fxReduced = () => matchMedia('(prefers-reduced-motion: reduce)').matches;
+function fxLayer() { let l = document.getElementById('fxl'); if (!l) { l = document.createElement('div'); l.id = 'fxl'; document.body.appendChild(l); } return l; }
+function fxSpark(x, y, n, colors, dist = 60, shape = 'dot') {
+  if (fxReduced() || !x) return;
+  const L = fxLayer();
+  for (let i = 0; i < n; i++) {
+    const el = document.createElement('i'); el.className = 'fxp ' + shape;
+    el.style.left = x + 'px'; el.style.top = y + 'px'; el.style.setProperty('--c', colors[i % colors.length]);
+    L.appendChild(el);
+    const a = Math.random() * Math.PI * 2, d = dist * (0.5 + Math.random() * 0.7), sc = 0.6 + Math.random() * 0.8;
+    el.animate([{ transform: `translate(-50%,-50%) scale(${sc})`, opacity: 1 }, { transform: `translate(calc(-50% + ${Math.cos(a) * d}px), calc(-50% + ${Math.sin(a) * d - 10}px)) scale(0) rotate(${(Math.random() - 0.5) * 360}deg)`, opacity: 0.2 }],
+      { duration: 520 + Math.random() * 300, easing: 'cubic-bezier(.2,.8,.3,1)' }).onfinish = () => el.remove();
+  }
+}
+function fxHoney(x, y, n, sel = '.res.gold') {
+  const tg = document.querySelector(sel);
+  if (!tg || fxReduced() || !x) return;
+  const r = tg.getBoundingClientRect(), tx = r.left + 18, ty = r.top + r.height / 2, L = fxLayer();
+  n = Math.max(1, Math.min(10, n));
+  for (let i = 0; i < n; i++) {
+    const el = document.createElement('i'); el.className = 'fxp drop' + (sel === '.res.food' ? ' food' : '');
+    el.style.left = x + 'px'; el.style.top = y + 'px'; L.appendChild(el);
+    const sx = (Math.random() - 0.5) * 70, sy = -30 - Math.random() * 50, dx = tx - x, dy = ty - y;
+    const an = el.animate([
+      { transform: 'translate(-50%,-50%) scale(.4)', opacity: 1 },
+      { transform: `translate(calc(-50% + ${sx}px), calc(-50% + ${sy}px)) scale(1.1)`, opacity: 1, offset: 0.3 },
+      { transform: `translate(calc(-50% + ${dx}px), calc(-50% + ${dy}px)) scale(.55)`, opacity: 0.9 }],
+      { duration: 650 + i * 55, delay: i * 35, easing: 'cubic-bezier(.45,0,.55,1)', fill: 'both' });
+    an.onfinish = () => { el.remove(); sfx('gota'); tg.classList.remove('bump'); void tg.offsetWidth; tg.classList.add('bump'); };
+  }
+}
+function fxLevel(text) {
+  if (fxReduced()) return;
+  const L = fxLayer(), el = document.createElement('div'); el.className = 'fxlvl'; el.innerHTML = `<span>${text}</span>`; L.appendChild(el);
+  setTimeout(() => el.remove(), 1700);
+  fxSpark(innerWidth / 2, innerHeight * 0.42, 22, ['#fff3c4', '#ffd968', '#ffb12e', '#ff8fb8'], 220, 'star');
 }
 function floatText(txt, x, y, color) {
   const el = document.createElement('div');
@@ -11444,7 +11516,7 @@ function handle(ev) {
   if (!fn) return;
   if (S && !S.ended) S.stats.clicks++;
   const a = el.dataset.a;
-  if (a === 'tab') sfx('aba');
+  if (a === 'tab') { sfx('aba'); if (el.dataset.k === 'dragoes') sfx('zumbido'); }
   else if (['pause', 'askEnd', 'cancelEnd', 'pickParent', 'clearParent', 'team', 'selCrop', 'auto', 'start', 'again', 'surrender', 'end', 'move', 'fight'].includes(a)) { if (a !== 'pause' && a !== 'move' && a !== 'fight') sfx('clique'); }
   fn(el, ev);
   if (S && !S.ended) { checkAchievements(); render(); }
