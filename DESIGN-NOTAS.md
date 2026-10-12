@@ -75,6 +75,14 @@ O jogo **pausa sozinho** quando a aba fica oculta. Botão Pausar e tecla `P` tam
 - **Vila da colmeia:** o chão virou cera lisa, sem o desenho de alvéolos. No meio fica uma praça com a fonte de mel, de onde saem caminhos curvos. As construções ficam num arco no fundo: Arena no topo, Mercado e Chocadeira dos lados, Mural de Missões e Jardim do Amor nas pontas. São até 9 colmeias, dos dois lados e embaixo da praça. O jardim fica na frente, um canteiro de terra com borda de cera e 12 vagas em 2 fileiras. Enfeites: poças de mel, potes, colunas de cera e flores do prado.
 - **Relíquias:** agora a cada 300 s (antes, 150 s).
 
+## Novidades da v6.1: ilha no estilo da referência do Pedro (12/10/2026)
+- Chão de favo dourado com rios de mel brilhantes (roughnessMap deixa o mel lustroso) e poças nas pontas.
+- Praça creme com chafariz no centro; canteiro da fazenda com moldura de mel.
+- Paredão de favo fundo nas bordas, com 4 colmeias (skep) e 2 pontes de madeira.
+- Borda verde: moitas, girassóis, flores e arbustos (w3Edge), sem invadir construções nem a fazenda.
+- Arena sobre um morro de pedras com mel escorrendo; 9 abelhinhas voando pela ilha.
+- Construções e roleta sem mudança. Referência: abelhas/referencias/ilha-referencia-pedro.png.
+
 ## Novidades da v6: ilha em 3D de verdade (12/10/2026)
 
 - A ilha agora é uma cena 3D em tempo real (three.js), com a mesma câmera isométrica de antes. Ela fica numa tela WebGL atrás do SVG; o SVG ficou só com as áreas de clique, os balões, os nomes e as abelhas.
