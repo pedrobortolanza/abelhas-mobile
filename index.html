@@ -9708,8 +9708,16 @@ function inHex(X, Y, m = 0) {
 const isoInv = (X, Y) => { const a = (X - OX) * 2 / TW, b = (Y - OY) * 2 / TH; return [(a + b) / 2, (b - a) / 2]; };
 // Chão de cera, praça, caminhos e o jardim viram uma única imagem (gerada uma vez), para o mapa continuar leve.
 let groundURI = null, groundMeadow = null;
+// Paletas do chão da vila (contraste com as construções)
+const GLOOKS = {
+  mel:   { gw: ['#ffe2a0', '#f3bf62', '#d9973a'], spots: ['#b5701c', '#fff6d8'], dash: '#c98a2c', edge: '#b67a2a', cbBg: '#d9a04a', cbCell: '#f2c779', pz: ['#fff4d0', '#f0c878'], pzEdge: '#d99a3e', pzDash: '#e8b45a', rim: '#ffd77a' },
+  ambar: { gw: ['#a8692e', '#87501f', '#5e3413'], spots: ['#3a1e08', '#d9a060'], dash: '#c88a3c', edge: '#4a2a10', cbBg: '#e0b56a', cbCell: '#f7dca0', pz: ['#fbe6b4', '#e2b56a'], pzEdge: '#5a3212', pzDash: '#b88040', rim: '#e0a040' },
+  creme: { gw: ['#fbf3e2', '#f0e0bf', '#d9bf8e'], spots: ['#a07a40', '#ffffff'], dash: '#c7a46a', edge: '#a87b40', cbBg: '#c99a55', cbCell: '#e9c98c', pz: ['#ffffff', '#efdcb4'], pzEdge: '#b08850', pzDash: '#d2b27a', rim: '#f3d9a0' },
+};
+const glook = () => GLOOKS[window.__look] || GLOOKS.ambar;
 function groundImage() {
-  const gkey = S && S.meadow ? S.meadow.join() + (S.season || '') : '';
+  let gkey = S && S.meadow ? S.meadow.join() + (S.season || '') : '';
+  const L = glook(); gkey += window.__look || '';
   if (groundURI && groundMeadow === gkey) return groundURI;
   groundMeadow = gkey;
   let seed = 7;
@@ -9717,9 +9725,9 @@ function groundImage() {
   const P2 = arr => arr.map(p => p.map(v => v.toFixed(1)).join(',')).join(' ');
   const [PX, PY] = PLAZA;
   let g = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 600">';
-  g += '<defs><radialGradient id="gw" cx="50%" cy="46%" r="62%"><stop offset="0" stop-color="#ffe2a0"/><stop offset=".55" stop-color="#f3bf62"/><stop offset="1" stop-color="#d9973a"/></radialGradient>'
-    + '<radialGradient id="pz" cx="50%" cy="40%" r="60%"><stop offset="0" stop-color="#fff4d0"/><stop offset="1" stop-color="#f0c878"/></radialGradient>'
-    + '<pattern id="cb" width="22" height="12" patternUnits="userSpaceOnUse"><rect width="22" height="12" fill="#d9a04a"/>' + [[5.5, 3], [16.5, 9], [-5.5, 9], [27.5, 3], [5.5, 15], [16.5, -3]].map(([cx, cy]) => `<polygon points="${[0, 60, 120, 180, 240, 300].map(a => `${(cx + Math.cos(a * Math.PI / 180) * 5.4).toFixed(1)},${(cy + Math.sin(a * Math.PI / 180) * 3.1).toFixed(1)}`).join(' ')}" fill="#f2c779" stroke="#b67a2a" stroke-width=".8"/>`).join('') + '</pattern>'
+  g += `<defs><radialGradient id="gw" cx="50%" cy="46%" r="62%"><stop offset="0" stop-color="${L.gw[0]}"/><stop offset=".55" stop-color="${L.gw[1]}"/><stop offset="1" stop-color="${L.gw[2]}"/></radialGradient>`
+    + `<radialGradient id="pz" cx="50%" cy="40%" r="60%"><stop offset="0" stop-color="${L.pz[0]}"/><stop offset="1" stop-color="${L.pz[1]}"/></radialGradient>`
+    + `<pattern id="cb" width="22" height="12" patternUnits="userSpaceOnUse"><rect width="22" height="12" fill="${L.cbBg}"/>` + [[5.5, 3], [16.5, 9], [-5.5, 9], [27.5, 3], [5.5, 15], [16.5, -3]].map(([cx, cy]) => `<polygon points="${[0, 60, 120, 180, 240, 300].map(a => `${(cx + Math.cos(a * Math.PI / 180) * 5.4).toFixed(1)},${(cy + Math.sin(a * Math.PI / 180) * 3.1).toFixed(1)}`).join(' ')}" fill="${L.cbCell}" stroke="${L.edge}" stroke-width=".8"/>`).join('') + '</pattern>'
     + '<linearGradient id="sl" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#7a4a24"/><stop offset="1" stop-color="#5a3518"/></linearGradient>'
     + '<radialGradient id="hg" cx="40%" cy="35%" r="70%"><stop offset="0" stop-color="#ffe9a0"/><stop offset=".5" stop-color="#ffb52e"/><stop offset="1" stop-color="#c46a0c"/></radialGradient></defs>';
   // base lisa de cera, com manchas suaves de luz e sombra
@@ -9727,16 +9735,16 @@ function groundImage() {
   for (let i = 0; i < 18; i++) {
     const X = 90 + rnd() * 820, Y = 80 + rnd() * 440, r = 60 + rnd() * 90;
     if (!inHex(X, Y, 40)) { i--; continue; }
-    g += `<ellipse cx="${X.toFixed(1)}" cy="${Y.toFixed(1)}" rx="${r.toFixed(1)}" ry="${(r / 2).toFixed(1)}" fill="${rnd() < .5 ? '#b5701c' : '#fff6d8'}" opacity="${(0.05 + rnd() * 0.05).toFixed(2)}"/>`;
+    g += `<ellipse cx="${X.toFixed(1)}" cy="${Y.toFixed(1)}" rx="${r.toFixed(1)}" ry="${(r / 2).toFixed(1)}" fill="${rnd() < .5 ? L.spots[0] : L.spots[1]}" opacity="${(0.05 + rnd() * 0.05).toFixed(2)}"/>`;
   }
   // favo gravado bem de leve só na borda
-  g += `<polygon points="${P2(hexGrow(-14))}" fill="none" stroke="#c98a2c" stroke-width="2" stroke-dasharray="10 6" opacity=".45"/>`;
+  g += `<polygon points="${P2(hexGrow(-14))}" fill="none" stroke="${L.dash}" stroke-width="2" stroke-dasharray="10 6" opacity=".45"/>`;
   // caminhos curvos que saem da praça
   const ways = [[500, 150], [676, 200], [324, 200], [842, 282], [158, 282], [500, 440], [620, 300], [380, 300], [660, 380], [340, 380], [748, 310], [252, 310], [818, 390], [182, 390]];
   const curve = ([X, Y]) => { const mx = (PX + X) / 2, my = (PY + Y) / 2, bend = (X - PX) * 0.12; return `M${PX},${PY} Q${(mx - bend * .3).toFixed(1)},${(my - Math.abs(bend)).toFixed(1)} ${X},${Y}`; };
-  ways.forEach((w, i) => { const wd = i < 6 ? 30 : 18; g += `<path d="${curve(w)}" stroke="#b67a2a" stroke-width="${wd + 6}" fill="none" stroke-linecap="round"/><path d="${curve(w)}" stroke="url(#cb)" stroke-width="${wd}" fill="none" stroke-linecap="round"/>`; });
+  ways.forEach((w, i) => { const wd = i < 6 ? 30 : 18; g += `<path d="${curve(w)}" stroke="${L.edge}" stroke-width="${wd + 6}" fill="none" stroke-linecap="round"/><path d="${curve(w)}" stroke="url(#cb)" stroke-width="${wd}" fill="none" stroke-linecap="round"/>`; });
   // praça: anel de cera clara com borda
-  g += `<ellipse cx="${PX}" cy="${PY + 3}" rx="96" ry="50" fill="#b67a2a"/><ellipse cx="${PX}" cy="${PY}" rx="94" ry="48" fill="url(#pz)" stroke="#d99a3e" stroke-width="2"/><ellipse cx="${PX}" cy="${PY}" rx="70" ry="35" fill="none" stroke="#e8b45a" stroke-width="2" stroke-dasharray="8 6"/>`;
+  g += `<ellipse cx="${PX}" cy="${PY + 3}" rx="96" ry="50" fill="${L.edge}"/><ellipse cx="${PX}" cy="${PY}" rx="94" ry="48" fill="url(#pz)" stroke="${L.pzEdge}" stroke-width="2"/><ellipse cx="${PX}" cy="${PY}" rx="70" ry="35" fill="none" stroke="${L.pzDash}" stroke-width="2" stroke-dasharray="8 6"/>`;
   // jardim: canteiro de terra com borda de cera
   const fx0 = FARM_X[0] - 44, fx1 = FARM_X[FARM_X.length - 1] + 44, fy0 = FARM_ROWS[0] - 26, fy1 = FARM_ROWS[1] + 24;
   g += `<rect x="${fx0}" y="${fy0 + 5}" width="${fx1 - fx0}" height="${fy1 - fy0}" rx="26" fill="#8a4a10"/><rect x="${fx0}" y="${fy0}" width="${fx1 - fx0}" height="${fy1 - fy0}" rx="26" fill="url(#sl)" stroke="#f2b544" stroke-width="6"/>`;
@@ -9755,7 +9763,7 @@ function groundImage() {
   }
   // borda: cera com mel escorrendo pelo penhasco
   const drip = (A, B, n) => { let o = ''; for (let i = 0; i <= n; i++) { const t = i / n, X = A[0] + (B[0] - A[0]) * t, Y = A[1] + (B[1] - A[1]) * t, w = 4 + rnd() * 5, h = rnd() < .3 ? 12 + rnd() * 20 : 3 + rnd() * 5; o += `<path d="M${(X - w).toFixed(1)},${(Y - 1).toFixed(1)} Q${(X - w).toFixed(1)},${(Y + h * .6).toFixed(1)} ${X.toFixed(1)},${(Y + h).toFixed(1)} Q${(X + w).toFixed(1)},${(Y + h * .6).toFixed(1)} ${(X + w).toFixed(1)},${(Y - 1).toFixed(1)}Z" fill="${rnd() < .5 ? '#ffb52e' : '#f29a1c'}"/>`; } return o; };
-  g += `<polyline points="${P2([HEX[0], HEX[5], HEX[4], HEX[3]])}" fill="none" stroke="#ffd77a" stroke-width="5" stroke-linejoin="round"/>`;
+  g += `<polyline points="${P2([HEX[0], HEX[5], HEX[4], HEX[3]])}" fill="none" stroke="${L.rim}" stroke-width="5" stroke-linejoin="round"/>`;
   g += drip(HEX[0], HEX[5], 34) + drip(HEX[5], HEX[4], 52) + drip(HEX[4], HEX[3], 34);
   // estação: um véu de cor e detalhes próprios (geada, pétalas, poças)
   const sea = S && S.season && SEASONS[S.season];

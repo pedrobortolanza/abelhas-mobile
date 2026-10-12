@@ -107,6 +107,7 @@ O jogo **pausa sozinho** quando a aba fica oculta. Botão Pausar e tecla `P` tam
 | 💫 Mistério | 10 | 30% emboscada (luta de Elite), 35% ovo Raro ou Épico, 35% pote de `2,5 × 90 × liga^1,9` de mel |
 
 Perder uma luta mantém os mesmos caminhos. Etapas sem luta também dão `10 × liga` de XP.
+- **Chão âmbar escuro (pedido do Pedro):** o chão da vila virou cera marrom escura (`GLOOKS.ambar`), com caminhos e praça claros, para as construções se destacarem. As construções não mudaram. As paletas antigas ficam em `GLOOKS` (`mel`, `creme`) e dá para testar com `window.__look`.
 - **Pontuação:** nova linha "Invasões repelidas" = 1.500 por invasão vencida. O placar mostra estação, inimigo, invasões repelidas e mutantes.
 - **Estatísticas novas:** `raidsWon`, `raidsLost`, `mutants`, `routeNodes`, `elites`.
 
