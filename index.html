@@ -7652,7 +7652,7 @@ const M3 = (() => {
     return g;
   };
   // Habitats com tema do elemento
-  const HTOP = { fogo: '#5b4038', agua: '#8fd7a0', planta: '#7fd35a', terra: '#c79a63', eletrico: '#8a8fa8', gelo: '#e9f6ff', metal: '#a7b0bf', trevas: '#4a3a66', luz: '#fff0bf', none: '#f6c768' };
+  const HTOP = { fogo: '#5b4038', agua: '#8fd7a0', planta: '#7fd35a', terra: '#c79a63', eletrico: '#8a8fa8', gelo: '#e9f6ff', metal: '#a7b0bf', trevas: '#4a3a66', luz: '#fff0bf', none: '#e3a64e' };
   const HSIDE = { fogo: '#3a2522', agua: '#5b7d5a', planta: '#5b8a3a', terra: '#8a6a3f', eletrico: '#555a70', gelo: '#9cc8e6', metal: '#6c7480', trevas: '#2b2140', luz: '#c9a650', none: '#a8641a' };
   B.habitat = th => {
     const g = new T.Group();
@@ -7763,11 +7763,9 @@ const M3 = (() => {
   B.habitat = th => {
     const g = PB.habitat(th);
     if (!glbReady) return g;
-    if (th === 'planta' && G.trees) { glb('trees', g, [0.5, 0.03, -0.5], 0.7); }
 
     if (th === 'agua' && G.lily) { glb('lily', g, [-0.25, 0.04, 0.25], 0.5); }
 
-    if (th === 'none' && G.treeA) { glb('treeA', g, [0.6, 0.03, -0.6], 0.45); }
     return g;
   };
   B.windmill = () => { const g = new T.Group(); if (G.windmill) glb('windmill', g, [0, 0, 0], 1.1, Math.PI / 4); return g; };
@@ -7958,7 +7956,7 @@ const QUEENS = [
   { k: 'real',      n: 'Rainha Real',      el: 'trevas',   b: '+3 de geleia real a cada nível',      m: 'Colmeias produzem 10% menos mel',   mods: { lvlGems: 3, gold: 0.9 } },
 ];
 // Relíquias: a cada RELIC_EVERY segundos o jogador escolhe 1 entre 3. Os efeitos se somam.
-const RELIC_EVERY = 150;
+const RELIC_EVERY = 300;
 const RELICS = [
   { k: 'favo',     n: 'Favo Dourado',        i: '🏛️', d: '+20% de mel nas colmeias.',                       mods: { gold: 1.2 } },
   { k: 'polen',    n: 'Pólen Mágico',        i: '🌻', d: 'As flores crescem 25% mais rápido.',             mods: { farm: 1.25 } },
@@ -9304,28 +9302,32 @@ function viewHatchery() {
 // ============================================================
 const TW = 64, TH = 32, OX = 500, OY = 68, NG = 14;
 const iso = (x, y) => [OX + (x - y) * TW / 2, OY + (x + y) * TH / 2];
-const HAB_LOTS = [[4.5, 4.5], [7.5, 4.5], [4.5, 7.5], [7.5, 7.5], [1.5, 7.5], [10.5, 7.5], [1.5, 10.5], [4.5, 10.5], [7.5, 10.5], [10.5, 10.5]];
-const FARM_LOTS = Array.from({ length: 12 }, (_, i) => [i + 1.5, 12.9]);
-const SPOTS = {
-  missoes: { at: [1.5, 1.5], n: 'Mural de Missões' },
-  cruzar: { at: [4.5, 1.5], n: 'Jardim do Amor' },
-  chocadeira: { at: [7.5, 1.5], n: 'Chocadeira' },
-  loja: { at: [1.5, 4.5], n: 'Mercado' },
-  arena: { at: [11, 3], n: 'Arena', size: 3 },
-};
-// Pontos em pixels do mapa convertidos para a grade (para enfeitar os cantos do hexágono, fora do losango)
+// Pontos em pixels do mapa convertidos para a grade
 const gridAt = (X, Y) => { const a = (X - OX) * 2 / TW, b = (Y - OY) * 2 / TH; return [(a + b) / 2, (b - a) / 2]; };
-const TREES = [[13.3, 6.2], [13.3, 8.6], [12.9, 0.7], [0.5, 12.9], [6, 0.5], [0.5, 6], [13.4, 13.4], [3.2, 0.4], [0.4, 3.2],
-  ...[[150, 250], [230, 150], [120, 330], [190, 440], [300, 505], [790, 120], [880, 230], [905, 330], [820, 470], [700, 515]].map(p => gridAt(...p))];
-// Flores (f), pedras (r) e arbustos (b) espalhados nos espaços livres
-const DECOR = [...[[200, 300, 'h'], [250, 470, 'f'], [330, 120, 'f'], [850, 400, 'h'], [760, 140, 'r'], [130, 400, 'b'], [930, 290, 'b'], [600, 520, 'f']].map(([X, Y, k]) => [...gridAt(X, Y), k]), [6, 3, 'f'], [3, 6, 'f'], [9, 6.1, 'r'], [6.1, 9.3, 'b'], [12.3, 6, 'f'], [6, 12, 'r'], [9, 12, 'f'], [12.2, 9.1, 'b'], [3, 9.1, 'f'], [9.1, 3.1, 'r'], [13.3, 4.8, 'f'], [4.8, 13.4, 'b'], [13.2, 11.3, 'm'], [6, 6, 'w']];
+// Vila da colmeia: praça com a fonte de mel no meio, construções em arco no fundo,
+// colmeias dos dois lados da praça e o jardim de flores na frente.
+const PLAZA = [500, 300];
+const HAB_LOTS = [[620, 292], [380, 292], [660, 372], [340, 372], [748, 300], [252, 300], [500, 384], [818, 382], [182, 382]].map(p => gridAt(...p));
+const FARM_ROWS = [446, 480], FARM_X = [324, 388, 452, 548, 612, 676];
+const FARM_LOTS = FARM_ROWS.flatMap(Y => FARM_X.map(X => gridAt(X, Y)));
+const SPOTS = {
+  arena: { at: gridAt(500, 128), n: 'Arena', size: 3, px: [500, 128] },
+  chocadeira: { at: gridAt(676, 178), n: 'Chocadeira', px: [676, 178] },
+  loja: { at: gridAt(324, 178), n: 'Mercado', px: [324, 178] },
+  cruzar: { at: gridAt(842, 262), n: 'Jardim do Amor', px: [842, 262] },
+  missoes: { at: gridAt(158, 262), n: 'Mural de Missões', px: [158, 262] },
+};
+// Enfeites em grupos, perto das bordas: potes de mel (0), colunas de cera (1) e pólen (2)
+const TREES = [[400, 108, 1], [600, 108, 1], [240, 476, 2], [760, 476, 2], [710, 524, 0], [290, 524, 0], [250, 140, 1], [750, 140, 1], [110, 340, 0], [890, 340, 0]].map(([X, Y, n]) => [...gridAt(X, Y), n]);
+// Flores (f), cera (r), pólen (b), favo selvagem (h) e a fonte de mel (w) no meio da praça
+const DECOR = [[...gridAt(...PLAZA), 'w'], ...[[430, 250, 'f'], [570, 250, 'f'], [440, 350, 'f'], [560, 350, 'f'], [200, 440, 'h'], [800, 440, 'h'], [270, 250, 'b'], [730, 250, 'b'], [380, 524, 'f'], [620, 524, 'f'], [500, 528, 'h'], [430, 150, 'f'], [570, 150, 'f']].map(([X, Y, k]) => [...gridAt(X, Y), k])];
 function isoDecor(x, y, k) {
   const [X, Y] = iso(x, y);
   if (k === 'm') return isoTree(x, y, 0);
   if (k === 'w') {
     // fonte de mel: bacia hexagonal com mel borbulhando
-    const hp = (r, dy, sq = .5) => [0, 60, 120, 180, 240, 300].map(a => `${(X + Math.cos(a * Math.PI / 180) * r).toFixed(1)},${(Y + dy + Math.sin(a * Math.PI / 180) * r * sq).toFixed(1)}`).join(' ');
-    return `<ellipse cx="${X}" cy="${Y + 4}" rx="30" ry="10" fill="url(#g-shadow)"/><polygon points="${hp(26, 0)}" fill="#c98a2c" stroke="#3a1c06" stroke-width="1.5" transform="translate(0 5)"/><polygon points="${hp(26, 0)}" fill="url(#g-wax)" stroke="#3a1c06" stroke-width="1.5"/><polygon points="${hp(19, -1)}" fill="url(#g-sea)"/><ellipse cx="${X - 6}" cy="${Y - 3}" rx="6" ry="2" fill="#fff" opacity=".5"/><circle class="bub" cx="${X + 5}" cy="${Y - 1}" r="2.4" fill="#ffd77a"/>`;
+    const K = 1.6, hp = (r, dy, sq = .5) => [0, 60, 120, 180, 240, 300].map(a => `${(X + Math.cos(a * Math.PI / 180) * r).toFixed(1)},${(Y + dy + Math.sin(a * Math.PI / 180) * r * sq).toFixed(1)}`).join(' ');
+    return `<ellipse cx="${X}" cy="${Y + 6}" rx="${30 * K}" ry="${10 * K}" fill="url(#g-shadow)"/><polygon points="${hp(26 * K, 0)}" fill="#c98a2c" stroke="#3a1c06" stroke-width="1.5" transform="translate(0 8)"/><polygon points="${hp(26 * K, 0)}" fill="url(#g-wax)" stroke="#3a1c06" stroke-width="1.5"/><polygon points="${hp(19 * K, -1)}" fill="url(#g-sea)"/><path d="M${X - 4},${Y - 2} L${X - 3},${Y - 26} Q${X},${Y - 30} ${X + 3},${Y - 26} L${X + 4},${Y - 2}Z" fill="url(#g-wax)" stroke="#3a1c06" stroke-width="1.3"/><ellipse cx="${X}" cy="${Y - 27}" rx="9" ry="4" fill="#ffb52e" stroke="#3a1c06" stroke-width="1.2"/><path d="M${X - 8},${Y - 26} q-3,10 -4,22 M${X + 8},${Y - 26} q3,10 4,22" stroke="#ffb52e" stroke-width="3" fill="none" opacity=".9"/><ellipse cx="${X - 10}" cy="${Y - 4}" rx="9" ry="3" fill="#fff" opacity=".45"/>`;
   }
   if (k === 'h') {
     // favo selvagem no chão, com mel escorrendo
@@ -9550,64 +9552,52 @@ function inHex(X, Y, m = 0) {
   return Math.abs(X - 500) <= w;
 }
 const isoInv = (X, Y) => { const a = (X - OX) * 2 / TW, b = (Y - OY) * 2 / TH; return [(a + b) / 2, (b - a) / 2]; };
-// Grama, caminhos e a lavoura viram uma única imagem (gerada uma vez), para o mapa continuar leve.
-const PATHS = [[5.6, 0.4, 6.4, 13.6], [0.4, 5.6, 12.6, 6.4], [0.4, 8.6, 12.6, 9.4], [8.6, 0.4, 9.4, 11.6]];
-const FIELD = [1, 12.35, 13.05, 13.45]; // faixa de lavoura onde ficam as fazendas
+// Chão de cera, praça, caminhos e o jardim viram uma única imagem (gerada uma vez), para o mapa continuar leve.
 let groundURI = null, groundMeadow = null;
 function groundImage() {
   if (groundURI && groundMeadow === (S && S.meadow ? S.meadow.join() : '')) return groundURI;
   groundMeadow = S && S.meadow ? S.meadow.join() : '';
   let seed = 7;
   const rnd = () => { seed = (seed * 16807) % 2147483647; return (seed - 1) / 2147483646; };
-  const P = (x, y) => iso(x, y).map(v => v.toFixed(1)).join(',');
   const P2 = arr => arr.map(p => p.map(v => v.toFixed(1)).join(',')).join(' ');
-  const onPath = (x, y, m = 0.15) => PATHS.some(([a, b, c, d]) => x > a - m && x < c + m && y > b - m && y < d + m) || (x > FIELD[0] - 0.3 && x < FIELD[2] + 0.3 && y > FIELD[1] - 0.3);
+  const [PX, PY] = PLAZA;
   let g = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 600">';
-  // favo: hexágonos de cera vistos em perspectiva (achatados na vertical)
-  const HR = 13, HQ = Math.sqrt(3) * HR, SQ = 0.58;
-  const hexPts = (cx, cy, r, sq = SQ) => [0, 60, 120, 180, 240, 300].map(a => `${(cx + Math.cos(a * Math.PI / 180) * r).toFixed(1)},${(cy + Math.sin(a * Math.PI / 180) * r * sq).toFixed(1)}`).join(' ');
-  g += '<defs><linearGradient id="gw" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#ffd77a"/><stop offset=".5" stop-color="#eaa63a"/><stop offset="1" stop-color="#c47a1e"/></linearGradient>'
-    + `<pattern id="wc" width="${3 * HR}" height="${(HQ * SQ).toFixed(2)}" patternUnits="userSpaceOnUse">`
-    + [[0, 0], [1.5 * HR, HQ / 2], [3 * HR, 0], [0, HQ], [3 * HR, HQ], [1.5 * HR, -HQ / 2]].map(([x, y]) => `<polygon points="${hexPts(x, y * SQ, HR - 1.2)}" fill="#f0b54a" stroke="#b46d18" stroke-width="2.2"/><polygon points="${hexPts(x - 1, y * SQ - 1.2, HR - 5)}" fill="#ffd27a" opacity=".55"/>`).join('')
-    + '</pattern>'
-    + '<pattern id="cb" width="18" height="10.4" patternUnits="userSpaceOnUse"><rect width="18" height="10.4" fill="#9a5a14"/>' + [[4.5, 2.6], [13.5, 7.8], [-4.5, 7.8], [22.5, 2.6], [4.5, 13], [13.5, -2.6]].map(([cx, cy]) => `<polygon points="${[0, 60, 120, 180, 240, 300].map(a => `${(cx + Math.cos(a * Math.PI / 180) * 4.6).toFixed(1)},${(cy + Math.sin(a * Math.PI / 180) * 2.7).toFixed(1)}`).join(' ')}" fill="#c4802a" stroke="#7a420f" stroke-width=".8"/>`).join('') + '</pattern>'
-    + '<radialGradient id="hg" cx="40%" cy="35%" r="70%"><stop offset="0" stop-color="#ffe9a0"/><stop offset=".45" stop-color="#ffb52e"/><stop offset="1" stop-color="#c46a0c"/></radialGradient>'
-    + '<linearGradient id="sl" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#8a5a2e"/><stop offset="1" stop-color="#6a4220"/></linearGradient></defs>';
-  // base de cera com o favo inteiro
-  g += `<polygon points="${P2(HEX)}" fill="url(#gw)"/><polygon points="${P2(HEX)}" fill="url(#wc)"/>`;
-  // luz e sombra suaves
-  for (let i = 0; i < 26; i++) {
-    const X = 80 + rnd() * 840, Y = 70 + rnd() * 450, r = 40 + rnd() * 70;
-    if (!inHex(X, Y, 30)) { i--; continue; }
-    g += `<ellipse cx="${X.toFixed(1)}" cy="${Y.toFixed(1)}" rx="${r.toFixed(1)}" ry="${(r / 2).toFixed(1)}" fill="${rnd() < .5 ? '#7a3e08' : '#fff2c4'}" opacity="${(0.06 + rnd() * 0.06).toFixed(2)}"/>`;
+  g += '<defs><radialGradient id="gw" cx="50%" cy="46%" r="62%"><stop offset="0" stop-color="#ffe2a0"/><stop offset=".55" stop-color="#f3bf62"/><stop offset="1" stop-color="#d9973a"/></radialGradient>'
+    + '<radialGradient id="pz" cx="50%" cy="40%" r="60%"><stop offset="0" stop-color="#fff4d0"/><stop offset="1" stop-color="#f0c878"/></radialGradient>'
+    + '<pattern id="cb" width="22" height="12" patternUnits="userSpaceOnUse"><rect width="22" height="12" fill="#d9a04a"/>' + [[5.5, 3], [16.5, 9], [-5.5, 9], [27.5, 3], [5.5, 15], [16.5, -3]].map(([cx, cy]) => `<polygon points="${[0, 60, 120, 180, 240, 300].map(a => `${(cx + Math.cos(a * Math.PI / 180) * 5.4).toFixed(1)},${(cy + Math.sin(a * Math.PI / 180) * 3.1).toFixed(1)}`).join(' ')}" fill="#f2c779" stroke="#b67a2a" stroke-width=".8"/>`).join('') + '</pattern>'
+    + '<linearGradient id="sl" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#7a4a24"/><stop offset="1" stop-color="#5a3518"/></linearGradient>'
+    + '<radialGradient id="hg" cx="40%" cy="35%" r="70%"><stop offset="0" stop-color="#ffe9a0"/><stop offset=".5" stop-color="#ffb52e"/><stop offset="1" stop-color="#c46a0c"/></radialGradient></defs>';
+  // base lisa de cera, com manchas suaves de luz e sombra
+  g += `<polygon points="${P2(HEX)}" fill="url(#gw)"/>`;
+  for (let i = 0; i < 18; i++) {
+    const X = 90 + rnd() * 820, Y = 80 + rnd() * 440, r = 60 + rnd() * 90;
+    if (!inHex(X, Y, 40)) { i--; continue; }
+    g += `<ellipse cx="${X.toFixed(1)}" cy="${Y.toFixed(1)}" rx="${r.toFixed(1)}" ry="${(r / 2).toFixed(1)}" fill="${rnd() < .5 ? '#b5701c' : '#fff6d8'}" opacity="${(0.05 + rnd() * 0.05).toFixed(2)}"/>`;
   }
-  // alvéolos cheios de mel, fechados com cera e com pólen
-  const cellAt = (j, k) => [j * 1.5 * HR, (k * HQ + (j % 2 ? HQ / 2 : 0)) * SQ];
-  for (let j = 0; j < 1000 / (1.5 * HR); j++) for (let k = 0; k < 600 / (HQ * SQ) + 1; k++) {
-    const [X, Y] = cellAt(j, k);
-    if (!inHex(X, Y, 14)) continue;
-    const [x, y] = isoInv(X, Y);
-    if (x > -0.3 && y > -0.3 && x < NG + 0.3 && y < NG + 0.3 && onPath(x, y, 0.35)) continue;
-    const r = rnd();
-    if (r < 0.08) g += `<polygon points="${hexPts(X, Y, HR - 2.6)}" fill="url(#hg)"/><ellipse cx="${(X - 3).toFixed(1)}" cy="${(Y - 2).toFixed(1)}" rx="3.4" ry="1.4" fill="#fff" opacity=".7"/>`;
-    else if (r < 0.13) g += `<polygon points="${hexPts(X, Y, HR - 2.6)}" fill="#fbe6b0" stroke="#e2b660" stroke-width="1"/><polygon points="${hexPts(X - 1, Y - 1, HR - 7)}" fill="#fff8e0" opacity=".8"/>`;
-    else if (r < 0.15) g += [[-3, 0], [2, -1], [0, 1.5]].map(([dx, dy]) => `<circle cx="${(X + dx).toFixed(1)}" cy="${(Y + dy).toFixed(1)}" r="2.2" fill="${['#ffd23f', '#ff9a3c', '#fff0a0'][Math.floor(rnd() * 3)]}" stroke="#a8641a" stroke-width=".5"/>`).join('');
-  }
-  // caminhos de pedra com meio-fio
-  PATHS.forEach(([a, b, c, d]) => {
-    const q = `${P(a, b)} ${P(c, b)} ${P(c, d)} ${P(a, d)}`;
-    g += `<polygon points="${q}" fill="#5a2f08" transform="translate(0 2)"/><polygon points="${q}" fill="url(#cb)" stroke="#7a420f" stroke-width="2.4" stroke-linejoin="round"/>`;
+  // favo gravado bem de leve só na borda
+  g += `<polygon points="${P2(hexGrow(-14))}" fill="none" stroke="#c98a2c" stroke-width="2" stroke-dasharray="10 6" opacity=".45"/>`;
+  // caminhos curvos que saem da praça
+  const ways = [[500, 150], [676, 200], [324, 200], [842, 282], [158, 282], [500, 440], [620, 300], [380, 300], [660, 380], [340, 380], [748, 310], [252, 310], [818, 390], [182, 390]];
+  const curve = ([X, Y]) => { const mx = (PX + X) / 2, my = (PY + Y) / 2, bend = (X - PX) * 0.12; return `M${PX},${PY} Q${(mx - bend * .3).toFixed(1)},${(my - Math.abs(bend)).toFixed(1)} ${X},${Y}`; };
+  ways.forEach((w, i) => { const wd = i < 6 ? 30 : 18; g += `<path d="${curve(w)}" stroke="#b67a2a" stroke-width="${wd + 6}" fill="none" stroke-linecap="round"/><path d="${curve(w)}" stroke="url(#cb)" stroke-width="${wd}" fill="none" stroke-linecap="round"/>`; });
+  // praça: anel de cera clara com borda
+  g += `<ellipse cx="${PX}" cy="${PY + 3}" rx="96" ry="50" fill="#b67a2a"/><ellipse cx="${PX}" cy="${PY}" rx="94" ry="48" fill="url(#pz)" stroke="#d99a3e" stroke-width="2"/><ellipse cx="${PX}" cy="${PY}" rx="70" ry="35" fill="none" stroke="#e8b45a" stroke-width="2" stroke-dasharray="8 6"/>`;
+  // jardim: canteiro de terra com borda de cera
+  const fx0 = FARM_X[0] - 44, fx1 = FARM_X[FARM_X.length - 1] + 44, fy0 = FARM_ROWS[0] - 26, fy1 = FARM_ROWS[1] + 24;
+  g += `<rect x="${fx0}" y="${fy0 + 5}" width="${fx1 - fx0}" height="${fy1 - fy0}" rx="26" fill="#8a4a10"/><rect x="${fx0}" y="${fy0}" width="${fx1 - fx0}" height="${fy1 - fy0}" rx="26" fill="url(#sl)" stroke="#f2b544" stroke-width="6"/>`;
+  for (let i = 0; i < 6; i++) g += `<path d="M${fx0 + 24},${fy0 + 12 + i * (fy1 - fy0 - 24) / 5} H${fx1 - 24}" stroke="#4a2a12" stroke-width="1.6" opacity=".5"/>`;
+  // poças de mel e flores do prado espalhadas
+  [[230, 210, 34], [770, 210, 30], [420, 520, 26], [600, 140, 22], [140, 330, 18], [860, 330, 18]].forEach(([X, Y, r]) => {
+    g += `<ellipse cx="${X}" cy="${Y + 2}" rx="${r + 3}" ry="${(r + 3) / 2}" fill="#b5701c" opacity=".5"/><ellipse cx="${X}" cy="${Y}" rx="${r}" ry="${r / 2}" fill="url(#hg)"/><ellipse cx="${X - r * .35}" cy="${Y - r * .15}" rx="${r * .3}" ry="${r * .1}" fill="#fff" opacity=".6"/>`;
   });
-  // lavoura: terra arada com sulcos e cerca
-  const [fa, fb, fc, fd] = FIELD;
-  g += `<polygon points="${P(fa, fb)} ${P(fc, fb)} ${P(fc, fd)} ${P(fa, fd)}" fill="#6e4524" transform="translate(0 3)"/>`;
-  g += `<polygon points="${P(fa, fb)} ${P(fc, fb)} ${P(fc, fd)} ${P(fa, fd)}" fill="url(#sl)" stroke="#4a2c14" stroke-width="2"/>`;
-  for (let k = 1; k < 6; k++) { const y = fb + (fd - fb) * k / 6; g += `<path d="M${P(fa + 0.1, y)} L${P(fc - 0.1, y)}" stroke="${k % 2 ? '#4f3018' : '#9a6a3a'}" stroke-width="2" stroke-linecap="round"/>`; }
-  for (let x = fa; x <= fc + 0.01; x += 0.5) {
-    const [X, Y] = iso(x, fd + 0.08);
-    g += `<polygon points="${hexPts(X, Y - 4, 4.2, 0.9)}" fill="#f2b544" stroke="#8a4a10" stroke-width="1"/>`;
+  const wild = S && S.meadow ? S.meadow.map(e => EL[e].c) : ['#ffffff', '#ffd23f', '#ff7ab6'];
+  for (let i = 0; i < 90; i++) {
+    const X = 60 + rnd() * 880, Y = 60 + rnd() * 470;
+    if (!inHex(X, Y, 20)) continue;
+    if (Math.hypot((X - PX) / 2, Y - PY) < 70 || (X > fx0 - 10 && X < fx1 + 10 && Y > fy0 - 10)) continue;
+    const c = wild[Math.floor(rnd() * wild.length)];
+    g += `<path d="M${X.toFixed(1)},${Y.toFixed(1)} v-6" stroke="#5a8a2a" stroke-width="1.2"/>` + [0, 72, 144, 216, 288].map(a => `<circle cx="${(X + Math.cos(a * Math.PI / 180) * 2.4).toFixed(1)}" cy="${(Y - 7 + Math.sin(a * Math.PI / 180) * 1.5).toFixed(1)}" r="1.8" fill="${c}"/>`).join('') + `<circle cx="${X.toFixed(1)}" cy="${(Y - 7).toFixed(1)}" r="1.2" fill="#fff3b0"/>`;
   }
-  g += `<path d="M${P(fa, fd + 0.08)} L${P(fc, fd + 0.08)}" stroke="#ffd27a" stroke-width="2" opacity=".7" transform="translate(0 -6)"/>`;
   // borda: cera com mel escorrendo pelo penhasco
   const drip = (A, B, n) => { let o = ''; for (let i = 0; i <= n; i++) { const t = i / n, X = A[0] + (B[0] - A[0]) * t, Y = A[1] + (B[1] - A[1]) * t, w = 4 + rnd() * 5, h = rnd() < .3 ? 12 + rnd() * 20 : 3 + rnd() * 5; o += `<path d="M${(X - w).toFixed(1)},${(Y - 1).toFixed(1)} Q${(X - w).toFixed(1)},${(Y + h * .6).toFixed(1)} ${X.toFixed(1)},${(Y + h).toFixed(1)} Q${(X + w).toFixed(1)},${(Y + h * .6).toFixed(1)} ${(X + w).toFixed(1)},${(Y - 1).toFixed(1)}Z" fill="${rnd() < .5 ? '#ffb52e' : '#f29a1c'}"/>`; } return o; };
   g += `<polyline points="${P2([HEX[0], HEX[5], HEX[4], HEX[3]])}" fill="none" stroke="#ffd77a" stroke-width="5" stroke-linejoin="round"/>`;
@@ -9661,7 +9651,7 @@ function viewMap() {
   S.farms.forEach((f, i) => objs.push({ d: FARM_LOTS[i][0] + FARM_LOTS[i][1], html: isoFarm(i) }));
   if (S.farms.length < FARM_LOTS.length) { const [x, y] = FARM_LOTS[S.farms.length]; objs.push({ d: x + y, html: isoGhost(x, y, 0.92, 'buyFarm', `+ 🪙${fmt(farmCost())}`) }); }
   Object.keys(SPOTS).forEach(k => objs.push({ d: SPOTS[k].at[0] + SPOTS[k].at[1], html: isoSpecial(k) }));
-  TREES.forEach(([x, y], n) => objs.push({ d: x + y, html: isoTree(x, y, n) }));
+  TREES.forEach(([x, y, n]) => objs.push({ d: x + y, html: isoTree(x, y, n) }));
   DECOR.forEach(([x, y, k]) => objs.push({ d: x + y - 0.5, html: isoDecor(x, y, k) }));
   objs.sort((a, b) => a.d - b.d);
   const [t, r, b, l] = diamond(NG / 2, NG / 2, NG, NG);

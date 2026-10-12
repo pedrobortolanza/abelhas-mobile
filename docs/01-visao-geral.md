@@ -45,7 +45,7 @@ Missões, eventos e conquistas correm em paralelo e alimentam o ciclo com mel, g
 
 - **Prado sorteado:** 3 tipos de abelha nascem no prado. Eles ficam liberados desde o início e produzem 25% mais mel. A flor nativa dá 50% mais néctar.
 - **Rainha:** no começo você escolhe 1 entre 3 rainhas. Cada uma tem uma vantagem e um defeito.
-- **Relíquias:** a cada 150 s o relógio para e você escolhe 1 entre 3 relíquias, que se somam até o fim.
+- **Relíquias:** a cada 300 s o relógio para e você escolhe 1 entre 3 relíquias, que se somam até o fim.
 
 Os números estão em [DESIGN-NOTAS.md](../DESIGN-NOTAS.md#cada-partida-é-única-roguelite).
 

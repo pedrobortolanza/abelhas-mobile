@@ -49,7 +49,7 @@ O jogo **pausa sozinho** quando a aba fica oculta. Botão Pausar e tecla `P` tam
 | Mercadora | mercado 20% mais barato | alimentar custa 25% mais |
 | Real | +3 de geleia real por nível | −10% de mel |
 
-- **Relíquias:** a cada **150 s** de jogo (`RELIC_EVERY`, sem batalha aberta) o relógio para e o jogador escolhe 1 entre 3 relíquias. Os efeitos multiplicam ou somam e valem até o fim da partida. As 15 relíquias: Favo Dourado (+20% de mel), Pólen Mágico (flores 25% mais rápidas), Néctar Concentrado (+30% de néctar), Ninho Quentinho (ovos 25% mais rápidos), Ferrão Afiado (+15% de ataque), Cera Resistente (+15% de vida), Mel de Lavanda (cura 6% da vida por turno), Olho Composto (+8% de crítico), Ferrão Elemental (vantagem de tipo x1,8, uma vez só), Bênção da Tropa (+25% de XP), Feromônio (cruzar 30% mais barato), Moeda de Cera (mercado 15% mais barato), Pote de Mel (90 s de produção na hora, mínimo 500), Geleia Fresca (+15 de geleia real) e Ovo da Tropa (ovo Raro ou Épico na chocadeira).
+- **Relíquias:** a cada **300 s** de jogo (`RELIC_EVERY`, sem batalha aberta) o relógio para e o jogador escolhe 1 entre 3 relíquias. Os efeitos multiplicam ou somam e valem até o fim da partida. As 15 relíquias: Favo Dourado (+20% de mel), Pólen Mágico (flores 25% mais rápidas), Néctar Concentrado (+30% de néctar), Ninho Quentinho (ovos 25% mais rápidos), Ferrão Afiado (+15% de ataque), Cera Resistente (+15% de vida), Mel de Lavanda (cura 6% da vida por turno), Olho Composto (+8% de crítico), Ferrão Elemental (vantagem de tipo x1,8, uma vez só), Bênção da Tropa (+25% de XP), Feromônio (cruzar 30% mais barato), Moeda de Cera (mercado 15% mais barato), Pote de Mel (90 s de produção na hora, mínimo 500), Geleia Fresca (+15 de geleia real) e Ovo da Tropa (ovo Raro ou Épico na chocadeira).
 - Tudo isso vive em `S.mods` (padrão em `MODS0`) e é lido por `MOD(k)`. A tela final mostra a rainha, o prado e o número de relíquias.
 
 ## Novidades da v2 (pedidos do Pedro, 12/10/2026)
@@ -70,6 +70,10 @@ O jogo **pausa sozinho** quando a aba fica oculta. Botão Pausar e tecla `P` tam
 - **Lendárias mais raras no cruzamento:** Eclipse 6%, Aurora 5%, Escorpiona 4%, Tempestade 3,5% e Vulcana 3%. Mesmo com a Rainha Sortuda, a chance de cada receita fica em no máximo 25%.
 - **Visual (Loja › Visual):** chapéus (palha, boné, coroa de flores, cartola, coroa dourada) e asas (borboleta, fada, ouro), pagos com geleia real (8 a 18). O visual não muda atributos e aparece em todo o jogo, inclusive na batalha.
 - **Correção:** a abelha inicial não aparecia como descoberta no Abelhário.
+
+## Ajustes da v2.1 (12/10/2026)
+- **Vila da colmeia:** o chão virou cera lisa, sem o desenho de alvéolos. No meio fica uma praça com a fonte de mel, de onde saem caminhos curvos. As construções ficam num arco no fundo: Arena no topo, Mercado e Chocadeira dos lados, Mural de Missões e Jardim do Amor nas pontas. São até 9 colmeias, dos dois lados e embaixo da praça. O jardim fica na frente, um canteiro de terra com borda de cera e 12 vagas em 2 fileiras. Enfeites: poças de mel, potes, colunas de cera e flores do prado.
+- **Relíquias:** agora a cada 300 s (antes, 150 s).
 
 ## Recursos
 - **Mel (🪙)**: produzido pelas abelhas dentro das colmeias; precisa ser coletado com clique.
