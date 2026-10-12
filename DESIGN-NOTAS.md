@@ -75,6 +75,19 @@ O jogo **pausa sozinho** quando a aba fica oculta. Botão Pausar e tecla `P` tam
 - **Vila da colmeia:** o chão virou cera lisa, sem o desenho de alvéolos. No meio fica uma praça com a fonte de mel, de onde saem caminhos curvos. As construções ficam num arco no fundo: Arena no topo, Mercado e Chocadeira dos lados, Mural de Missões e Jardim do Amor nas pontas. São até 9 colmeias, dos dois lados e embaixo da praça. O jardim fica na frente, um canteiro de terra com borda de cera e 12 vagas em 2 fileiras. Enfeites: poças de mel, potes, colunas de cera e flores do prado.
 - **Relíquias:** agora a cada 300 s (antes, 150 s).
 
+## Novidades da v5: Roleta do Enxame (12/10/2026)
+
+- Ovos e chocadeira saíram. Toda abelha nova vem da **Roleta do Enxame** (aba Roleta e roda no mapa).
+- Chances: Comum 62%, Rara 27%, Épica 9%, Lendária 2%. Só saem espécies cujos tipos já foram liberados; nativas do prado têm peso 1,6.
+- Preço em mel: `150 × 1,3^(nível−1)` (com o desconto da loja); 10 giros custam 9. Giro Raro+ com geleia real: 20 (ou 180 por 10), sem Comuns.
+- Garantia: Épica a cada 10 giros e Lendária a cada 50 (o contador só anda se a raridade já existe no grupo).
+- Giro grátis a cada 3 min (rainhas e a relíquia Ninho aceleram). Começa com 3 fichas; fichas vêm da Arena (Duelo, Mistério), do evento Ficha Perdida, da relíquia Bolsa de Fichas e da BetMel.
+- Espécie em destaque troca a cada 3 min e tem 50% da sua raridade.
+- Repetida: sua abelha da espécie sobe 1/2/3/4 níveis (C/R/E/L); no nível máximo vira mel. Sem vaga nas colmeias, vira mel.
+- Cruzar virou o **Giro do Amor**: sorteia na hora entre as espécies que o casal pode gerar, e os pais descansam 45 s.
+- Arena: os nós Tesouro e Treino saíram; agora todo nó é batalha: Luta, Elite, Duelo (1 inimigo forte, geleia ×3 e +1 ficha) e Mistério (tipos aleatórios, prêmio surpresa).
+- Besouros rivais agora cortam o mel pela metade por 90 s.
+
 ## Novidades da v4: partida em 3 atos (12/10/2026)
 Pedido do Pedro: deixar o jogo mais longo. O botão Jogar abre o modo `atos` (os outros modos continuam no código, fora do menu).
 

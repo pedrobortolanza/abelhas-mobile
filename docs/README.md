@@ -4,6 +4,8 @@ Jogo de navegador inspirado em Dragon City, para uma única sessão: crie, cruze
 
 **Para jogar:** abra `index.html` no navegador.
 
+> **v5:** ovos e chocadeira foram trocados pela Roleta do Enxame e a Arena só tem batalhas (ver "Novidades da v5" em `DESIGN-NOTAS.md`). Trechos sobre ovos descrevem a versão anterior.
+>
 > **v4:** o menu tem só o botão Jogar, que abre a partida em 3 atos (ver "Novidades da v4" em `DESIGN-NOTAS.md`). Estação, inimigo da partida, mutações e caminho da Arena estão descritos em `DESIGN-NOTAS.md`, seção "Novidades da v3". Trechos destes documentos sobre os modos Rápida, Longa e Infinito descrevem código que continua lá, mas não é mais acessível pelo menu.
 
 ## Índice

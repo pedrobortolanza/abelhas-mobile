@@ -302,6 +302,21 @@ body { padding-bottom: calc(76px + env(safe-area-inset-bottom, 0px)); }
 .hero h1 { font-size: clamp(2rem, 6vw, 3.2rem); line-height: 1.05; background: linear-gradient(180deg, var(--ember-2), var(--ember)); -webkit-background-clip: text; background-clip: text; color: transparent; }
 .hero p { max-width: 56ch; margin: 0; color: var(--muted); }
 .lock-note { padding: 12px 16px; border-radius: 14px; background: rgba(40, 20, 6, .75); color: #fff3d6; font-weight: 700; text-align: center; max-width: 520px; margin: 0 auto; }
+.sw-btns { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; }
+.sw-btns .disc { background: #3fbf5a; color: #fff; border-radius: 6px; padding: 0 4px; font-size: .7rem; margin-left: 4px; }
+.sw-pity { display: flex; flex-wrap: wrap; gap: 4px 14px; font-size: .82rem; }
+.sw-pity b { color: var(--gold); }
+.sw-feat { display: flex; gap: 12px; align-items: center; }
+.sw-pool { display: flex; flex-wrap: wrap; gap: 4px; }
+.sw-chip { display: inline-grid; }
+.swgrid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 8px; margin: 10px 0; }
+.swr { display: flex; flex-direction: column; align-items: center; gap: 2px; padding: 6px 4px; border-radius: 12px; background: rgba(0, 0, 0, .22); border: 2px solid rgba(255, 255, 255, .12); text-align: center; font-size: .78rem; }
+.swr.r-R { border-color: #4fb3ff; } .swr.r-E { border-color: #c77dff; box-shadow: 0 0 12px rgba(199, 125, 255, .45); } .swr.r-L { border-color: #ffd23f; box-shadow: 0 0 16px rgba(255, 210, 63, .6); }
+.swr small { opacity: .85; }
+@media (max-height: 500px) { .wheel-wrap.swwrap { flex-wrap: nowrap; gap: 12px; padding: 0; } .swwrap .wheel-box { width: 160px; flex: none; } .swwrap .wheel .wl > span { top: -62px; } .swwrap .swdesc, .swwrap .wheel-t { display: none; } .swwrap .wheel-side { max-width: none; gap: 5px; } .swwrap .sw-btns .btn { padding: 6px 9px; font-size: .78rem; } }
+@media (max-width: 700px), (max-height: 500px) { .swgrid { grid-template-columns: repeat(5, 1fr); gap: 4px; } .swr { font-size: .66rem; padding: 3px 2px; } }
+.mwheel.spin { animation: mspin .5s linear infinite; transform-box: fill-box; transform-origin: center; }
+@keyframes mspin { to { transform: rotate(360deg); } }
 .play-btn { min-width: 220px; font-size: 1.35rem !important; padding: 14px 30px !important; }
 .run-chips { display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; margin-top: 8px; }
 .run-chip { flex: 1 1 220px; max-width: 360px; text-align: left; font-size: .82rem; padding: 8px 10px; border-radius: 12px; background: rgba(255, 210, 110, .14); border: 1px solid rgba(255, 210, 110, .4); }
@@ -1698,7 +1713,7 @@ svg.gi { width: 1.2em; height: 1.2em; vertical-align: -.25em; display: inline-bl
         { palco: 'zumbido', quem: 'melina', tremor: 0.25, som: ['tremor', { intensidade: 0.5 }],
           texto: 'Ouviu esse zumbido? O enxame dela está vindo. A velha Tropa se foi, e minhas asas já não voam como antes.' },
         { palco: 'ovo', quem: 'melina',
-          texto: 'Este é o último ovo da Tropa. Choque abelhas, cruze os tipos, plante flores e faça mel.' },
+          texto: 'Esta é a velha Roleta do Enxame da Tropa. Gire para chamar abelhas, cruze os tipos, plante flores e faça mel.' },
         { palco: 'ilha', quem: 'melina', exceto: 'infinito', nao: 'atos',
           texto: 'A Vespa Rainha chega em {tempo}. Só três abelhas poderão enfrentá-la. Quem defender bem o lar entra para a Tropa do Mel.' },
         { palco: 'ilha', quem: 'melina', so: 'atos',
@@ -7904,19 +7919,33 @@ const LEAGUE_RARITY = [['C'], ['C', 'C', 'R'], ['R', 'C'], ['R', 'R', 'E'], ['E'
 const MAX_DLVL = 15;
 const MAX_PLVL = 30;
 const HAB_CAP = 3;
-const HATCH_COSTS = [300, 1500, 6000]; // custo do 2º, 3º e 4º alvéolo da chocadeira
+const HATCH_COSTS = [300, 1500, 6000]; // (antigo) alvéolos da chocadeira; a roleta substituiu os ovos
+// Roleta do Enxame: a única forma de ganhar abelhas
+const SWARM = {
+  odds: { C: 0.62, R: 0.27, E: 0.09, L: 0.02 },       // giro com mel ou ficha
+  gemOdds: { C: 0, R: 0.62, E: 0.30, L: 0.08 },       // giro de geleia real
+  gems: 20, gems10: 180,                               // preço do giro de geleia (1x e 10x)
+  pityE: 10, pityL: 50,                                // garantia: Épica a cada 10 giros, Lendária a cada 50
+  free: 180,                                           // giro grátis a cada 3 min (mais rápido com bônus de giro)
+  featEvery: 180, featCh: 0.5,                         // destaque troca a cada 3 min; metade das vezes que sair a raridade dele, vem ele
+  dupLv: { C: 1, R: 2, E: 3, L: 4 },                   // repetida: a sua abelha da espécie sobe esses níveis
+  startTickets: 3,
+};
+const SW_COL = { C: '#9aa7b4', R: '#4fb3ff', E: '#c77dff', L: '#ffd23f' };
+const spinCost = () => Math.round(150 * Math.pow(1.3, S.level - 1) * MOD('shop') / 5) * 5;
+const freeEvery = () => SWARM.free / MOD('hatch');
 // Novidades da run: estação, inimigo, mutações e caminho da Arena
 const SEASONS = {
   primavera: { n: 'Primavera', i: '🌻', el: 'planta', d: 'Néctar +25% e flores 20% mais rápidas.', mods: { food: 1.25, farm: 1.2 }, tint: ['#ff9ad0', 0.07] },
   verao:     { n: 'Verão', i: '🔥', el: 'fogo', d: 'Mel +25%, mas o néctar rende 20% menos.', mods: { gold: 1.25, food: 0.8 }, tint: ['#ff7a1a', 0.1] },
-  chuvas:    { n: 'Estação das Chuvas', i: '🌧️', el: 'agua', d: 'Chuva de Mel duas vezes mais frequente; ovos 15% mais lentos.', mods: { hatch: 0.85 }, tint: ['#3a6aa0', 0.12] },
-  inverno:   { n: 'Inverno', i: '❄️', el: 'gelo', d: 'Ovos 25% e flores 15% mais lentos; +2 de geleia real por nível.', mods: { hatch: 0.75, farm: 0.85, lvlGems: 2 }, tint: ['#cfefff', 0.2] },
+  chuvas:    { n: 'Estação das Chuvas', i: '🌧️', el: 'agua', d: 'Chuva de Mel duas vezes mais frequente; giro grátis 15% mais lento.', mods: { hatch: 0.85 }, tint: ['#3a6aa0', 0.12] },
+  inverno:   { n: 'Inverno', i: '❄️', el: 'gelo', d: 'Giro grátis 25% e flores 15% mais lentos; +2 de geleia real por nível.', mods: { hatch: 0.75, farm: 0.85, lvlGems: 2 }, tint: ['#cfefff', 0.2] },
 };
 const SEASON_BOOST = 1.2; // abelhas do tipo da estação: +20% de vida e ataque
 const RIVALS = {
   formigas:  { n: 'Formigas Ladras', u: 'Formiga Ladra', i: '🗡️', els: ['terra', 'metal'], d: 'Se vencerem, levam 30% do seu mel.' },
   vespas:    { n: 'Vespas Batedoras', u: 'Vespa Batedora', i: '🔥', els: ['fogo', 'trevas'], d: 'Se vencerem, queimam as flores de todos os canteiros.' },
-  besouros:  { n: 'Besouros Blindados', u: 'Besouro Blindado', i: '🛡️', els: ['terra', 'gelo'], hp: 1.4, d: 'Têm 40% mais vida. Se vencerem, esfriam os ovos.' },
+  besouros:  { n: 'Besouros Blindados', u: 'Besouro Blindado', i: '🛡️', els: ['terra', 'gelo'], hp: 1.4, d: 'Têm 40% mais vida. Se vencerem, esfriam as colmeias: metade do mel por 90s.' },
   mariposas: { n: 'Mariposas da Noite', u: 'Mariposa da Noite', i: '🔮', els: ['trevas', 'luz'], d: 'Se vencerem, levam metade do seu néctar.' },
 };
 const RAID_AT = [0.33, 0.66], RAID_WAIT = 60;
@@ -7931,23 +7960,22 @@ const MUTS = {
 const MUT_CHANCE = 0.35;
 const NODES = {
   luta:     { n: 'Luta', i: '⚔️', d: 'Uma luta normal da liga.', w: 40, fight: true },
-  elite:    { n: 'Elite', i: '☠️', d: 'Inimigos mais fortes. Mel x2, +5 de geleia real e uma relíquia.', w: 20, fight: true },
-  tesouro:  { n: 'Tesouro', i: '💰', d: 'Mel e geleia real na hora, sem lutar.', w: 15 },
-  treino:   { n: 'Treino', i: '⬆️', d: 'As abelhas do time sobem 1 nível.', w: 15 },
-  misterio: { n: 'Mistério', i: '💫', d: 'Pode ser um ovo, um pote de mel ou uma emboscada.', w: 10 },
+  elite:    { n: 'Elite', i: '☠️', d: 'Inimigos mais fortes. Mel x2, +5 de geleia real e uma relíquia.', w: 22, fight: true },
+  duelo:    { n: 'Duelo', i: '🗡️', d: 'Um só inimigo, bem forte. Geleia real x3 e 1 ficha da roleta.', w: 22, fight: true },
+  misterio: { n: 'Mistério', i: '💫', d: 'Luta contra tipos sorteados. Prêmio surpresa: fichas, mel ou relíquia.', w: 16, fight: true },
 };
 const wpick = obj => { const ks = Object.keys(obj), tot = ks.reduce((a, k) => a + obj[k].w, 0); let r = Math.random() * tot; for (const k of ks) { r -= obj[k].w; if (r < 0) return k; } return ks[0]; };
 const EVENTS = {
   chuva:    { n: 'Chuva de Mel',     i: '🌧️', d: 'Mel das colmeias em dobro por 30s.', dur: 30 },
   colheita: { n: 'Florada',          i: '🌻', d: 'As flores crescem 3x mais rápido por 30s.', dur: 30 },
-  ovo:      { n: 'Ovo Perdido',      i: '🥚', d: 'Um ovo raro caiu no prado! Clique nele em 10s.', dur: 10 },
+  ovo:      { n: 'Ficha Perdida',    i: '🎯', d: 'Uma ficha da roleta caiu na vila! Clique nela em 10s.', dur: 10 },
   selvagem: { n: 'Abelha Selvagem',  i: '🐲', d: 'Uma abelha selvagem desafia você na Arena. Recompensa tripla, 45s.', dur: 45 },
   mercador: { n: 'Mercador Viajante', i: '🧳', d: 'Troque mel por 10 de geleia real por 30s.', dur: 30 },
 };
 const MISSION_TPL = [
   { k: 'gold',    stat: 'goldEarned',     i: '🪙', t: x => `Produza ${fmt(x)} de mel`,       tgt: l => round5(250 * Math.pow(1.55, l - 1)) },
   { k: 'food',    stat: 'foodHarvested',  i: '🌾', t: x => `Junte ${fmt(x)} de néctar`,     tgt: l => round5(60 * Math.pow(1.45, l - 1)) },
-  { k: 'hatch',   stat: 'eggsHatched',    i: '🥚', t: x => `Choque ${x} ovo(s)`,            tgt: l => 1 + Math.floor(l / 4) },
+  { k: 'hatch',   stat: 'swarmSpins',     i: '🎯', t: x => `Gire a Roleta do Enxame ${x} vez(es)`, tgt: l => 2 + Math.floor(l / 3) },
   { k: 'win',     stat: 'battlesWon',     i: '⚔️', t: x => `Vença ${x} batalha(s)`,         tgt: l => 1 + Math.floor(l / 3) },
   { k: 'feed',    stat: 'feeds',          i: '🍖', t: x => `Alimente abelhas ${x} vezes`,   tgt: l => 3 + l },
   { k: 'breed',   stat: 'breeds',         i: '💞', t: x => `Cruze abelhas ${x} vez(es)`,    tgt: l => 1 + Math.floor(l / 4) },
@@ -7961,7 +7989,7 @@ const ACH = [
   { cat: 'Primeiros passos', id: 'buy1',   i: '🛒', n: 'Nova amiga',          d: 'Compre uma abelha no mercado.',               g: 1, c: s => s.dragonsBought >= 1 },
   { cat: 'Primeiros passos', id: 'feed1',  i: '🍖', n: 'Hora do lanche',      d: 'Alimente uma abelha.',                     g: 1, c: s => s.feeds >= 1 },
   { cat: 'Primeiros passos', id: 'breed1', i: '💞', n: 'Casamenteiro',        d: 'Cruze duas abelhas.',                     g: 2, c: s => s.breeds >= 1 },
-  { cat: 'Primeiros passos', id: 'hatch1', i: '🐣', n: 'Choca-ovos',          d: 'Choque seu primeiro ovo.',                g: 2, c: s => s.eggsHatched >= 1 },
+  { cat: 'Primeiros passos', id: 'hatch1', i: '🎯', n: 'Primeiro giro',       d: 'Gire a Roleta do Enxame.',                g: 2, c: s => s.swarmSpins >= 1 },
   { cat: 'Primeiros passos', id: 'win1',   i: '⚔️', n: 'Primeira vitória',    d: 'Vença uma batalha na Arena.',             g: 2, c: s => s.battlesWon >= 1 },
   { cat: 'Mel', id: 'gold1k',   i: '💰', n: 'Potinho',              d: 'Produza 1.000 de mel no total.',            g: 1, c: s => s.goldEarned >= 1e3 },
   { cat: 'Mel', id: 'gold10k',  i: '💰', n: 'Pote cheio',               d: 'Produza 10.000 de mel no total.',           g: 2, c: s => s.goldEarned >= 1e4 },
@@ -7988,7 +8016,7 @@ const ACH = [
   { cat: 'Evolução', id: 'lvl15',   i: '🔱', n: 'Forma máxima',          d: 'Leve uma abelha ao nível 15.',              g: 6, c: s => s.maxDragonLvl >= 15 },
   { cat: 'Evolução', id: 'feed50',  i: '🍗', n: 'Banquete de néctar',              d: 'Alimente abelhas 50 vezes.',               g: 3, c: s => s.feeds >= 50 },
   { cat: 'Evolução', id: 'breed20', i: '🧬', n: 'Genética avançada',     d: 'Cruze abelhas 20 vezes.',                  g: 5, c: s => s.breeds >= 20 },
-  { cat: 'Evolução', id: 'speed5',  i: '⏩', n: 'Apressado',             d: 'Acelere 5 ovos com geleia real.',                g: 2, c: s => s.eggsSpedUp >= 5 },
+  { cat: 'Evolução', id: 'speed5',  i: '⏫', n: 'Repetida que sobe',     d: 'Tire 5 abelhas repetidas na roleta.',            g: 2, c: s => s.swarmDups >= 5 },
   { cat: 'Jardim', id: 'food1k',  i: '🧺', n: 'Jarro de néctar',          d: 'Junte 1.000 de néctar.',                   g: 2, c: s => s.foodHarvested >= 1e3 },
   { cat: 'Jardim', id: 'food10k', i: '🚜', n: 'Prado farto',            d: 'Junte 10.000 de néctar.',                  g: 5, c: s => s.foodHarvested >= 1e4 },
   { cat: 'Jardim', id: 'harv100', i: '👩‍🌾', n: 'Jardineiro dedicado',   d: 'Colha 100 flores.',                      g: 4, c: s => s.cropsHarvested >= 100 },
@@ -8006,11 +8034,11 @@ const ACH = [
   { cat: 'Arena', id: 'flawless', i: '💯', n: 'Vitória perfeita',        d: 'Vença sem perder nenhuma abelha (liga Platina ou acima).', g: 4, c: s => s.flawless >= 1 },
   { cat: 'Arena', id: 'hit300',   i: '💥', n: 'Golpe devastador',        d: 'Cause 300 de dano em um único golpe.',     g: 4, c: s => s.bestHit >= 300 },
   { cat: 'Colmeia', id: 'hab5',     i: '🏘️', n: 'Cidade do favo',              d: 'Tenha 5 colmeias.',                        g: 3, c: () => S.habitats.length >= 5 },
-  { cat: 'Colmeia', id: 'slots4',   i: '🪺', n: 'Berçário',              d: 'Tenha 4 alvéolos na chocadeira.',           g: 4, c: () => S.hatchSlots >= 4 },
+  { cat: 'Colmeia', id: 'slots4',   i: '🎯', n: 'Roleteiro',             d: 'Gire a Roleta do Enxame 50 vezes.',         g: 4, c: s => s.swarmSpins >= 50 },
   { cat: 'Colmeia', id: 'sell',     i: '👋', n: 'Desapego',                 d: 'Venda uma abelha.',                         g: 1, c: s => s.dragonsSold >= 1 },
   { cat: 'Colmeia', id: 'miss5',    i: '📜', n: 'Prestativo',               d: 'Conclua 5 missões.',                       g: 3, c: s => s.missionsDone >= 5 },
   { cat: 'Colmeia', id: 'miss15',   i: '🎖️', n: 'Herói do favo',            d: 'Conclua 15 missões.',                      g: 8, c: s => s.missionsDone >= 15 },
-  { cat: 'Colmeia', id: 'egg3',     i: '🥚', n: 'Caçador de ovos',          d: 'Pegue 3 ovos perdidos.',                   g: 4, c: s => s.lostEggs >= 3 },
+  { cat: 'Colmeia', id: 'egg3',     i: '🎯', n: 'Caçador de fichas',     d: 'Pegue 3 fichas perdidas.',                 g: 4, c: s => s.lostEggs >= 3 },
   { cat: 'Colmeia', id: 'event5',   i: '📣', n: 'Sempre alerta',            d: 'Presencie 5 eventos.',                     g: 2, c: s => s.eventsSeen >= 5 },
   { cat: 'Jogador', id: 'plvl5',    i: '⭐', n: 'Aprendiz',               d: 'Chegue ao nível 5.',                       g: 2, c: () => S.level >= 5 },
   { cat: 'Jogador', id: 'plvl10',   i: '🌟', n: 'Apicultor',                d: 'Chegue ao nível 10.',                      g: 5, c: () => S.level >= 10 },
@@ -8031,9 +8059,9 @@ const MODS0 = { gold: 1, food: 1, farm: 1, hatch: 1, atk: 1, hp: 1, xp: 1, shop:
 // Rainhas: o jogador escolhe 1 entre 3 sorteadas no início. Cada uma tem uma vantagem (b) e um defeito (m).
 const QUEENS = [
   { k: 'ardente',   n: 'Rainha Ardente',   el: 'fogo',     b: '+30% de ataque nas batalhas',          m: 'Colmeias produzem 15% menos mel',   mods: { atk: 1.3, gold: 0.85 } },
-  { k: 'doceira',   n: 'Rainha Doceira',   el: 'luz',      b: 'Colmeias produzem 35% mais mel',      m: 'Ovos chocam 25% mais devagar',      mods: { gold: 1.35, hatch: 0.75 } },
+  { k: 'doceira',   n: 'Rainha Doceira',   el: 'luz',      b: 'Colmeias produzem 35% mais mel',      m: 'Giro grátis 25% mais lento',      mods: { gold: 1.35, hatch: 0.75 } },
   { k: 'jardineira', n: 'Rainha Jardineira', el: 'planta', b: 'Flores dão 50% mais néctar',          m: 'Abelhas custam 20% mais no mercado', mods: { food: 1.5, shop: 1.2 } },
-  { k: 'fertil',    n: 'Rainha Fértil',    el: 'agua',     b: 'Ovos chocam 40% mais rápido',         m: '15% menos vida nas batalhas',       mods: { hatch: 1.4, hp: 0.85 } },
+  { k: 'fertil',    n: 'Rainha Fértil',    el: 'agua',     b: 'Giro grátis 40% mais rápido',         m: '15% menos vida nas batalhas',       mods: { hatch: 1.4, hp: 0.85 } },
   { k: 'sortuda',   n: 'Rainha Sortuda',   el: 'eletrico', b: 'Dobro de chance de Lendária no cruzamento', m: 'Cruzar custa 50% mais',      mods: { legend: 2, breed: 1.5 } },
   { k: 'guerreira', n: 'Rainha Guerreira', el: 'terra',    b: '+25% de vida nas batalhas',           m: 'Flores dão 25% menos néctar',       mods: { hp: 1.25, food: 0.75 } },
   { k: 'sabia',     n: 'Rainha Sábia',     el: 'gelo',     b: '+40% de experiência',                 m: 'Começa com metade do mel',          mods: { xp: 1.4, startGold: 0.5 } },
@@ -8046,7 +8074,7 @@ const RELICS = [
   { k: 'favo',     n: 'Favo Dourado',        i: '🏛️', d: '+20% de mel nas colmeias.',                       mods: { gold: 1.2 } },
   { k: 'polen',    n: 'Pólen Mágico',        i: '🌻', d: 'As flores crescem 25% mais rápido.',             mods: { farm: 1.25 } },
   { k: 'nectar',   n: 'Néctar Concentrado',  i: '🍖', d: '+30% de néctar em cada colheita.',               mods: { food: 1.3 } },
-  { k: 'ninho',    n: 'Ninho Quentinho',     i: '🪺', d: 'Os ovos chocam 25% mais rápido.',                mods: { hatch: 1.25 } },
+  { k: 'ninho',    n: 'Engrenagem de Mel',   i: '⚙️', d: 'O giro grátis da roleta chega 25% mais rápido.',                mods: { hatch: 1.25 } },
   { k: 'ferrao',   n: 'Ferrão Afiado',       i: '🗡️', d: '+15% de ataque nas batalhas.',                   mods: { atk: 1.15 } },
   { k: 'cera',     n: 'Cera Resistente',     i: '🛡️', d: '+15% de vida nas batalhas.',                     mods: { hp: 1.15 } },
   { k: 'lavanda',  n: 'Mel de Lavanda',      i: '❤️', d: 'Suas abelhas recuperam 6% da vida a cada turno.', add: { heal: 0.06 } },
@@ -8057,7 +8085,7 @@ const RELICS = [
   { k: 'barganha', n: 'Moeda de Cera',       i: '🛒', d: 'Mercado 15% mais barato.',                       mods: { shop: 0.85 } },
   { k: 'pote',     n: 'Pote de Mel',         i: '🪙', d: 'Ganhe agora 90s da sua produção de mel (mínimo 500).', now: 'pote' },
   { k: 'geleia',   n: 'Geleia Fresca',       i: '💎', d: 'Ganhe agora 15 de geleia real.',                 now: 'geleia' },
-  { k: 'ovo',      n: 'Ovo da Tropa',        i: '🥚', d: 'Um ovo Raro ou Épico vai para a chocadeira, sem ocupar alvéolo.', now: 'ovo' },
+  { k: 'ovo',      n: 'Bolsa de Fichas',     i: '🎯', d: 'Ganhe 5 fichas da Roleta do Enxame.', now: 'ovo' },
 ];
 // Canteiros: cada um tem sua flor e seu nível (1 a 5). Nível dá mais néctar e cresce mais rápido.
 const FARM_MAX = 5;
@@ -8070,8 +8098,8 @@ const GARDENER = { lvl: 6, cost: 3000, every: 1.5 };
 const SPIN = { gold: 5000, gems: 25 };
 const SPIN_PRIZES = [
   { k: 'betmel', n: 'BetMel!', i: '🍀', p: 0.03, c: '#ffd23f' },
-  { k: 'epico', n: 'Ovo Épico', i: '🔮', p: 0.10, c: '#c77dff' },
-  { k: 'raro', n: 'Ovo Raro', i: '🥚', p: 0.17, c: '#4fb3ff' },
+  { k: 'epico', n: 'Abelha Épica', i: '🔮', p: 0.10, c: '#c77dff' },
+  { k: 'raro', n: '3 fichas', i: '🎯', p: 0.17, c: '#4fb3ff' },
   { k: 'mel', n: '3.000 de mel', i: '🪙', p: 0.25, c: '#f2a830' },
   { k: 'geleia', n: '12 de geleia real', i: '💎', p: 0.15, c: '#ffd9b0' },
   { k: 'nectar', n: '400 de néctar', i: '🍖', p: 0.30, c: '#ff83ba' },
@@ -8184,7 +8212,7 @@ function newStats() {
     clicks: 0, raidsWon: 0, raidsLost: 0, mutants: 0, routeNodes: 0, elites: 0, goldEarned: 0, goldSpent: 0, collects: 0, bestCollect: 0, peakGps: 0,
     foodHarvested: 0, foodSpent: 0, cropsPlanted: 0, cropsHarvested: 0,
     dragonsBought: 0, dragonsSold: 0, feeds: 0, maxDragonLvl: 1,
-    breeds: 0, eggsHatched: 0, eggsSpedUp: 0, byRarity: { C: 1, R: 0, E: 0, L: 0 }, firstLegendT: null,
+    breeds: 0, eggsHatched: 0, eggsSpedUp: 0, swarmSpins: 0, swarmDups: 0, swarmTen: 0, pityHits: 0, byRarity: { C: 1, R: 0, E: 0, L: 0 }, firstLegendT: null,
     battles: 0, battlesWon: 0, battlesLost: 0, streak: 0, bestStreak: 0, damageDealt: 0, damageTaken: 0,
     bestHit: 0, crits: 0, superEffective: 0, kos: 0, kosTaken: 0, flawless: 0, bossDefeated: 0, wildWins: 0, actsWon: 0, finalWins: 0, finalPerfect: 0, finalDmgPct: 0,
     gemsEarned: 0, gemsSpent: 0, missionsDone: 0, eventsSeen: 0, lostEggs: 0, xpTotal: 0, levelUps: 0,
@@ -8195,7 +8223,7 @@ function newState(modeKey) {
     mode: modeKey, t: 0, running: true, paused: false, ended: false,
     gold: 250, food: 30, gems: 5, xp: 0, level: 1,
     dragons: [], habitats: [{ stored: 0 }], farms: [{ crop: null, prog: 0, lvl: 1, pick: 'trigo' }, { crop: null, prog: 0, lvl: 1, pick: 'trigo' }],
-    eggs: [], hatchSlots: 1, selCrop: 'trigo', skinPick: null, gardener: false, gardenAcc: 0, spin: null, atkPick: null, jardimSel: null,
+    eggs: [], hatchSlots: 1, tickets: SWARM.startTickets, pityE: 0, pityL: 0, freeAt: SWARM.free, feat: null, featUntil: 0, wheel: null, swRes: null, selCrop: 'trigo', skinPick: null, gardener: false, gardenAcc: 0, spin: null, atkPick: null, jardimSel: null,
     league: 1, leagueFight: 0, battle: null, team: [], autoBattle: false, lastResult: null,
     missions: [], ach: {}, dex: {}, stats: newStats(),
     buffs: {}, event: null, nextEvent: 50, lostEgg: null, warned: [], finalPhase: false, finalResult: null, nextInvasion: 900, wave: 0, weakened: false,
@@ -8228,7 +8256,7 @@ function addDragon(sp, lvl = 1) {
 const capacity = () => S.habitats.length * HAB_CAP;
 const habDragons = i => S.dragons.slice(i * HAB_CAP, i * HAB_CAP + HAB_CAP);
 const habGps = i => habDragons(i).reduce((a, d) => a + gpsOf(d), 0);
-const goldMult = () => (S.buffs.chuva > S.t ? 2 : 1);
+const goldMult = () => (S.buffs.chuva > S.t ? 2 : 1) * (S.buffs.frio > S.t ? 0.5 : 1);
 const farmMult = () => (S.buffs.colheita > S.t ? 3 : 1);
 const totalGps = () => S.habitats.reduce((a, h, i) => a + habGps(i), 0) * goldMult();
 const unlockedCrop = k => S.level >= CROPS[k].lvl;
@@ -8361,9 +8389,12 @@ function givePrize(idx) {
       S.stats.betmel = (S.stats.betmel || 0) + 1;
       sfx('revelacao', { raridade: RAR_SOM.L });
       overlay(`<div class="card hero"><span class="cat">Abelha exclusiva da roleta</span>${dIcon(d.els, d.rar, 'xl', 'pop', d.id, d.skin)}<h1>BetMel!</h1><p>Lendária, produz o dobro de mel e só sai na roleta.</p><button class="btn primary" data-a="cancelEnd">Que sorte!</button></div>`);
-    } else { layEgg(BETMEL, true); toast('BetMel!', 'Sem vaga na colmeia, então ela foi para a chocadeira.', 'ach'); }
-  } else if (pz.k === 'epico' || pz.k === 'raro') {
-    layEgg(randomSpeciesOfRarity(pz.k === 'epico' ? 'E' : 'R'), true); toast(`Roleta: ${pz.n}`, 'O ovo já está na chocadeira.');
+    } else { const g = 30000; addGold(g); toast('BetMel!', `Sem vaga na colmeia: ela deixou ${fmt(g)} de mel e voou.`, 'ach'); }
+  } else if (pz.k === 'epico') {
+    const pool = swarmPool().filter(sp => sp.rar === 'E'), sp = pool.length ? pick(pool) : randomSpeciesOfRarity('E');
+    const o = grantBee(sp); showSwarm([o]);
+  } else if (pz.k === 'raro') {
+    S.tickets += 3; toast('Roleta: 3 fichas', 'Use na Roleta do Enxame.', 'ach');
   } else if (pz.k === 'mel') { addGold(3000); toast('Roleta: 3.000 de mel', 'Direto para o pote.'); }
   else if (pz.k === 'geleia') { addGems(12); toast('Roleta: 12 de geleia real', ''); }
   else { S.food += 400; S.stats.foodHarvested += 400; toast('Roleta: 400 de néctar', ''); }
@@ -8456,16 +8487,141 @@ function gemsToGold() {
   const g = 150 * S.level + Math.round(totalGps() * 30);
   addGold(g); sfx('comprar'); toast('Troca feita', `+${fmt(g)} de mel`);
 }
-function mysteryEgg() {
-  if (S.eggs.filter(e => !e.free).length >= S.hatchSlots) { toast('Chocadeira cheia', 'Espere um ovo chocar ou compre outro alvéolo.', 'bad'); return; }
-  if (!spendGems(20)) return;
-  const pool = ALL_SPECIES.filter(s => s.rar === 'E' || (s.rar === 'L' && Math.random() < 0.5));
-  layEgg(pick(pool));
-  toast('Ovo misterioso!', 'Está na chocadeira.');
-}
+function mysteryEgg() { S.tab = 'chocadeira'; }
 
 // ============================================================
-// CRUZAMENTO E CHOCADEIRA
+// ROLETA DO ENXAME (substitui ovos e chocadeira)
+// ============================================================
+// Espécies que podem sair: tipos já liberados, os híbridos deles e as lendárias cujos tipos estão liberados
+function swarmPool() {
+  const ok = e => S.level >= unlockLvl(e);
+  return ALL_SPECIES.filter(sp => sp.els.every(ok));
+}
+function swarmFeat() {
+  if (S.feat && S.t < S.featUntil && swarmPool().some(sp => sp.key === S.feat)) return ALL_SPECIES.find(sp => sp.key === S.feat);
+  const pool = swarmPool().filter(sp => sp.rar !== 'C');
+  const ls = pool.filter(sp => sp.rar === 'L');
+  const f = ls.length && Math.random() < 0.25 ? pick(ls) : pick(pool.filter(sp => sp.rar !== 'L')) || pick(pool);
+  S.feat = f ? f.key : null; S.featUntil = S.t + SWARM.featEvery;
+  return f;
+}
+function rollRarity(odds) {
+  let r = Math.random();
+  for (const k of ['L', 'E', 'R', 'C']) { if ((r -= odds[k]) <= 0) return k; }
+  return 'C';
+}
+function rollSwarm(gem) {
+  const pool = swarmPool();
+  let rar = rollRarity(gem ? SWARM.gemOdds : SWARM.odds);
+  const has = r => pool.some(sp => sp.rar === r);
+  // garantia
+  if (has('E')) S.pityE++;
+  if (has('L')) S.pityL++;
+  if (S.pityL >= SWARM.pityL && has('L')) { rar = 'L'; S.stats.pityHits++; }
+  else if (S.pityE >= SWARM.pityE && RARITY[rar].rv < 3) { rar = has('E') ? 'E' : 'R'; S.stats.pityHits++; }
+  while (!has(rar)) rar = { L: 'E', E: 'R', R: 'C', C: 'C' }[rar];
+  if (RARITY[rar].rv >= 3) S.pityE = 0;
+  if (rar === 'L') S.pityL = 0;
+  const f = swarmFeat();
+  if (f && f.rar === rar && Math.random() < SWARM.featCh) return f;
+  // nativas do prado saem um pouco mais
+  const opts = pool.filter(sp => sp.rar === rar);
+  const w = opts.map(sp => isNative(sp) ? 1.6 : 1), tot = w.reduce((a, b) => a + b, 0);
+  let r = Math.random() * tot;
+  for (let i = 0; i < opts.length; i++) { if ((r -= w[i]) <= 0) return opts[i]; }
+  return opts[opts.length - 1];
+}
+// Entrega uma abelha: nova vai para a colmeia; repetida faz a sua subir de nível; sem vaga, vira mel
+function grantBee(sp) {
+  const st = S.stats;
+  st.byRarity[sp.rar]++;
+  if (sp.rar === 'L' && st.firstLegendT === null) st.firstLegendT = S.t;
+  const have = S.dragons.filter(d => d.key === sp.key).sort((a, b) => a.lvl - b.lvl)[0];
+  if (have) {
+    st.swarmDups++;
+    if (have.lvl < MAX_DLVL) {
+      const up = Math.min(SWARM.dupLv[sp.rar], MAX_DLVL - have.lvl);
+      have.lvl += up; st.maxDragonLvl = Math.max(st.maxDragonLvl, have.lvl); addXp(4 * RARITY[sp.rar].rv);
+      return { sp, dup: true, d: have, up };
+    }
+    const g = sellValue(have) * 3; addGold(g);
+    return { sp, dup: true, d: have, gold: g };
+  }
+  if (S.dragons.length >= capacity()) { const g = 120 * RARITY[sp.rar].rv * RARITY[sp.rar].rv; addGold(g); return { sp, full: true, gold: g }; }
+  const isNew = !S.dex[sp.key];
+  const d = addDragon(sp);
+  if (Math.random() < MUT_CHANCE) { d.mut = wpick(MUTS); st.mutants++; }
+  st.eggsHatched++;
+  addXp(10 * RARITY[sp.rar].rv + (isNew ? 15 : 0));
+  return { sp, d, isNew };
+}
+// Gira a roleta: pay = gold | gems | ticket | free; n = 1 ou 10
+function spinSwarm(pay, n = 1) {
+  if (S.wheel && S.wheel.until > performance.now()) return;
+  if (pay === 'free' && S.t < S.freeAt) return;
+  if (pay === 'ticket' && S.tickets < n) { toast('Sem fichas', 'Ganhe fichas na Arena, em eventos e relíquias.', 'bad'); return; }
+  if (pay === 'gold' && !spendGold(n === 10 ? spinCost() * 9 : spinCost())) return;
+  if (pay === 'gems' && !spendGems(n === 10 ? SWARM.gems10 : SWARM.gems)) return;
+  if (pay === 'ticket') S.tickets -= n;
+  if (pay === 'free') { S.freeAt = S.t + freeEvery(); n = 1; }
+  const res = [];
+  for (let i = 0; i < n; i++) res.push(rollSwarm(pay === 'gems'));
+  S.stats.swarmSpins += n; if (n === 10) S.stats.swarmTen++;
+  S.stats.spins = (S.stats.spins || 0);
+  const best = res.reduce((a, b) => RARITY[b.rar].rv > RARITY[a.rar].rv ? b : a);
+  S.wheel = { deg: swDeg(best.rar), until: performance.now() + 3000, res, done: false, gem: pay === 'gems' };
+  sfx('evento');
+  setTimeout(() => { finishSwarm(); render(); }, 3050);
+}
+// Fatias da roda (proporcionais à chance) e o ângulo onde ela para
+const SW_ORDER = ['C', 'R', 'C', 'E', 'C', 'R', 'L', 'R'];
+function swSlices() {
+  const cnt = {}; SW_ORDER.forEach(k => { cnt[k] = (cnt[k] || 0) + 1; });
+  const p = { C: 0.5, R: 0.3, E: 0.14, L: 0.06 }; // visual: a lendária aparece maior do que a chance real para a roda ficar legível
+  let a = 0;
+  return SW_ORDER.map(k => { const w = 360 * p[k] / cnt[k]; const sl = { k, a0: a, a1: a + w }; a += w; return sl; });
+}
+function swDeg(rar) {
+  const sls = swSlices().filter(x => x.k === rar), sl = pick(sls);
+  const mid = sl.a0 + (sl.a1 - sl.a0) * (0.2 + Math.random() * 0.6);
+  const prev = S.wheel ? S.wheel.deg : 0;
+  return prev - (prev % 360) + 360 * 5 + (360 - mid);
+}
+function finishSwarm() {
+  const W = S.wheel;
+  if (!W || W.done) return;
+  W.done = true;
+  const out = W.res.map(grantBee);
+  S.swRes = out;
+  const top = out.reduce((a, b) => RARITY[b.sp.rar].rv > RARITY[a.sp.rar].rv ? b : a);
+  if (RARITY[top.sp.rar].rv >= 3 || top.isNew) sfx('revelacao', { raridade: RAR_SOM[top.sp.rar] }); else sfx('chocar');
+  if (out.length > 1 || top.isNew || RARITY[top.sp.rar].rv >= 3) showSwarm(out);
+  else toast(`Roleta: ${top.sp.name}`, swLine(top), '');
+}
+function swLine(o) {
+  if (o.full) return `Sem vaga nas colmeias: virou ${fmt(o.gold)} de mel.`;
+  if (o.dup) return o.up ? `Repetida! ${o.d.name} subiu ${o.up} nível(is), agora Nv ${o.d.lvl}.` : `Repetida no nível máximo: +${fmt(o.gold)} de mel.`;
+  return `${o.isNew ? 'Espécie nova! ' : ''}${RARITY[o.sp.rar].n}${o.d && o.d.mut ? ` · 🧬 ${MUTS[o.d.mut].n}` : ''}`;
+}
+function showSwarm(out) {
+  const one = out.length === 1, o = out[0];
+  if (one) {
+    overlay(`<div class="card hero"><span class="cat">${o.isNew ? 'Espécie nova no Abelhário' : 'Roleta do Enxame'}</span>
+      ${dIcon(o.sp.els, o.sp.rar, 'xl', 'pop', o.d ? o.d.id : S.nextId)}
+      <h1>${o.sp.name}</h1><p><span class="rar-${o.sp.rar}">${RARITY[o.sp.rar].n}</span> · ${RARITY[o.sp.rar].f} · ${elTags(o.sp.els)}</p>
+      <p class="${o.d && o.d.mut && !o.dup ? 'mut-line' : 'muted'}">${o.d && o.d.mut && !o.dup ? `🧬 Mutação: ${MUTS[o.d.mut].n} (${MUTS[o.d.mut].d})` : swLine(o)}</p>
+      <div class="row" style="justify-content:center"><button class="btn primary" data-a="cancelEnd">Continuar</button><button class="btn" data-a="swAgain">Girar de novo</button></div></div>`);
+    return;
+  }
+  const cards = out.map(x => `<div class="swr r-${x.sp.rar}">${dIcon(x.sp.els, x.sp.rar, 'm', '', x.d ? x.d.id : 7)}<b class="rar-${x.sp.rar}">${x.sp.name}</b><small>${x.isNew ? 'NOVA! ' : ''}${x.dup ? (x.up ? `+${x.up} nível` : 'virou mel') : x.full ? 'virou mel' : x.d && x.d.mut ? '🧬 ' + MUTS[x.d.mut].n : RARITY[x.sp.rar].n}</small></div>`).join('');
+  overlay(`<div class="card"><div class="hero"><span class="cat">Roleta do Enxame · 10 giros</span><h1>Seu enxame chegou!</h1></div>
+    <div class="swgrid">${cards}</div>
+    <div class="row" style="justify-content:center"><button class="btn primary" data-a="cancelEnd">Continuar</button></div></div>`);
+}
+function catchTicket(n = 1) { S.tickets += n; }
+
+// ============================================================
+// CRUZAMENTO (vira um giro especial com as espécies que os pais podem gerar)
 // ============================================================
 function breedOutcomes(a, b) {
   const pool = new Set([...a.els, ...b.els]);
@@ -8494,16 +8650,21 @@ function layEgg(sp, free = false) {
   if (!free) sfx('ovoColocado');
   S.eggs.push({ id: S.nextId++, sp, prog: 0, dur: RARITY[sp.rar].egg, free });
 }
+const BREED_REST = 45; // segundos de descanso dos pais depois de cruzar
 function breed() {
   const a = S.dragons.find(d => d.id === S.breedA), b = S.dragons.find(d => d.id === S.breedB);
   if (!a || !b) return;
+  if (S.wheel && S.wheel.until > performance.now()) return;
   if (a.lvl < 3 || b.lvl < 3) { toast('Muito jovens', 'As duas abelhas precisam de nível 3 ou mais.', 'bad'); return; }
-  if (S.eggs.filter(e => !e.free).length >= S.hatchSlots) { toast('Chocadeira cheia', 'Choque um ovo ou compre outro alvéolo no mercado.', 'bad'); return; }
+  const rest = Math.max(a.rest || 0, b.rest || 0) - S.t;
+  if (rest > 0) { toast('Descansando', `Os pais podem cruzar de novo em ${Math.ceil(rest)}s.`, 'bad'); return; }
   if (!spendGold(breedCost(a, b))) return;
   const sp = rollBreed(a, b);
-  layEgg(sp);
+  a.rest = b.rest = S.t + BREED_REST;
   S.stats.breeds++; addXp(5); sfx('cruzar');
-  toast('Um ovo foi posto!', `Raridade: ${RARITY[sp.rar].n}. Veja na chocadeira.`);
+  S.wheel = { deg: swDeg(sp.rar), until: performance.now() + 3000, res: [sp], done: false, love: true };
+  S.tab = 'chocadeira';
+  setTimeout(() => { finishSwarm(); render(); }, 3050);
 }
 function hatch(id) {
   const i = S.eggs.findIndex(e => e.id === id);
@@ -8581,7 +8742,7 @@ function raidPenalty() {
   let txt = '';
   if (S.rival === 'formigas') { const n = Math.floor(S.gold * 0.3); S.gold -= n; txt = `Levaram ${fmt(n)} de mel.`; }
   else if (S.rival === 'vespas') { let n = 0; S.farms.forEach(f => { if (f.crop) { f.crop = null; f.prog = 0; n++; } }); txt = n ? `Queimaram ${n} canteiro(s) de flores.` : 'Não acharam flores para queimar.'; }
-  else if (S.rival === 'besouros') { S.eggs.forEach(e => { e.prog = Math.max(0, e.prog - e.dur * 0.5); e.rang = false; }); txt = S.eggs.length ? 'Os ovos esfriaram e voltaram metade do caminho.' : 'Não havia ovos para esfriar.'; }
+  else if (S.rival === 'besouros') { S.buffs.frio = S.t + 90; txt = 'As colmeias esfriaram: metade do mel por 90s.'; }
   else { const n = Math.floor(S.food * 0.5); S.food -= n; txt = `Levaram ${fmt(n)} de néctar.`; }
   S.raid = null; S.stats.raidsLost++;
   toast(`${R.i} ${R.n} saquearam a colmeia`, txt, 'bad');
@@ -8591,12 +8752,7 @@ function ensureRoute() {
   if (S.route && S.route.league === S.league && S.route.fight === S.leagueFight) return S.route.choices;
   let choices;
   if (S.leagueFight >= 2) choices = ['luta', 'elite'];
-  else {
-    const set = new Set();
-    while (set.size < 3) set.add(wpick(NODES));
-    choices = [...set];
-    if (!choices.some(k => NODES[k].fight)) choices[0] = 'luta';
-  }
+  else { const set = new Set(); while (set.size < 3) set.add(wpick(NODES)); choices = [...set]; }
   S.route = { league: S.league, fight: S.leagueFight, choices };
   return choices;
 }
@@ -8612,7 +8768,7 @@ function advanceRoute(text) {
 function takeNode(k) {
   if (S.battle || S.finalPhase || S.league > LEAGUES.length || leagueLocked() || !ensureRoute().includes(k)) return;
   const L = Math.min(S.league, 8), base = 90 * Math.pow(L, 1.9);
-  if (k === 'luta' || k === 'elite') { S.battleNode = k; startBattle('arena'); return; }
+  if (NODES[k] && NODES[k].fight) { S.battleNode = k; startBattle('arena'); return; }
   if (k === 'misterio') {
     const r = Math.random();
     if (r < 0.3) { S.battleNode = 'elite'; toast('💫 Emboscada!', 'Era uma abelha de elite escondida. Lute!', 'bad'); startBattle('arena'); return; }
@@ -8665,9 +8821,11 @@ function startBattle(kind) {
     foes = raidTeam();
   } else {
     if (S.league > LEAGUES.length) return;
-    const elite = S.battleNode === 'elite';
-    foes = enemyTeam(S.league, S.leagueFight, elite ? 2 : 0);
+    const node = S.battleNode || 'luta', elite = node === 'elite';
+    foes = enemyTeam(S.league, S.leagueFight, elite ? 2 : node === 'duelo' ? 3 : 0);
     if (elite) foes.forEach(f => { f.hp = f.hpMax = Math.round(f.hpMax * 1.3); f.name += ' Elite'; });
+    if (node === 'duelo') { foes = foes.slice(0, 1); foes[0].hp = foes[0].hpMax = Math.round(foes[0].hpMax * 2.2); foes[0].atk = Math.round(foes[0].atk * 1.25); foes[0].name += ' Campeã'; }
+    if (node === 'misterio') foes = foes.map(f => { const sp = randomSpeciesOfRarity(f.rar), g = fighterFromDragon({ ...sp, lvl: f.lvl }); g.hp = g.hpMax = Math.round(g.hpMax * 1.1); return g; });
   }
   S.battle = { kind, team, foes, pi: 0, ei: 0, log: [], over: false, turn: 0, lost: 0, node: kind === 'arena' ? (S.battleNode || 'luta') : null };
   S.battleNode = null;
@@ -8812,8 +8970,16 @@ function endBattle(win) {
         r.text = `As ${R.n} fugiram! Você ganha uma relíquia ao fechar a batalha.`;
         S.raid = null; st.raidsWon++; S.bonusRelic = true;
       } else {
-        if (B.node === 'elite') { r.gold *= 2; r.gems += 5; st.elites++; S.bonusRelic = true; }
-        r.text = advanceRoute(`Luta ${S.leagueFight + 1} de 3 da liga ${LEAGUES[S.league - 1]} vencida.`) + (B.node === 'elite' ? ' Elite vencida: uma relíquia espera por você.' : '');
+        let extra = '';
+        if (B.node === 'elite') { r.gold *= 2; r.gems += 5; st.elites++; S.bonusRelic = true; extra = ' Elite vencida: uma relíquia espera por você.'; }
+        if (B.node === 'duelo') { r.gems *= 3; S.tickets += 1; extra = ' Duelo vencido: +1 ficha da roleta.'; }
+        if (B.node === 'misterio') {
+          const q = Math.random();
+          if (q < 0.45) { S.tickets += 2; extra = ' Prêmio surpresa: 2 fichas da roleta!'; }
+          else if (q < 0.8) { r.gold *= 3; extra = ' Prêmio surpresa: mel x3!'; }
+          else { S.bonusRelic = true; extra = ' Prêmio surpresa: uma relíquia!'; }
+        }
+        r.text = advanceRoute(`Luta ${S.leagueFight + 1} de 3 da liga ${LEAGUES[S.league - 1]} vencida.`) + extra;
       }
     }
     addGold(r.gold); addGems(r.gems); addXp(r.xp);
@@ -8900,6 +9066,8 @@ function catchEgg() {
   if (!S.lostEgg) return;
   S.lostEgg = null;
   S.stats.lostEggs++; sfx('ovoPego');
+  catchTicket(1); toast('Você pegou a ficha!', '+1 ficha da Roleta do Enxame.', 'ach');
+  return;
   const pool = ALL_SPECIES.filter(s => s.rar === 'R' || s.rar === 'E');
   layEgg(pick(pool), true);
   toast('Você pegou o ovo!', 'Ele foi para a chocadeira, sem ocupar espaço.', 'ach');
@@ -8989,10 +9157,8 @@ function tick() {
       if (i >= 0) { const f = S.farms[i]; if (f.crop) harvest(i, null, true); if (!f.crop) plant(i, true); S.stats.gardenerWork = (S.stats.gardenerWork || 0) + 1; }
     }
   }
-  S.eggs.forEach(e => {
-    e.prog = Math.min(e.dur, e.prog + dt * MOD('hatch'));
-    if (e.prog >= e.dur && !e.rang) { e.rang = true; sfx('ovoPronto'); }
-  });
+  if (S.t >= S.freeAt && !S.freeRang) { S.freeRang = true; sfx('ovoPronto'); }
+  if (S.t < S.freeAt) S.freeRang = false;
   S.stats.peakGps = Math.max(S.stats.peakGps, totalGps());
   if (S.t - S.history[S.history.length - 1].t >= 5) {
     S.history.push({ t: S.t, earned: S.stats.goldEarned, gps: totalGps() });
@@ -9106,7 +9272,7 @@ function chooseRelic(k) {
   applyMods(r.mods, r.add, r.set);
   if (r.now === 'pote') addGold(Math.max(500, totalGps() * 90));
   if (r.now === 'geleia') addGems(15);
-  if (r.now === 'ovo') layEgg(pick(ALL_SPECIES.filter(s => s.rar === 'R' || s.rar === 'E')), true);
+  if (r.now === 'ovo') S.tickets += 5;
   S.relicOffer = null; S.choosing = false; if (!S.relicBonus) S.nextRelic = S.t + RELIC_EVERY; S.relicBonus = false;
   overlay(''); last = performance.now();
   sfx('conquista'); toast(`${r.i} ${r.n}`, r.d, 'ach');
@@ -9354,7 +9520,7 @@ function dragonSprite(els, rar, skin) {
   sprJob(k, () => ({ canvas: M3.dragonStrip(els, rar, skin) }), true);
   return null;
 }
-const isoKeys = () => ['arena', 'cruzar', 'chocadeira', 'loja', 'missoes', 'farm', ...Object.keys(HAB_THEME).map(t => 'habitat:' + t)];
+const isoKeys = () => ['arena', 'cruzar', 'loja', 'missoes', 'farm', ...Object.keys(HAB_THEME).map(t => 'habitat:' + t)];
 function warmSprites() {
   if (sprOff) return;
   isoKeys().forEach(k => { const [n, a] = k.split(':'); sprJob('i:' + k, () => a === undefined ? M3.iso(n) : M3.iso(n, n === 'tree' ? +a : a)); });
@@ -9404,7 +9570,7 @@ const elTags = els => els.map(e => `${EL[e].i} ${EL[e].n}`).join(' · ');
 const costTag = (n, kind = 'g') => `<span class="cost ${kind}">${kind === 'g' ? '🪙' : kind === 'f' ? '🍖' : '💎'} ${fmt(n)}</span>`;
 
 const TABS = [
-  ['ilha', '🏝️', 'Ilha'], ['dragoes', '🐉', 'Abelhas'], ['cruzar', '💞', 'Cruzar'], ['chocadeira', '🥚', 'Chocadeira'], ['arena', '⚔️', 'Arena'],
+  ['ilha', '🏝️', 'Ilha'], ['dragoes', '🐉', 'Abelhas'], ['cruzar', '💞', 'Cruzar'], ['chocadeira', '🎯', 'Roleta'], ['arena', '⚔️', 'Arena'],
   ['missoes', '📜', 'Missões'], ['loja', '🛒', 'Loja'], ['conquistas', '🏆', 'Conquistas'], ['stats', '📊', 'Estatísticas'], ['jardim', '🌱', 'Jardim', 1],
 ];
 const TAB_TITLE = Object.fromEntries(TABS.map(t => [t[0], t[2]]));
@@ -9444,6 +9610,7 @@ function renderTop() {
   const buffs = [];
   if (S.buffs.chuva > S.t) buffs.push(`🌧️ Mel x2 · ${Math.ceil(S.buffs.chuva - S.t)}s`);
   if (S.buffs.colheita > S.t) buffs.push(`🌻 Flores x3 · ${Math.ceil(S.buffs.colheita - S.t)}s`);
+  if (S.buffs.frio > S.t) buffs.push(`❄️ Colmeias frias · ${Math.ceil(S.buffs.frio - S.t)}s`);
   if (S.raid) buffs.push(`${RIVALS[S.rival].i} Invasão · ${Math.max(0, Math.ceil(S.raid.until - S.t))}s`);
   if (S.event && S.event.until > S.t && ['selvagem', 'mercador'].includes(S.event.type)) buffs.push(`${EVENTS[S.event.type].i} ${EVENTS[S.event.type].n} · ${Math.ceil(S.event.until - S.t)}s`);
   return `<div class="wrap">
@@ -9460,13 +9627,13 @@ function renderTop() {
 }
 function renderTabs() {
   const claim = S.missions.filter(m => missionProg(m) >= m.target).length;
-  const readyEggs = S.eggs.filter(e => e.prog >= e.dur).length;
+  const readyEggs = (S.t >= S.freeAt ? 1 : 0) + S.tickets;
   const badges = { missoes: claim, chocadeira: readyEggs };
   return TABS.filter(t => !t[3]).map(([k, ic, n]) => `<button class="tab" aria-selected="${S.tab === k}" data-a="tab" data-k="${k}"><span class="ic">${ic}</span>${n}${badges[k] ? `<span class="badge">${badges[k]}</span>` : ''}</button>`).join('');
 }
 function renderView() {
   switch (S.tab) {
-    case 'chocadeira': return viewHatchery();
+    case 'chocadeira': return viewSwarm();
     case 'dragoes': return viewDragons();
     case 'cruzar': return viewBreed();
     case 'arena': return viewArena();
@@ -9493,6 +9660,49 @@ function eggSVG(sp, id, ready) {
     <g class="eg"><path d="M60,12 C86,12 92,56 90,68 C88,86 75,92 60,92 C45,92 32,86 30,68 C28,56 34,12 60,12Z" fill="url(#eg${id})" stroke="${ring}" stroke-width="3"/>${spots}
     <path d="M60,92 C45,92 32,86 30,68 C40,82 80,82 90,68 C88,86 75,92 60,92Z" fill="#000" opacity=".18"/><ellipse cx="48" cy="28" rx="7" ry="10" fill="#fff" opacity=".55" transform="rotate(-20 48 28)"/></g>
     ${nestFront}${bling}</svg>`;
+}
+function viewSwarm() {
+  const W = S.wheel, spinning = W && W.until > performance.now();
+  const sls = swSlices();
+  const grad = sls.map(x => `${SW_COL[x.k]} ${x.a0}deg ${x.a1}deg`).join(', ');
+  const ico = { C: '🐉', R: '🔷', E: '🔮', L: '🌟' };
+  const labels = sls.map(x => `<span class="wl" style="transform:rotate(${(x.a0 + x.a1) / 2}deg) translateY(-34%)"><span>${ico[x.k]}</span></span>`).join('');
+  const cost = spinCost(), free = S.t >= S.freeAt, f = swarmFeat();
+  const odds = ['C', 'R', 'E', 'L'].map(k => `<span><b class="rar-${k}">${RARITY[k].n}</b> <b class="num">${String(Math.round(SWARM.odds[k] * 1000) / 10).replace('.', ',')}%</b></span>`).join('');
+  const pool = swarmPool(), got = pool.filter(sp => S.dex[sp.key]).length;
+  const res = W && W.done && S.swRes ? S.swRes : null;
+  return `<div class="grid">
+    <section class="panel" style="grid-column:1/-1">
+      <div class="wheel-wrap swwrap">
+        <div class="wheel-box"><div class="wheel-pin"></div><div class="wheel" style="background:conic-gradient(${grad});transform:rotate(${W ? W.deg : 0}deg)">${labels}<div class="wheel-hub">🎯</div></div></div>
+        <div class="wheel-side">
+          <h2 class="wheel-t">${W && W.love && spinning ? 'Giro do Amor' : 'Roleta do Enxame'}</h2>
+          <p class="hint swdesc" style="margin:0">Toda abelha nova vem daqui. Repetida faz a sua abelha da espécie subir de nível.</p>
+          <div class="wprizes">${odds}</div>
+          <div class="sw-pity"><span>🔮 Épica garantida em <b class="num">${Math.max(1, SWARM.pityE - S.pityE)}</b> giro(s)</span><span>🌟 Lendária garantida em <b class="num">${Math.max(1, SWARM.pityL - S.pityL)}</b></span></div>
+          <div class="sw-btns">
+            ${free ? `<button class="btn go big pulse-go" data-a="swarm" data-k="free" ${spinning ? 'disabled' : ''}>Giro grátis!</button>` : `<span class="hint">Giro grátis em ${fmtTime(S.freeAt - S.t)}</span>`}
+            ${S.tickets ? `<button class="btn go" data-a="swarm" data-k="ticket" ${spinning ? 'disabled' : ''}>Usar ficha 🎯 ${S.tickets}</button>` : ''}
+            ${S.tickets >= 10 ? `<button class="btn go" data-a="swarm" data-k="ticket" data-n="10" ${spinning ? 'disabled' : ''}>10 fichas</button>` : ''}
+            <button class="btn primary" data-a="swarm" data-k="gold" ${spinning ? 'disabled' : ''}>Girar ${costTag(cost)}</button>
+            <button class="btn primary" data-a="swarm" data-k="gold" data-n="10" ${spinning ? 'disabled' : ''}>10 giros ${costTag(cost * 9)} <span class="disc">-10%</span></button>
+            <button class="btn gemb" data-a="swarm" data-k="gems" ${spinning ? 'disabled' : ''}>Giro Raro+ 💎 ${SWARM.gems}</button>
+            <button class="btn gemb" data-a="swarm" data-k="gems" data-n="10" ${spinning ? 'disabled' : ''}>10 Raro+ 💎 ${SWARM.gems10}</button>
+          </div>
+          <p class="wres">${spinning ? 'Girando…' : res ? res.map(o => `<span class="rar-${o.sp.rar}">${o.sp.name}</span>`).slice(0, 3).join(', ') + (res.length > 3 ? ` e mais ${res.length - 3}` : '') : '&nbsp;'}</p>
+        </div>
+      </div>
+    </section>
+    <section class="panel">
+      <div class="panel-head"><h2>Destaque</h2><span class="hint">Troca em ${fmtTime(Math.max(0, S.featUntil - S.t))}</span></div>
+      ${f ? `<div class="sw-feat">${dIcon(f.els, f.rar, 'l', S.dex[f.key] ? '' : 'unknown', 11)}<div><b class="rar-${f.rar}">${S.dex[f.key] ? f.name : '???'}</b><p class="hint" style="margin:0">${RARITY[f.rar].n}. Quando sair essa raridade, metade das vezes vem ela.</p></div></div>` : '<p class="hint">Libere mais tipos para ter destaque.</p>'}
+    </section>
+    <section class="panel">
+      <div class="panel-head"><h2>Pode sair</h2><span class="muted num">${got}/${pool.length} já descobertas</span></div>
+      <div class="sw-pool">${pool.map(sp => `<span class="sw-chip" title="${S.dex[sp.key] ? sp.name : '???'}">${dIcon(sp.els, sp.rar, 's', S.dex[sp.key] ? '' : 'unknown')}</span>`).join('')}</div>
+      <p class="hint" style="margin:0">Novos tipos liberados no nível do jogador entram na roleta. Lendárias só saem quando os tipos delas estão liberados. Cruzar abre o Giro do Amor com os filhotes possíveis do casal.</p>
+    </section>
+  </div>`;
 }
 function viewHatchery() {
   const eggs = S.eggs.map(e => {
@@ -9530,7 +9740,7 @@ const FARM_ROWS = [446, 480], FARM_X = [324, 388, 452, 548, 612, 676];
 const FARM_LOTS = FARM_ROWS.flatMap(Y => FARM_X.map(X => gridAt(X, Y)));
 const SPOTS = {
   arena: { at: gridAt(500, 128), n: 'Arena', size: 3, px: [500, 128] },
-  chocadeira: { at: gridAt(676, 178), n: 'Chocadeira', px: [676, 178] },
+  chocadeira: { at: gridAt(676, 178), n: 'Roleta do Enxame', px: [676, 178] },
   loja: { at: gridAt(324, 178), n: 'Mercado', px: [324, 178] },
   cruzar: { at: gridAt(842, 262), n: 'Jardim do Amor', px: [842, 262] },
   missoes: { at: gridAt(158, 262), n: 'Mural de Missões', px: [158, 262] },
@@ -9670,10 +9880,27 @@ function isoFarm(i) {
   }
   return out + '</g>';
 }
+function isoWheel(cx, cy, X, Y) {
+  let o = `<ellipse cx="${X}" cy="${Y + 14}" rx="74" ry="26" fill="url(#g-shadow)" opacity=".5"/>`;
+  o += slab(cx, cy, 1.9, 1.9, 9, '#f2c26a', '#a8692e', '#7a4a1e');
+  o += `<polygon points="${pts(diamond(cx, cy, 1.4, 1.4))}" fill="#ffe3a0" opacity=".55"/>`;
+  o += `<path d="M${X - 26},${Y + 2} L${X - 6},${Y - 56} M${X + 26},${Y + 2} L${X + 6},${Y - 56}" stroke="#5a3212" stroke-width="7" stroke-linecap="round"/>`;
+  const R = 38, cyw = Y - 62, cols = ['#9aa7b4', '#4fb3ff', '#9aa7b4', '#c77dff', '#9aa7b4', '#4fb3ff', '#ffd23f', '#4fb3ff'];
+  let sl = '';
+  for (let i = 0; i < 8; i++) { const a0 = i * Math.PI / 4 - Math.PI / 2, a1 = a0 + Math.PI / 4; sl += `<path d="M0,0 L${(Math.cos(a0) * R).toFixed(1)},${(Math.sin(a0) * R).toFixed(1)} A${R},${R} 0 0 1 ${(Math.cos(a1) * R).toFixed(1)},${(Math.sin(a1) * R).toFixed(1)}Z" fill="${cols[i]}" stroke="#5a3212" stroke-width="1.5"/>`; }
+  const spin = S.wheel && S.wheel.until > performance.now();
+  o += `<g transform="translate(${X},${cyw})"><circle r="${R + 6}" fill="#6b3a0c" stroke="#1b1230" stroke-width="2"/><g class="mwheel ${spin ? 'spin' : ''}">${sl}</g><circle r="${R + 2}" fill="none" stroke="#ffd98a" stroke-width="3"/>`
+    + [...Array(12)].map((_, i) => `<circle cx="${(Math.cos(i * Math.PI / 6) * (R + 3)).toFixed(1)}" cy="${(Math.sin(i * Math.PI / 6) * (R + 3)).toFixed(1)}" r="2.2" fill="#fff6d0"/>`).join('')
+    + `<circle r="9" fill="#ffd23f" stroke="#5a3212" stroke-width="2"/><path d="M-7,${-R - 12} L7,${-R - 12} L0,${-R + 2}Z" fill="#ff4d6d" stroke="#1b1230" stroke-width="1.5"/></g>`;
+  const n = (S.t >= S.freeAt ? 1 : 0) + S.tickets;
+  if (n) o += bubble(X + 44, Y - 104, '🎯', true, String(n), 'data-a="tab" data-k="chocadeira"');
+  return o;
+}
 function isoSpecial(k) {
   const sp = SPOTS[k], [cx, cy] = sp.at, size = sp.size || 2;
   const [X, Y] = iso(cx, cy);
   let out = `<g class="bld" data-a="tab" data-k="${k}" tabindex="0" role="button" aria-label="Abrir ${sp.n}">`;
+  if (k === 'chocadeira') return out + `<polygon class="lot hit" points="${pts(diamond(cx, cy, size, size))}" fill="transparent"/><rect class="hit" x="${X - 50}" y="${Y - 110}" width="100" height="110" fill="transparent"/>` + isoWheel(cx, cy, X, Y) + pill(X, Y + 40, sp.n) + '</g>';
   const img = isoImg(k, X, Y);
   if (img) {
     const r = ISO['i:' + k], big = size === 3;
@@ -9980,7 +10207,7 @@ function viewBreed() {
   if (a && b) {
     const os = breedOutcomes(a, b);
     out = `<div class="outcomes">${os.map(o => `<div class="outcome">${dIcon(o.sp.els, o.sp.rar, 's', S.dex[o.sp.key] ? '' : 'unknown')}<span>${S.dex[o.sp.key] ? o.sp.name : '???'} <span class="rar-${o.sp.rar}">${RARITY[o.sp.rar].n}</span></span><span class="pct num">${Math.round(o.p * 100)}%</span></div>`).join('')}</div>
-      <div class="row"><button class="btn go" data-a="breed">💞 Cruzar ${costTag(breedCost(a, b))}</button><span class="hint">Chocadeira: ${S.eggs.filter(e => !e.free).length}/${S.hatchSlots}</span></div>`;
+      <div class="row"><button class="btn go" data-a="breed">💞 Cruzar ${costTag(breedCost(a, b))}</button><span class="hint">Abre o Giro do Amor com essas chances. Os pais descansam ${BREED_REST}s.${Math.max(a.rest || 0, b.rest || 0) > S.t ? ` Faltam ${Math.ceil(Math.max(a.rest || 0, b.rest || 0) - S.t)}s.` : ''}</span></div>`;
   }
   const chips = S.dragons.map(d => {
     const sel = d.id === S.breedA || d.id === S.breedB;
@@ -10034,7 +10261,7 @@ function viewBattle() {
       <button class="btn danger" data-a="surrender">🏳️ Desistir</button></div>`;
   }
   return `<section class="panel fight">
-    <div class="fight-head"><h2>${B.kind === 'final' ? `Ataque de ${bossName()}` : B.kind === 'boss' ? `${bossName()} no ninho` : B.kind === 'wild' ? 'Abelha selvagem' : B.kind === 'raid' ? `${RIVALS[S.rival].i} Invasão das ${RIVALS[S.rival].n}` : `${B.node === 'elite' ? '☠️ Elite · ' : ''}Liga ${LEAGUES[S.league - 1] || 'Campeões'} · luta ${S.leagueFight + 1} de 3`}</h2><span class="turn num">Turno ${B.turn}</span></div>
+    <div class="fight-head"><h2>${B.kind === 'final' ? `Ataque de ${bossName()}` : B.kind === 'boss' ? `${bossName()} no ninho` : B.kind === 'wild' ? 'Abelha selvagem' : B.kind === 'raid' ? `${RIVALS[S.rival].i} Invasão das ${RIVALS[S.rival].n}` : `${B.node && B.node !== 'luta' ? `${NODES[B.node].i} ${NODES[B.node].n} · ` : ''}Liga ${LEAGUES[S.league - 1] || 'Campeões'} · luta ${S.leagueFight + 1} de 3`}</h2><span class="turn num">Turno ${B.turn}</span></div>
     <div class="battle">${fighterView(p, 'me', B.team, B.pi, B)}<div class="vs">VS</div>${fighterView(e, 'foe', B.foes, B.ei, B)}</div>
     ${controls}
     <div class="log">${B.log.map(l => `<div class="${l.cls}">${l.txt}</div>`).join('')}</div>
@@ -10076,7 +10303,7 @@ function viewArena() {
       <div class="row">
         ${champion
           ? `<span class="hint">${S.weakened ? 'Já ferida. Lutar de novo rende mel e geleia real.' : 'Vencer agora tira 30% da vida dela no próximo ataque.'}</span>`
-          : `<span class="hint">Luta da etapa: ${nextFoes}. A Elite tem 2 níveis e 30% de vida a mais.${S.leagueFight >= 2 ? ' A última etapa da liga é sempre uma luta.' : ''}</span>`}
+          : `<span class="hint">Luta da etapa: ${nextFoes}. Todo caminho é uma batalha; Elite, Duelo e Mistério pagam mais.${S.leagueFight >= 2 ? ' A última etapa da liga é sempre uma luta.' : ''}</span>`}
       </div>
     </section>
     <section class="panel" style="grid-column:1/-1">
@@ -10112,7 +10339,7 @@ function viewMissions() {
     </section></div>`;
 }
 function viewShop() {
-  const tab = S.shopTab || 'dragoes', deal = dealEl(), dealLeft = Math.ceil(DEAL_EVERY - S.t % DEAL_EVERY);
+  const tab = S.shopTab && S.shopTab !== 'dragoes' ? S.shopTab : 'construcoes', deal = dealEl(), dealLeft = Math.ceil(DEAL_EVERY - S.t % DEAL_EVERY);
   const merch = S.event && S.event.type === 'mercador' && S.event.until > S.t;
   const stat = (rar, lvl = 1) => { const d = { rar, lvl }; return `<span class="sstats"><span title="Mel por segundo">🪙 ${gpsOf(d).toFixed(1).replace('.', ',')}/s</span><span title="Vida">❤️ ${hpOf(d)}</span><span title="Ataque">🗡️ ${atkOf(d)}</span></span>`; };
   let body = '';
@@ -10135,14 +10362,14 @@ function viewShop() {
     body = `<div class="sgrid">
       ${card('🏛️', 'Colmeia', 'Mais 3 vagas para abelhas, e mais mel guardado.', `Você tem ${S.habitats.length}/${habMax()}${habMax() < HAB_LOTS.length ? ' (mais no próximo ato)' : ''}`, S.habitats.length < habMax() ? `<button class="btn primary" data-a="buyHab">${costTag(habitatCost())}</button>` : '<span class="slock">Ilha cheia</span>')}
       ${card('🌱', 'Canteiro de flores', 'Mais um canteiro para plantar flores e colher néctar.', `Você tem ${S.farms.length}/${farmMax()}${farmMax() < FARM_LOTS.length ? ' (mais no próximo ato)' : ''}`, S.farms.length < farmMax() ? `<button class="btn primary" data-a="buyFarm">${costTag(farmCost())}</button>` : '<span class="slock">Jardim cheio</span>')}
-      ${card('🪺', 'Ninho na chocadeira', 'Choque mais ovos ao mesmo tempo.', `Você tem ${S.hatchSlots}/4`, hc !== undefined ? `<button class="btn primary" data-a="buyHatch">${costTag(Math.round(hc * MOD('shop')))}</button>` : '<span class="slock">Máximo</span>')}
+
     </div>`;
   } else if (tab === 'tesouros') {
     const gg = 150 * S.level + Math.round(totalGps() * 30);
     const card = (ic, n, d, btn, cls = '') => `<div class="sitem gemi ${cls}"><span class="bigic">${ic}</span><b class="sname">${n}</b><span class="hint">${d}</span>${btn}</div>`;
     body = `<div class="sgrid">
       ${merch ? card('🧳', 'Mercador Viajante', `Só por mais ${Math.ceil(S.event.until - S.t)}s: troca mel por 10 de geleia real.`, `<button class="btn primary" data-a="merchant">${costTag(S.event.price)} → 💎 10</button>`, 'hot') : ''}
-      ${card('🔮', 'Ovo Misterioso', 'Garante um Épico, com chance de Lendário. Vai direto para a chocadeira.', '<button class="btn gemb" data-a="mystery">💎 20</button>', 'rare')}
+      ${card('🎯', 'Roleta do Enxame', 'As abelhas agora vêm da roleta. Giro de geleia real: só Raras ou melhores.', '<button class="btn gemb" data-a="mystery">Ir para a roleta</button>', 'rare')}
       ${Object.entries(BOOSTS).map(([k, b]) => card(b.i, b.n, b.d + (S.buffs[k] > S.t ? ` Ativo: ${Math.ceil(S.buffs[k] - S.t)}s.` : ''), `<button class="btn gemb" data-a="boost" data-k="${k}">💎 ${b.gems}</button>`)).join('')}
       ${card('💰', 'Pote de Mel', `Troque 5 de geleia real por ${fmt(gg)} de mel.`, '<button class="btn gemb" data-a="gemGold">💎 5</button>')}
     </div>`;
@@ -10150,9 +10377,9 @@ function viewShop() {
   if (tab === 'ataques') body = viewAttacks();
   if (tab === 'roleta') body = viewWheel();
   if (tab === 'visual') body = viewSkins();
-  const tabs = [['dragoes', '🐉', 'Abelhas'], ['construcoes', '🏛️', 'Construções'], ['ataques', '🗡️', 'Ataques'], ['roleta', '🍀', 'Roleta'], ['visual', '👑', 'Visual'], ['tesouros', '💎', 'Tesouros']]
+  const tabs = [['construcoes', '🏛️', 'Construções'], ['ataques', '🗡️', 'Ataques'], ['roleta', '🍀', 'Roleta'], ['visual', '👑', 'Visual'], ['tesouros', '💎', 'Tesouros']]
     .map(([k, ic, n]) => `<button class="stab" aria-pressed="${tab === k}" data-a="shopTab" data-k="${k}">${ic} ${n}${k === 'tesouros' && merch ? '<span class="badge">!</span>' : ''}</button>`).join('');
-  return `<div class="shop-top"><div class="shop-sign"><b>Mercado do Favo</b><small>Abelhas, construções e tesouros</small></div>
+  return `<div class="shop-top"><div class="shop-sign"><b>Mercado do Favo</b><small>Construções, ataques e tesouros</small></div>
     <div class="shop-wallet"><span class="cost g">🪙 ${fmt(S.gold)}</span><span class="cost m">💎 ${fmt(S.gems)}</span></div></div>
     <div class="stabs">${tabs}</div>
     <section class="panel shop-panel">${body}</section>`;
@@ -10257,8 +10484,8 @@ function statRows() {
       ['Poder total do time', fmt(S.dragons.reduce((a, d) => a + powerOf(d), 0))],
     ]],
     ['Cruzamento', [
-      ['Cruzamentos', st.breeds], ['Ovos chocados', st.eggsHatched], ['Ovos acelerados', st.eggsSpedUp],
-      ['Primeiro Lendário', st.firstLegendT === null ? '—' : fmtTime(st.firstLegendT)], ['Ovos perdidos pegos', st.lostEggs],
+      ['Cruzamentos', st.breeds], ['Giros da roleta', st.swarmSpins], ['Repetidas', st.swarmDups], ['Garantias usadas', st.pityHits],
+      ['Primeiro Lendário', st.firstLegendT === null ? '—' : fmtTime(st.firstLegendT)], ['Fichas perdidas pegas', st.lostEggs],
     ]],
     ['Arena', [
       ['Liga atual', LEAGUES[Math.min(S.league, 8) - 1] + (S.league > 8 ? ' (concluída)' : '')], ['Batalhas', st.battles], ['Vitórias', st.battlesWon], ['Derrotas', st.battlesLost],
@@ -10329,7 +10556,7 @@ setInterval(() => { if (S && S.tab === 'stats' && !S.ended) drawChart(); }, 5000
 
 function renderLostEgg() {
   const box = $('#lostEgg');
-  const want = S && S.lostEgg && !S.paused && !S.ended ? `<button class="lost-egg" data-a="egg" style="left:${S.lostEgg.x}vw;top:${S.lostEgg.y}vh" aria-label="Pegar o ovo perdido">🥚</button>` : '';
+  const want = S && S.lostEgg && !S.paused && !S.ended ? `<button class="lost-egg" data-a="egg" style="left:${S.lostEgg.x}vw;top:${S.lostEgg.y}vh" aria-label="Pegar a ficha perdida">🎯</button>` : '';
   if (box.innerHTML !== want) box.innerHTML = want;
 }
 function renderStart() {
@@ -10395,6 +10622,8 @@ const ACTIONS = {
   buy: el => buyDragon(el.dataset.k),
   feed: el => feed(+el.dataset.id), sell: el => sell(+el.dataset.id),
   hatch: el => hatch(+el.dataset.id), speed: el => speedEgg(+el.dataset.id),
+  swarm: el => spinSwarm(el.dataset.k, +(el.dataset.n || 1)),
+  swAgain: () => { overlay(''); S.tab = 'chocadeira'; spinSwarm(S.t >= S.freeAt ? 'free' : S.tickets ? 'ticket' : 'gold'); },
   pickParent: el => {
     const id = +el.dataset.id;
     if (S.breedA === id) S.breedA = null; else if (S.breedB === id) S.breedB = null;
