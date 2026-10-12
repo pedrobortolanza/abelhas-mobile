@@ -75,6 +75,12 @@ O jogo **pausa sozinho** quando a aba fica oculta. Botão Pausar e tecla `P` tam
 - **Vila da colmeia:** o chão virou cera lisa, sem o desenho de alvéolos. No meio fica uma praça com a fonte de mel, de onde saem caminhos curvos. As construções ficam num arco no fundo: Arena no topo, Mercado e Chocadeira dos lados, Mural de Missões e Jardim do Amor nas pontas. São até 9 colmeias, dos dois lados e embaixo da praça. O jardim fica na frente, um canteiro de terra com borda de cera e 12 vagas em 2 fileiras. Enfeites: poças de mel, potes, colunas de cera e flores do prado.
 - **Relíquias:** agora a cada 300 s (antes, 150 s).
 
+## Novidades da v6.3: abelhas no estilo fofinho (12/10/2026)
+- Referências do Pedro: abelhas/referencias/abelha-ref-amarela.png e abelha-ref-rosa.png.
+- Cabeça grande e redonda virada para a frente, olhos enormes escuros com brilhos e a cor do elemento embaixo (beeEye), bochechas rosadas, sorriso com linguinha e topetinho.
+- Antenas curtas e grossinhas, perninhas gordinhas, asas maiores e mais claras.
+- Sombreado de desenho em 4 tons (toonBee) e contorno escuro.
+
 ## Novidades da v6.2: ilha igual à segunda referência do Pedro (12/10/2026)
 - Referência principal: abelhas/referencias/ilha-referencia-pedro-2.png (a mesma ilha do jogo, pintada).
 - Visual de desenho: sombra em 3 tons chapados (MeshToon) e contorno escuro também nos modelos prontos.

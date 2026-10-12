@@ -7306,25 +7306,48 @@ const M3 = (() => {
     M.leg = mat(mix(STRIPE, M.c1, 0.15), { roughness: 0.6 });
     M.bwing = mat(mix(M.c2, '#ffffff', 0.7), { transparent: true, opacity: 0.62, roughness: 0.15, side: T.DoubleSide, emissive: col(M.c2).multiplyScalar(0.12), depthWrite: false });
     M.vein = mat(mix(M.c2, STRIPE, 0.35), { roughness: 0.4 });
+    M.bwing = mat(mix(mix(M.c2, '#ffffff', 0.82), '#d8f0ff', 0.4), { transparent: true, opacity: 0.72, roughness: 0.15, side: T.DoubleSide, emissive: col('#9fd8ff').multiplyScalar(0.12), depthWrite: false });
+    M.eyeD = mat('#2a150a', { roughness: 0.15 });
+    M.irisB = mat(mix(M.iris.color.getHex(), '#5a2e12', 0.55), { roughness: 0.2 });
+    M.mouth = mat('#5a1a14', { roughness: 0.5 });
+    M.tongue = mat('#ff6f8a', { roughness: 0.5 });
+    M.cheek = mat('#ff6f93', { transparent: true, opacity: 0.85, roughness: 0.6 });
+    M.antTip = mat(mix(M.c1, '#2a1a10', 0.15), { roughness: 0.5 });
     return M;
   }
-  // Cabeça redonda com olhos enormes, sorriso, bochechas e antenas
+  // Olho de desenho fofo: quase todo escuro, com dois brilhos grandes e a cor do elemento embaixo
+  function beeEye(head, p, alvo, s, M, brow = 0) {
+    const g = new T.Group(); g.position.set(...p); head.add(g);
+    g.lookAt(new T.Vector3(...alvo).add(head.position));
+    mesh(SPH, M.eyeD, g, [0, 0, 0], [0.2 * s, 0.25 * s, 0.13 * s]);
+    mesh(SPH, M.irisB, g, [0, -0.08 * s, 0.06 * s], [0.14 * s, 0.12 * s, 0.075 * s], [0, 0, 0], false);
+    mesh(SPH_LO, M.shine, g, [0.06 * s, 0.09 * s, 0.11 * s], [0.075 * s, 0.075 * s, 0.03 * s], [0, 0, 0], false);
+    mesh(SPH_LO, M.shine, g, [-0.07 * s, -0.04 * s, 0.115 * s], [0.035 * s, 0.035 * s, 0.02 * s], [0, 0, 0], false);
+    mesh(SPH_LO, M.shine, g, [0.0 * s, -0.13 * s, 0.1 * s], [0.02 * s, 0.02 * s, 0.015 * s], [0, 0, 0], false);
+    if (brow) mesh(CYL, M.dark, g, [0, 0.31 * s, 0.05 * s], [0.035 * s, 0.26 * s, 0.035 * s], [0, 0, Math.PI / 2 - 0.2 * brow], false);
+    return g;
+  }
+  // Cabeça grande e redonda (estilo chibi): olhos enormes de frente, bochechas rosadas, sorrisinho e antenas curtas
   function beeHead(M, s, o = {}) {
     const head = new T.Group();
-    mesh(SPH, M.body, head, [0, 0, 0], [0.74 * s, 0.7 * s, 0.72 * s]);
-    mesh(SPH, M.face, head, [0.4 * s, -0.16 * s, 0], [0.36 * s, 0.34 * s, 0.5 * s], [0, 0, 0], false);
-    mesh(new T.TorusGeometry(0.2 * s, 0.022 * s, 6, 16, 1.7), M.dark, head, [0.7 * s, -0.24 * s, 0], [1, 1, 1.4], [0, -0.35, -2.25], false);
-    if (o.fangs) [1, -1].forEach(z => mesh(CONE, M.claw, head, [0.72 * s, -0.44 * s, z * 0.12 * s], [0.045 * s, 0.13 * s, 0.045 * s], [Math.PI, 0, z * 0.25], false));
-    mesh(SPH_LO, M.cheek, head, [0.36 * s, -0.3 * s, 0.5 * s], [0.13 * s, 0.08 * s, 0.05 * s], [0, 0.5, 0], false);
-    cuteEye(head, [0.4 * s, 0.12 * s, 0.34 * s], [2.4, 0.4, 1.2], s * (o.eye || 1.05), M, o.brow || 0);
-    cuteEye(head, [0.4 * s, 0.12 * s, -0.34 * s], [2.4, 0.4, -1.2], s * (o.eye || 1.05), M, -(o.brow || 0));
-    // antenas que balançam, com bolinha na ponta
+    mesh(SPH, M.body, head, [0, 0, 0], [0.8 * s, 0.76 * s, 0.8 * s]);
+    // sorriso aberto com linguinha
+    const smile = new T.Group(); smile.position.set(0.74 * s, -0.24 * s, 0); smile.rotation.y = 0; head.add(smile);
+    mesh(new T.SphereGeometry(1, 16, 10, 0, Math.PI * 2, Math.PI / 2, Math.PI / 2), M.mouth, smile, [0, 0.02 * s, 0], [0.05 * s, 0.09 * s, 0.13 * s], [0, 0, 0], false);
+    mesh(SPH_LO, M.tongue, smile, [0.015 * s, -0.04 * s, 0], [0.04 * s, 0.03 * s, 0.07 * s], [0, 0, 0], false);
+    if (o.fangs) [1, -1].forEach(z => mesh(CONE, M.claw, head, [0.76 * s, -0.3 * s, z * 0.07 * s], [0.035 * s, 0.09 * s, 0.035 * s], [Math.PI, 0, z * 0.25], false));
+    [1, -1].forEach(z => mesh(SPH, M.cheek, head, [0.52 * s, -0.24 * s, z * 0.55 * s], [0.07 * s, 0.1 * s, 0.15 * s], [0, z * -0.85, 0], false));
+    beeEye(head, [0.58 * s, 0.06 * s, 0.35 * s], [3, 0.2, 1.45], s * 1.22 * (o.eye || 1.05), M, o.brow || 0);
+    beeEye(head, [0.58 * s, 0.06 * s, -0.35 * s], [3, 0.2, -1.45], s * 1.22 * (o.eye || 1.05), M, -(o.brow || 0));
+    // topetinho de pelo
+    [[0.1, 0.74, 0, 0.13], [-0.05, 0.72, 0.1, 0.1], [-0.02, 0.73, -0.1, 0.1]].forEach(([x, y, z, r]) => mesh(SPH_LO, M.body, head, [x * s, y * s, z * s], [r * s, r * 0.8 * s, r * s], [0, 0, 0], false));
+    // antenas curtas e grossinhas, com bolinha na ponta
     const ants = [1, -1].map(z => {
-      const a = new T.Group(); a.position.set(0.12 * s, 0.55 * s, z * 0.25 * s); head.add(a);
-      const len = o.ant || 1;
-      const tb = taper([[0, 0, 0], [0.08, 0.32, z * 0.06], [0.28, 0.58, z * 0.12], [0.5, 0.66, z * 0.16]].map(p => p.map(v => v * s * len)), 0.035 * s, 0.02 * s, 8, 14);
+      const a = new T.Group(); a.position.set(0.2 * s, 0.62 * s, z * 0.26 * s); head.add(a);
+      const len = 0.72 * (o.ant || 1);
+      const tb = taper([[0, 0, 0], [0.06, 0.3, z * 0.08], [0.22, 0.52, z * 0.16], [0.4, 0.58, z * 0.2]].map(p => p.map(v => v * s * len)), 0.045 * s, 0.03 * s, 8, 14);
       mesh(tb.geo, M.stripe, a, [0, 0, 0], [1, 1, 1], [0, 0, 0], false);
-      mesh(SPH_LO, M.tier === 3 ? M.gold : M.has('luz') ? mat('#ffe680', { emissive: col('#ffc800'), emissiveIntensity: 0.8 }) : M.body, a, [0.5 * s * len, 0.66 * s * len, z * 0.16 * s * len], [0.09 * s, 0.09 * s, 0.09 * s]);
+      mesh(SPH_LO, M.tier === 3 ? M.gold : M.has('luz') ? mat('#ffe680', { emissive: col('#ffc800'), emissiveIntensity: 0.8 }) : M.antTip, a, [0.4 * s * len, 0.58 * s * len, z * 0.2 * s * len], [0.12 * s, 0.12 * s, 0.12 * s]);
       return a;
     });
     head.userData.s = s;
@@ -7346,14 +7369,14 @@ const M3 = (() => {
     };
     return [mk(1), mk(-1)];
   }
-  // Três pares de perninhas finas sob o tórax
+  // Perninhas curtas e gordinhas sob o tórax
   function beeLegs(parent, M, x, y, s) {
     const legs = [];
-    [-0.28, 0, 0.28].forEach((dx, k) => [1, -1].forEach(z => {
-      const g = new T.Group(); g.position.set(x + dx * s, y, z * 0.3 * s); parent.add(g);
-      const l = taper([[0, 0, 0], [0.05 * s, -0.25 * s, z * 0.15 * s], [(0.18 - k * 0.12) * s, -0.5 * s, z * 0.2 * s]], 0.05 * s, 0.03 * s, 6, 10);
+    [-0.22, 0.04, 0.3].forEach((dx, k) => [1, -1].forEach(z => {
+      const g = new T.Group(); g.position.set(x + dx * s, y + 0.12 * s, z * 0.26 * s); parent.add(g);
+      const l = taper([[0, 0, 0], [0.04 * s, -0.16 * s, z * 0.08 * s], [(0.1 - k * 0.04) * s, -0.3 * s, z * 0.12 * s]], 0.07 * s, 0.055 * s, 8, 8);
       mesh(l.geo, M.leg, g, [0, 0, 0], [1, 1, 1], [0, 0, 0], false);
-      mesh(SPH_LO, M.leg, g, [(0.18 - k * 0.12) * s, -0.5 * s, z * 0.2 * s], [0.06 * s, 0.045 * s, 0.06 * s], [0, 0, 0], false);
+      mesh(SPH_LO, M.leg, g, [(0.12 - k * 0.04) * s, -0.32 * s, z * 0.12 * s], [0.085 * s, 0.06 * s, 0.085 * s], [0, 0, 0], false);
       legs.push(g);
     }));
     return legs;
@@ -7382,8 +7405,8 @@ const M3 = (() => {
     beeAbdomen(body, M, parts, [-0.32, 1.72, 0], 1.45, 0.66, 5);
     parts.legs = beeLegs(body, M, 0.05, 1.32, 0.95);
     backBits(body, M, [[-0.05, 2.32, 0.15]]);
-    const { head, ants } = beeHead(M, 1.12, { eye: 1.12 }); head.position.set(0.8, 2.0, 0); root.add(head); parts.head = head; parts.ants = ants;
-    [parts.wingN, parts.wingF] = beeWings(root, M, [-0.05, 2.15, 0.28], 0.95);
+    const { head, ants } = beeHead(M, 1.42, { eye: 1.2 }); head.position.set(0.7, 2.08, 0); root.add(head); parts.head = head; parts.ants = ants;
+    [parts.wingN, parts.wingF] = beeWings(root, M, [-0.15, 2.45, 0.32], 1.25);
     parts.halo = haloOn(root, M, [0.8, 3.0, 0]);
     return { root, parts, kind: 'operaria' };
   }
@@ -7400,8 +7423,8 @@ const M3 = (() => {
     mesh(new T.CylinderGeometry(0.38, 0.38, 0.08, 6), M.tier === 3 ? M.gold : mat(mix(M.c2, '#ffcc66', 0.5), { roughness: 0.4 }), sh, [0, 0, 0], [1, 1, 1], [Math.PI / 2, 0, Math.PI / 6]);
     mesh(new T.CylinderGeometry(0.2, 0.2, 0.1, 6), mat(mix(M.c2, '#fff4dc', 0.4), { roughness: 0.4 }), sh, [0, 0, 0.03], [1, 1, 1], [Math.PI / 2, 0, Math.PI / 6], false);
     backBits(body, M, [[-0.05, 2.5, 0.2], [-0.3, 2.4, -0.2]]);
-    const { head, ants } = beeHead(M, 1.0, { eye: 1.05, ant: 0.9 }); head.position.set(0.95, 2.15, 0); root.add(head); parts.head = head; parts.ants = ants;
-    [parts.wingN, parts.wingF] = beeWings(root, M, [-0.1, 2.35, 0.34], 1.0);
+    const { head, ants } = beeHead(M, 1.3, { eye: 1.15, ant: 0.9 }); head.position.set(0.88, 2.2, 0); root.add(head); parts.head = head; parts.ants = ants;
+    [parts.wingN, parts.wingF] = beeWings(root, M, [-0.2, 2.6, 0.36], 1.3);
     parts.halo = haloOn(root, M, [0.95, 3.1, 0]);
     return { root, parts, kind: 'guardia' };
   }
@@ -7422,11 +7445,11 @@ const M3 = (() => {
       return a;
     });
     backBits(body, M, [[0.1, 2.48, 0.15]]);
-    const { head, ants } = beeHead(M, 0.95, { eye: 0.95, fangs: true, brow: 1.2, ant: 1.15 }); head.position.set(0.95, 2.3, 0); root.add(head); parts.head = head; parts.ants = ants;
+    const { head, ants } = beeHead(M, 1.22, { eye: 1.05, fangs: true, brow: 1.0, ant: 1.1 }); head.position.set(0.88, 2.36, 0); root.add(head); parts.head = head; parts.ants = ants;
     // elmo com crista
     mesh(new T.SphereGeometry(1, 24, 12, 0, Math.PI * 2, 0, Math.PI / 2.2), M.tier === 3 ? M.gold : mat(mix(M.c2, '#c9d2e0', 0.5), { metalness: 0.35, roughness: 0.3 }), head, [-0.05, 0.08, 0], [0.74, 0.72, 0.76], [0, 0, 0.35]);
     for (let i = 0; i < 4; i++) mesh(CONE, M.wing, head, [(-0.1 - i * 0.16) * 0.95, (0.8 - i * 0.12) * 0.95, 0], [0.08, 0.3, 0.05], [0, 0, 0.7 + i * 0.25]);
-    [parts.wingN, parts.wingF] = beeWings(root, M, [0.05, 2.35, 0.24], 1.15);
+    [parts.wingN, parts.wingF] = beeWings(root, M, [-0.05, 2.65, 0.3], 1.35);
     parts.halo = haloOn(root, M, [0.95, 3.3, 0]);
     return { root, parts, kind: 'guerreira' };
   }
@@ -7441,9 +7464,9 @@ const M3 = (() => {
     [0.6, 1.25].forEach(x => mesh(new T.TorusGeometry(0.66, 0.035, 6, 30), M.gold, parts.abd, [-x, 0, 0], [1, 1, 1], [0, Math.PI / 2, 0], false));
     parts.legs = beeLegs(body, M, 0.12, 1.45, 1.0);
     backBits(body, M, [[0.0, 2.62, 0.2], [-0.25, 2.5, -0.2], [0.2, 2.55, -0.05]]);
-    const { head, ants } = beeHead(M, 1.05, { eye: 1.0, ant: 1.2 }); head.position.set(1.0, 2.35, 0); root.add(head); parts.head = head; parts.ants = ants;
-    parts.crown = crownOn(head, M, [0.0, 0.66, 0], 0.95);
-    [parts.wingN, parts.wingF] = beeWings(root, M, [0.0, 2.5, 0.32], 1.6);
+    const { head, ants } = beeHead(M, 1.32, { eye: 1.12, ant: 1.15 }); head.position.set(0.92, 2.42, 0); root.add(head); parts.head = head; parts.ants = ants;
+    parts.crown = crownOn(head, M, [0.0, 0.86, 0], 1.05);
+    [parts.wingN, parts.wingF] = beeWings(root, M, [-0.1, 2.75, 0.36], 1.75);
     parts.halo = haloOn(root, M, [1.0, 3.55, 0]);
     return { root, parts, kind: 'soberana' };
   }
@@ -7461,13 +7484,13 @@ const M3 = (() => {
     mesh(SPH, M.stripe, body, [-0.38, 1.9, 0], [0.2, 0.17, 0.17], [0, 0, 0], false);
     beeAbdomen(body, M, parts, [-0.5, 1.85, 0], 2.4, 0.7, 8, { c1: '#ff8a1f', c2: '#1b1230', taper: 0.6, sting: 1.9, tilt: 0.42, stingMat: mat('#1b1230'), noTip: true });
     parts.legs = beeLegs(body, M, 0.15, 1.55, 1.0);
-    const { head, ants } = beeHead(M, 1.05, { eye: 0.95, fangs: true, brow: 2.2, ant: 1.3 }); head.position.set(1.05, 2.35, 0); root.add(head); parts.head = head; parts.ants = ants;
-    const crown = new T.Group(); crown.position.set(-0.05, 0.62, 0); head.add(crown);
+    const { head, ants } = beeHead(M, 1.3, { eye: 1.02, fangs: true, brow: 2.0, ant: 1.25 }); head.position.set(0.95, 2.42, 0); root.add(head); parts.head = head; parts.ants = ants;
+    const crown = new T.Group(); crown.position.set(-0.05, 0.84, 0); head.add(crown);
     const cm = mat('#7a2a8a', { metalness: 0.3, roughness: 0.3, emissive: col('#3a0040') });
     mesh(CYL, cm, crown, [0, 0, 0], [0.3, 0.1, 0.3]);
     for (let i = 0; i < 6; i++) { const a = i / 6 * Math.PI * 2; mesh(CONE, cm, crown, [Math.cos(a) * 0.26, 0.2, Math.sin(a) * 0.26], [0.07, 0.34, 0.07], [Math.sin(a) * 0.3, 0, -Math.cos(a) * 0.3]); }
     mesh(OCTA, mat('#ff3b3b', { emissive: col('#a00000') }), crown, [0.3, 0.02, 0], [0.08, 0.1, 0.08], [0, 0, 0], false);
-    [parts.wingN, parts.wingF] = beeWings(root, M, [0.05, 2.45, 0.26], 1.55);
+    [parts.wingN, parts.wingF] = beeWings(root, M, [-0.05, 2.7, 0.3], 1.65);
     const b = { root, parts, kind: 'vespa', M };
     return b;
   }
@@ -7479,9 +7502,9 @@ const M3 = (() => {
     const M = bMats(['eletrico', 'luz'], 'L');
     M.body = mat('#ffc928', { metalness: 0.35, roughness: 0.3, emissive: col('#5a3a00'), emissiveIntensity: 0.25 });
     const b = buildSoberana(M); b.M = M;
-    const h = b.parts.head, s = 1.05, dark = mat('#14101c', { roughness: 0.2, metalness: 0.4 });
-    [1, -1].forEach(z => mesh(SPH, dark, h, [0.62 * s, 0.14 * s, z * 0.3 * s], [0.12 * s, 0.17 * s, 0.22 * s], [0, z * 0.5, 0]));
-    mesh(BOX, dark, h, [0.7 * s, 0.2 * s, 0], [0.05 * s, 0.05 * s, 0.24 * s], [0, 0, 0], false);
+    const h = b.parts.head, s = 1.32, dark = mat('#14101c', { roughness: 0.2, metalness: 0.4 });
+    [1, -1].forEach(z => mesh(SPH, dark, h, [0.66 * s, 0.1 * s, z * 0.3 * s], [0.1 * s, 0.17 * s, 0.2 * s], [0, z * 0.5, 0]));
+    mesh(BOX, dark, h, [0.76 * s, 0.14 * s, 0], [0.05 * s, 0.05 * s, 0.22 * s], [0, 0, 0], false);
     mesh(CYL, M.gold, h, [0.0, 1.15 * s, 0], [0.26 * s, 0.05 * s, 0.26 * s], [Math.PI / 2, 0, 0]);
     return b;
   }
@@ -7507,7 +7530,7 @@ const M3 = (() => {
     if (P.legs) P.legs.forEach((l, i) => { l.rotation.z = 0.12 * Math.sin(t * Math.PI * 2 + i * 0.8); });
     if (P.arms) P.arms.forEach((a, i) => a.rotation.set(0, 0, 0.08 * Math.sin(t * Math.PI * 2 + i)));
     if (P.shield) P.shield.rotation.z = 0.06 * s;
-    if (P.halo) P.halo.position.y = P.head.position.y + 1.0 + 0.05 * s;
+    if (P.halo) P.halo.position.y = P.head.position.y + 1.3 + 0.05 * s;
     if (P.flame) P.flame.scale.setScalar(1 + 0.12 * Math.sin(t * Math.PI * 8));
   }
   // Câmera fixa para todas as abelhas (mesma escala em todo o jogo)
@@ -7555,20 +7578,34 @@ const M3 = (() => {
       }
     }
   }
+  // sombreado de desenho (4 tons suaves) para as abelhas
+  const beeRamp = new T.DataTexture(new Uint8Array([100, 155, 210, 255]), 4, 1, T.RedFormat);
+  beeRamp.minFilter = beeRamp.magFilter = T.NearestFilter; beeRamp.needsUpdate = true;
+  const beeToon = new Map();
+  function toonBee(root) {
+    root.traverse(n => {
+      if (!n.isMesh || !n.material || n.material.type !== 'MeshStandardMaterial') return;
+      const m = n.material;
+      if (!beeToon.has(m)) beeToon.set(m, new T.MeshToonMaterial({ color: m.color.clone(), map: m.map || null, gradientMap: beeRamp, emissive: m.emissive ? m.emissive.clone() : 0, emissiveIntensity: m.emissiveIntensity,
+        transparent: m.transparent, opacity: m.opacity, side: m.side, vertexColors: m.vertexColors, depthWrite: m.depthWrite }));
+      n.material = beeToon.get(m);
+    });
+  }
   function dragonStrip(els, rar, skin) {
     OUT = 0.045;
     const d = buildBee(els, rar);
     dressBee(d, skin);
-    const sc = { operaria: 1.3, guardia: 1.15, guerreira: 1.1, soberana: 1.0, vespa: 1.0 }[d.kind];
+    const sc = { operaria: 1.22, guardia: 1.1, guerreira: 1.05, soberana: 0.96, vespa: 0.98 }[d.kind];
     d.root.scale.setScalar(sc);
-    const holder = new T.Group(); holder.add(d.root); holder.rotation.y = -0.72;
+    const holder = new T.Group(); holder.add(d.root); holder.rotation.y = -0.62;
+    toonBee(holder);
     dScene.add(holder);
     R.setPixelRatio(1); R.setSize(FW, FH, false);
     sctx.clearRect(0, 0, stripCanvas.width, FH);
     for (let i = 0; i < NF; i++) {
       poseBee(d, i / NF);
       d.root.position.x = 0.45;
-      d.root.position.y += -0.55;
+      d.root.position.y += -0.85;
       R.render(dScene, dcam);
       sctx.drawImage(R.domElement, i * FW, 0);
     }
