@@ -8620,7 +8620,7 @@ const RARITY = {
   C: { n: 'Comum',    f: 'Operária',  rv: 1, gps: 1,   hp: 100, atk: 20, egg: 8 },
   R: { n: 'Rara',     f: 'Guardiã',   rv: 2, gps: 2.5, hp: 125, atk: 25, egg: 15 },
   E: { n: 'Épica',    f: 'Guerreira', rv: 3, gps: 6,   hp: 160, atk: 33, egg: 25 },
-  L: { n: 'Lendária', f: 'Soberana',  rv: 5, gps: 15,  hp: 230, atk: 46, egg: 40 },
+  L: { n: 'Lendária', f: 'Soberana',  rv: 5, gps: 12,  hp: 195, atk: 39, egg: 40 },
 };
 const LEGENDS = [
   { k: 'eclipse',    n: 'Eclipse',     els: ['luz', 'trevas'],     ch: 0.06 },
@@ -8646,8 +8646,8 @@ const MODES = {
 // Partida em atos: cada ato termina com um chefe; vencer leva ao próximo ato com tudo o que foi construído
 const ACTS = [
   { n: 'Ato I', boss: 'General Vespa', disp: ['fogo', 'metal'], dur: 720, hp: 1300, atk: 50, reward: { gold: 4000, gems: 20, xp: 300 }, pts: 4000, hab: 4, farm: 6, lg: 3 },
-  { n: 'Ato II', boss: 'Vespa Rainha', disp: ['trevas', 'fogo'], dur: 720, hp: 2800, atk: 76, reward: { gold: 12000, gems: 30, xp: 600 }, pts: 8000, hab: 7, farm: 9, lg: 6 },
-  { n: 'Ato III', boss: 'Imperatriz do Ninho', disp: ['trevas', 'luz'], dur: 720, hp: 4400, atk: 98, pts: 12000, hab: 9, farm: 12, lg: 8 },
+  { n: 'Ato II', boss: 'Vespa Rainha', disp: ['trevas', 'fogo'], dur: 720, hp: 3300, atk: 84, reward: { gold: 12000, gems: 30, xp: 600 }, pts: 8000, hab: 7, farm: 9, lg: 6 },
+  { n: 'Ato III', boss: 'Imperatriz do Ninho', disp: ['trevas', 'luz'], dur: 720, hp: 5200, atk: 102, pts: 12000, hab: 9, farm: 12, lg: 8 },
 ];
 const actEndAt = i => ACTS.slice(0, i + 1).reduce((a, x) => a + x.dur, 0);
 const isActs = () => !!(S && S.mode === 'atos');
@@ -8809,7 +8809,8 @@ const QUEENS = [
   { k: 'mercadora', n: 'Rainha Mercadora', el: 'metal',    b: 'Mercado 20% mais barato',             m: 'Alimentar custa 25% mais néctar',   mods: { shop: 0.8, feed: 1.25 } },
   { k: 'real',      n: 'Rainha Real',      el: 'trevas',   b: '+3 de geleia real a cada nível',      m: 'Colmeias produzem 10% menos mel',   mods: { lvlGems: 3, gold: 0.9 } },
 ];
-// Relíquias: a cada RELIC_EVERY segundos o jogador escolhe 1 entre 3. Os efeitos se somam.
+// Relíquias: a cada RELIC_EVERY segundos o jogador escolhe 1 entre 3. Cada uma só pode ser pega uma vez,
+// e as batalhas dão no máximo uma relíquia extra por ato.
 const RELIC_EVERY = 300;
 const RELICS = [
   { k: 'favo',     n: 'Favo Dourado',        i: '🏛️', d: '+20% de mel nas colmeias.',                       mods: { gold: 1.2 } },
@@ -9555,7 +9556,7 @@ function enemyTeam(league, fight, bonus = 0) {
   for (let k = 0; k < n; k++) {
     const sp = randomSpeciesOfRarity(pick(LEAGUE_RARITY[league - 1]));
     const f = fighterFromDragon({ ...sp, lvl });
-    f.hp = f.hpMax = Math.round(f.hpMax * 0.95); f.atk = Math.round(f.atk * 0.95);
+    const k2 = foeK(); f.hp = f.hpMax = Math.round(f.hpMax * 0.95 * k2); f.atk = Math.round(f.atk * 0.95 * k2);
     team.push(f);
   }
   return team;
@@ -9568,7 +9569,7 @@ function raidTeam() {
   return Array.from({ length: n === 1 ? 2 : 3 }, (_, k) => {
     const sp = speciesFromEls(k === 2 ? R.els : pick(pool));
     const f = fighterFromDragon({ ...sp, lvl });
-    f.name = R.u; f.hp = f.hpMax = Math.round(f.hpMax * (R.hp || 1)); f.atk = Math.round(f.atk * 0.95);
+    f.name = R.u; f.hp = f.hpMax = Math.round(f.hpMax * (R.hp || 1) * foeK()); f.atk = Math.round(f.atk * 0.95 * foeK());
     return f;
   });
 }
@@ -9785,6 +9786,18 @@ function playerMove(kind) {
     B.pi = next; logB(`Você envia ${B.team[next].name}.`);
   }
 }
+// No máximo uma relíquia extra vinda de batalha em cada ato
+function battleRelic() {
+  const a = S.act || 0;
+  if (S.relicAct === a) return false;
+  S.relicAct = a; S.bonusRelic = true; return true;
+}
+// Inimigos ficam mais fortes a cada ato e com cada relíquia de combate que o jogador tem
+const ACT_FOE = [1, 1.2, 1.12];
+function foeK() {
+  const combat = S.relics.filter(k => ['ferrao', 'cera', 'lavanda', 'mira', 'elemental'].includes(k)).length;
+  return (isActs() ? ACT_FOE[Math.min(S.act || 0, 2)] : 1) * (1 + 0.08 * combat);
+}
 function surrender() { if (S.battle && !S.battle.over) { logB('Você desistiu.'); endBattle(false); } }
 function endBattle(win) {
   const B = S.battle;
@@ -9818,16 +9831,16 @@ function endBattle(win) {
         const R = RIVALS[S.rival];
         r.gold = Math.round(Math.max(totalGps() * 60, 400) + r.gold); r.gems = 5 + 3 * S.raid.n; r.xp *= 2;
         r.text = `As ${R.n} fugiram! Você ganha uma relíquia ao fechar a batalha.`;
-        S.raid = null; st.raidsWon++; S.bonusRelic = true;
+        S.raid = null; st.raidsWon++; if (!battleRelic()) r.text = `As ${R.n} fugiram! A relíquia deste ato já foi pega: +10 de geleia real.`, r.gems += 10;
       } else {
         let extra = '';
-        if (B.node === 'elite') { r.gold *= 2; r.gems += 5; st.elites++; S.bonusRelic = true; extra = ' Elite vencida: uma relíquia espera por você.'; }
+        if (B.node === 'elite') { r.gold *= 2; r.gems += 5; st.elites++; if (battleRelic()) extra = ' Elite vencida: uma relíquia espera por você.'; else { r.gems += 10; extra = ' Elite vencida: +10 de geleia real (a relíquia deste ato já foi pega).'; } }
         if (B.node === 'duelo') { r.gems *= 3; S.tickets += 1; extra = ' Duelo vencido: +1 ficha da roleta.'; }
         if (B.node === 'misterio') {
           const q = Math.random();
           if (q < 0.45) { S.tickets += 2; extra = ' Prêmio surpresa: 2 fichas da roleta!'; }
           else if (q < 0.8) { r.gold *= 3; extra = ' Prêmio surpresa: mel x3!'; }
-          else { S.bonusRelic = true; extra = ' Prêmio surpresa: uma relíquia!'; }
+          else if (battleRelic()) extra = ' Prêmio surpresa: uma relíquia!'; else { S.tickets += 2; extra = ' Prêmio surpresa: 2 fichas da roleta!'; }
         }
         r.text = advanceRoute(`Luta ${S.leagueFight + 1} de 3 da liga ${LEAGUES[S.league - 1]} vencida.`) + extra;
       }
@@ -10102,7 +10115,7 @@ function applyMods(mods, add, set) {
 }
 // Relíquias: a cada RELIC_EVERY segundos, o relógio para e o jogador escolhe 1 entre 3
 function offerRelics() {
-  const pool = RELICS.filter(r => !(r.once && S.relics.includes(r.k)));
+  const pool = RELICS.filter(r => r.now || !S.relics.includes(r.k));
   S.relicBonus = S.bonusRelic && S.t < S.nextRelic; S.bonusRelic = false;
   S.relicOffer = pool.sort(() => Math.random() - 0.5).slice(0, 3).map(r => r.k);
   S.choosing = true;
@@ -10113,7 +10126,7 @@ function renderRelics() {
   const rs = S.relicOffer.map(k => RELICS.find(r => r.k === k));
   overlay(`<div class="card pick">
     <div class="hero"><span class="cat">Relíquia da Tropa · ${S.relics.length + 1}ª</span><h1>Escolha uma relíquia</h1>
-      <p>O relógio está parado. O efeito vale até o fim da partida e se soma às outras relíquias.</p></div>
+      <p>O relógio está parado. O efeito vale até o fim da partida. Cada relíquia só pode ser pega uma vez.</p></div>
     <div class="choices">${rs.map(r => `<button class="choice relic" data-a="relic" data-k="${r.k}"><span class="ric">${r.i}</span><b>${r.n}</b><span class="pro">${r.d}</span>${S.relics.includes(r.k) ? '<span class="muted">Você já tem: soma de novo</span>' : ''}</button>`).join('')}</div>
   </div>`);
 }
