@@ -8891,7 +8891,10 @@ const leagueLocked = () => isActs() && S.league <= LEAGUES.length && S.league > 
 const bossName = () => isActs() ? curAct().boss : 'Vespa Rainha';
 const LEAGUES = ['Bronze', 'Prata', 'Ouro', 'Platina', 'Diamante', 'Mestre', 'Grão-Mestre', 'Campeões'];
 const LEAGUE_RARITY = [['C'], ['C', 'C', 'R'], ['R', 'C'], ['R', 'R', 'E'], ['E', 'R'], ['E', 'E', 'R'], ['E', 'L', 'E'], ['L', 'E']];
-const MAX_DLVL = 15;
+const MAX_DLVL = 25;
+// Nível 25 vale o antigo 15: cada nível cresce 14/24 do que crescia; oldLv converte níveis da escala antiga
+const LV_K = 14 / 24;
+const oldLv = l => clamp(1 + Math.round((Math.min(l, 15) - 1) / LV_K), 1, MAX_DLVL);
 const MAX_PLVL = 30;
 const HAB_CAP = 3;
 const HATCH_COSTS = [300, 1500, 6000]; // (antigo) alvéolos da chocadeira; a roleta substituiu os ovos
@@ -8903,7 +8906,7 @@ const SWARM = {
   pityE: 10, pityL: 50,                                // garantia: Épica a cada 10 giros, Lendária a cada 50
   free: 180,                                           // giro grátis a cada 3 min (mais rápido com bônus de giro)
   featEvery: 180, featCh: 0.5,                         // destaque troca a cada 3 min; metade das vezes que sair a raridade dele, vem ele
-  dupLv: { C: 1, R: 2, E: 3, L: 4 },                   // repetida: a sua abelha da espécie sobe esses níveis
+  dupLv: { C: 1, R: 3, E: 4, L: 6 },                   // repetida: a sua abelha da espécie sobe esses níveis
   startTickets: 3,
 };
 const SW_COL = { C: '#9aa7b4', R: '#4fb3ff', E: '#c77dff', L: '#ffd23f' };
@@ -9014,9 +9017,9 @@ const ACH = [
   { cat: 'Coleção', id: 'sp10',    i: '📗', n: 'Colecionador',           d: 'Descubra 10 espécies.',                    g: 3, c: () => Object.keys(S.dex).length >= 10 },
   { cat: 'Coleção', id: 'sp25',    i: '📘', n: 'Naturalista',            d: 'Descubra 25 espécies.',                    g: 6, c: () => Object.keys(S.dex).length >= 25 },
   { cat: 'Coleção', id: 'sp40',    i: '📕', n: 'Enciclopédia viva',      d: 'Descubra 40 espécies.',                    g: 12, c: () => Object.keys(S.dex).length >= 40 },
-  { cat: 'Evolução', id: 'lvl5',    i: '⬆️', n: 'Crescendo',             d: 'Leve uma abelha ao nível 5.',               g: 1, c: s => s.maxDragonLvl >= 5 },
-  { cat: 'Evolução', id: 'lvl10',   i: '⏫', n: 'Zumbido feroz',     d: 'Leve uma abelha ao nível 10.',              g: 3, c: s => s.maxDragonLvl >= 10 },
-  { cat: 'Evolução', id: 'lvl15',   i: '🔱', n: 'Forma máxima',          d: 'Leve uma abelha ao nível 15.',              g: 6, c: s => s.maxDragonLvl >= 15 },
+  { cat: 'Evolução', id: 'lvl5',    i: '⬆️', n: 'Crescendo',             d: 'Leve uma abelha ao nível 8.',               g: 1, c: s => s.maxDragonLvl >= 8 },
+  { cat: 'Evolução', id: 'lvl10',   i: '⏫', n: 'Zumbido feroz',     d: 'Leve uma abelha ao nível 16.',              g: 3, c: s => s.maxDragonLvl >= 16 },
+  { cat: 'Evolução', id: 'lvl15',   i: '🔱', n: 'Forma máxima',          d: 'Leve uma abelha ao nível 25.',              g: 6, c: s => s.maxDragonLvl >= 25 },
   { cat: 'Evolução', id: 'feed50',  i: '🍗', n: 'Banquete de néctar',              d: 'Alimente abelhas 50 vezes.',               g: 3, c: s => s.feeds >= 50 },
   { cat: 'Evolução', id: 'breed20', i: '🧬', n: 'Genética avançada',     d: 'Faça 6 mutações no Laboratório.',          g: 5, c: s => (s.labMuts || 0) >= 6 },
   { cat: 'Evolução', id: 'speed5',  i: '⏫', n: 'Repetida que sobe',     d: 'Tire 5 abelhas repetidas na roleta.',            g: 2, c: s => s.swarmDups >= 5 },
@@ -9212,14 +9215,14 @@ const towerOf = () => (S && S.tower) || { items: [], floors: 0, used: 0 };
 // bônus da ascensão; o 3º andar dá +15% em vida e ataque para todas as ascendidas
 const ascOf = (d, k) => !d || !d.asc || !ASC[d.asc] ? 1 : (ASC[d.asc][k] || 1) * (towerOf().floors >= 3 ? 1.15 : 1);
 const seasonOf = d => (S && S.season && d && d.els && d.els.includes(SEASONS[S.season].el) ? SEASON_BOOST : 1);
-const gpsOf = d => RARITY[d.rar].gps * (1 + 0.4 * (d.lvl - 1)) * MOD('gold') * (isNative(d) ? MEADOW_GOLD : 1) * (d.key === BETMEL.key ? 2 : 1) * mutOf(d, 'gold');
-const hpOf = d => Math.round(RARITY[d.rar].hp * (1 + 0.2 * (d.lvl - 1)));
-const atkOf = d => Math.round(RARITY[d.rar].atk * (1 + 0.16 * (d.lvl - 1)));
+const gpsOf = d => RARITY[d.rar].gps * (1 + 0.4 * LV_K * (d.lvl - 1)) * MOD('gold') * (isNative(d) ? MEADOW_GOLD : 1) * (d.key === BETMEL.key ? 2 : 1) * mutOf(d, 'gold');
+const hpOf = d => Math.round(RARITY[d.rar].hp * (1 + 0.2 * LV_K * (d.lvl - 1)));
+const atkOf = d => Math.round(RARITY[d.rar].atk * (1 + 0.16 * LV_K * (d.lvl - 1)));
 const myHp = d => Math.round(hpOf(d) * MOD('hp') * mutOf(d, 'hp') * seasonOf(d) * ascOf(d, 'hp') * vetOf(d, 'hp'));
 const myAtk = d => Math.round(atkOf(d) * MOD('atk') * (1 + (d.atkUp || 0)) * mutOf(d, 'atk') * seasonOf(d) * ascOf(d, 'atk') * vetOf(d, 'atk'));
 const powerOf = d => Math.round(hpOf(d) / 4 + atkOf(d) * 2);
-const feedCost = lvl => Math.round(10 * Math.pow(1.5, lvl - 1) * MOD('feed'));
-const sellValue = d => Math.round(25 * RARITY[d.rar].rv * d.lvl);
+const feedCost = lvl => Math.round(10 * Math.pow(1.255, lvl - 1) * MOD('feed'));
+const sellValue = d => Math.round(25 * RARITY[d.rar].rv * (1 + (d.lvl - 1) * LV_K));
 const breedCost = (a, b) => Math.round(30 * (RARITY[a.rar].rv + RARITY[b.rar].rv) * MOD('breed'));
 const habitatCost = () => Math.round(150 * Math.pow(2.1, S.habitats.length - 1) * MOD('shop'));
 const farmCost = () => Math.round(100 * Math.pow(1.8, S.farms.length - 2) * MOD('shop'));
@@ -9520,7 +9523,7 @@ const TREASURES = {
   trevo: { i: '🍀', n: 'Trevo da Sorte', d: 'Os próximos 5 giros têm o dobro de chance de Épica e Lendária.', gems: 12 },
   cesta: { i: '🧺', n: 'Cesta Surpresa', d: 'Prêmio surpresa: mel, fichas, geleia real de volta ou até uma abelha Épica.', gems: 10 },
   ampulheta: { i: '⏳', n: 'Ampulheta', d: 'Seu giro grátis fica pronto agora.', gems: 8 },
-  pocao: { i: '🧪', n: 'Poção de Treino', d: 'Sua abelha de menor nível sobe 2 níveis.', gems: 6 },
+  pocao: { i: '🧪', n: 'Poção de Treino', d: 'Sua abelha de menor nível sobe 3 níveis.', gems: 6 },
   estrela: { i: '🌟', n: 'Estrela do Destaque', d: 'Troca agora a espécie em destaque da roleta.', gems: 4 },
   amor: { i: '💠', n: 'Cristal Raro', d: '1 cristal para o Laboratório.', gems: 30 },
 };
@@ -9535,7 +9538,7 @@ function buyTreasure(k) {
   if (k === 'fichas') { catchTicket(3); toast('🎯 +3 fichas', 'Use na Roleta do Enxame.'); }
   else if (k === 'trevo') { S.luck = (S.luck || 0) + 5; toast('🍀 Trevo da Sorte', `Sorte nos próximos ${S.luck} giros.`, 'ach'); }
   else if (k === 'ampulheta') { S.freeAt = S.t; toast('⏳ Giro grátis pronto', 'Corra para a roleta!'); }
-  else if (k === 'pocao') { const d = S.dragons.filter(x => x.lvl < MAX_DLVL).sort((a, b) => a.lvl - b.lvl)[0]; d.lvl = Math.min(MAX_DLVL, d.lvl + 2); S.stats.maxDragonLvl = Math.max(S.stats.maxDragonLvl, d.lvl); toast('🧪 Poção de Treino', `${d.name} agora está no Nv ${d.lvl}.`); }
+  else if (k === 'pocao') { const d = S.dragons.filter(x => x.lvl < MAX_DLVL).sort((a, b) => a.lvl - b.lvl)[0]; d.lvl = Math.min(MAX_DLVL, d.lvl + 3); S.stats.maxDragonLvl = Math.max(S.stats.maxDragonLvl, d.lvl); toast('🧪 Poção de Treino', `${d.name} agora está no Nv ${d.lvl}.`); }
   else if (k === 'estrela') { S.featUntil = 0; const f = swarmFeat(); toast('🌟 Novo destaque', f ? `${S.dex[f.key] ? f.name : 'Uma espécie misteriosa'} (${RARITY[f.rar].n})` : 'Libere mais tipos para ter destaque.'); }
   else if (k === 'amor') addCrystals(1, 'Cristal Raro da Loja.');
   else if (k === 'cesta') {
@@ -9834,7 +9837,7 @@ function randomSpeciesOfRarity(r) {
 }
 function enemyTeam(league, fight, bonus = 0) {
   const n = Math.min(3, Math.ceil((league + fight) / 2));
-  const lvl = clamp(1 + (league - 1) * 2 + fight + bonus, 1, MAX_DLVL);
+  const lvl = oldLv(1 + (league - 1) * 2 + fight + bonus);
   const team = [];
   for (let k = 0; k < n; k++) {
     const sp = randomSpeciesOfRarity(pick(LEAGUE_RARITY[league - 1]));
@@ -9847,7 +9850,7 @@ function enemyTeam(league, fight, bonus = 0) {
 // Invasão do inimigo da run: tipos do rival, mais forte a cada invasão e conforme a liga
 function raidTeam() {
   const R = RIVALS[S.rival], n = S.raid.n;
-  const lvl = clamp(Math.min(S.league, 8) * 2 + n, 1, MAX_DLVL);
+  const lvl = oldLv(Math.min(S.league, 8) * 2 + n);
   const pool = [[R.els[0]], [R.els[1]], R.els];
   return Array.from({ length: n === 1 ? 2 : 3 }, (_, k) => {
     const sp = speciesFromEls(k === 2 ? R.els : pick(pool));
@@ -11901,7 +11904,7 @@ function viewArena() {
   const chips = [...S.dragons].sort((a, b) => powerOf(b) - powerOf(a)).map(d => `<button class="chip" aria-pressed="${S.team.includes(d.id)}" data-a="team" data-id="${d.id}">${dIcon(d.els, d.rar, 's', '', d.id, d.skin)}${d.name} · Nv ${d.lvl} · ⚡${powerOf(d)}</button>`).join('');
   const champion = S.league > LEAGUES.length, locked = leagueLocked();
   const wild = S.event && S.event.type === 'selvagem' && S.event.until > S.t;
-  const nextFoes = champion ? '' : `${Math.min(3, Math.ceil((S.league + S.leagueFight) / 2))} oponente(s) de nível ${clamp(1 + (S.league - 1) * 2 + S.leagueFight, 1, MAX_DLVL)}`;
+  const nextFoes = champion ? '' : `${Math.min(3, Math.ceil((S.league + S.leagueFight) / 2))} oponente(s) de nível ${oldLv(1 + (S.league - 1) * 2 + S.leagueFight)}`;
   const stands = team.map(d => `<div class="stand">${dIcon(d.els, d.rar, 'l', '', d.id, d.skin)}<span class="tag">${d.name} · Nv ${d.lvl}</span></div>`).join('')
     + '<div class="stand empty-stand"><span>Vaga</span></div>'.repeat(Math.max(0, 3 - team.length));
   return `<div class="grid">
