@@ -9850,6 +9850,8 @@ function endBattle(win) {
     S.finalResult = { win, dmgPct: 1 - boss.hp / boss.hpMax, lost: B.lost };
     st.finalDmgPct = Math.max(st.finalDmgPct, S.finalResult.dmgPct);
     r.gold = r.gems = 0; r.xp = 0;
+    // perdeu para o chefe: a partida acaba sozinha, sem dar para voltar à ilha
+    if (!win) { const me = S; setTimeout(() => { if (S === me && !S.ended) endGame(); }, 2600); }
   }
   S.lastResult = r;
   setTimeout(() => sfx(win ? 'vitoria' : 'derrota'), 750);
