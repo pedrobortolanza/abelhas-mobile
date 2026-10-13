@@ -750,6 +750,15 @@ svg.gi { width: 1.2em; height: 1.2em; vertical-align: -.25em; display: inline-bl
 .labopt > .btn, .labopt > .labpick { grid-column: 1 / -1; justify-self: start; }
 .labopt .lab-ic .gi { width: 34px; height: 34px; }
 .labopt .hint { display: block; }
+.tw-parts { display: grid; gap: 8px; }
+.tw-part { display: grid; grid-template-columns: auto 1fr; gap: 6px 12px; align-items: center; padding: 10px 12px; border-radius: 14px; background: rgba(0,0,0,.18); opacity: .78; }
+.tw-part.have { opacity: 1; box-shadow: inset 0 0 0 2px #ffcc33; }
+.tw-part.built { opacity: 1; background: linear-gradient(90deg, rgba(255,204,51,.28), rgba(0,0,0,.12)); }
+.tw-part > .btn { grid-column: 1 / -1; justify-self: start; }
+.tw-part .tw-ic { font-size: 1.6rem; } .tw-part .tw-ic .gi { width: 34px; height: 34px; }
+.tw-part .hint { display: block; }
+.chip.asc { box-shadow: inset 0 0 0 2px #ffcc33; }
+.sheet[data-tab="torre"] { --hd1: #c9a24a; --hd2: #5a4630; }
 .labpick { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; }
 .choices { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; }
 .choice { display: flex; flex-direction: column; align-items: center; gap: 6px; text-align: center; padding: 12px 10px 14px; border-radius: 18px; border: 2px solid var(--ink);
@@ -8191,6 +8200,58 @@ const M3 = (() => {
     });
     return g;
   };
+  B.torre = (fl = 0) => {
+    // Torre da Ascensão: começa em ruínas e ganha um andar por peça entregue (Insígnia, Coroa e Troféu)
+    fl = +fl || 0;
+    const g = new T.Group(); platform(g, 1.9, '#b9a487', '#6e5c4a'); cobble(g, 1.5);
+    const stone = mat('#a8977f', { roughness: 0.85 }), stoneD = mat('#6e5c4a', { roughness: 0.9 }), stoneL = mat('#cdbd9f', { roughness: 0.8 });
+    const gold = mat('#ffcc33', { metalness: 0.45, roughness: 0.28 }), wood = mat('#7a4a22', { roughness: 0.8 });
+    const rune = mat('#c9a2ff', { roughness: 0.2, emissive: col('#7a3dff'), emissiveIntensity: 0.9 });
+    const glow = mat('#fff3b0', { roughness: 0.2, emissive: col('#ffb020'), emissiveIntensity: 1.1 });
+    const crys = mat('#ffe37a', { roughness: 0.1, emissive: col('#ffae00'), emissiveIntensity: 1.2, flatShading: true });
+    const banner = mat('#7a3dff', { roughness: 0.7 });
+    // círculo de runas no chão (sempre lá: é ele que pede as peças)
+    mesh(new T.TorusGeometry(0.66, 0.025, 6, 36), rune, g, [0, 0.25, 0], [1, 1, 1], [Math.PI / 2, 0, 0], false);
+    for (let i = 0; i < 6; i++) { const a = i / 6 * Math.PI * 2; mesh(BOX, rune, g, [Math.cos(a) * 0.66, 0.26, Math.sin(a) * 0.66], [0.07, 0.02, 0.07], [0, a, 0], false); }
+    // base de pedra (inteira só a partir do 1º andar)
+    mesh(new T.CylinderGeometry(0.6, 0.66, 0.22, 6), stoneD, g, [0, 0.33, 0], [1, 1, 1], [0, Math.PI / 6, 0]);
+    let top = 0.44;
+    const tier = (r, h, band) => {
+      mesh(new T.CylinderGeometry(r * 0.92, r, h, 6), stone, g, [0, top + h / 2, 0], [1, 1, 1], [0, Math.PI / 6, 0]);
+      for (let i = 0; i < 6; i++) { const a = i / 6 * Math.PI * 2 + Math.PI / 6; mesh(BOX, stoneL, g, [Math.cos(a) * r * 0.97, top + h * 0.5, Math.sin(a) * r * 0.97], [0.05, h * 0.96, 0.05], [0, -a, 0], false); }
+      mesh(new T.CylinderGeometry(r + 0.04, r + 0.04, 0.06, 6), band, g, [0, top + h, 0], [1, 1, 1], [0, Math.PI / 6, 0]);
+      top += h + 0.03;
+    };
+    if (fl >= 1) {
+      tier(0.54, 0.5, gold);
+      mesh(BOX, wood, g, [0, 0.62, 0.5], [0.2, 0.3, 0.04]); mesh(new T.CylinderGeometry(0.1, 0.1, 0.04, 16), wood, g, [0, 0.77, 0.5], [1, 1, 1], [Math.PI / 2, 0, 0]);
+      [-1, 1].forEach(sd => { mesh(BOX, banner, g, [sd * 0.3, 0.7, 0.47], [0.12, 0.3, 0.02], [0, 0, 0], false); mesh(BOX, gold, g, [sd * 0.3, 0.86, 0.47], [0.15, 0.025, 0.03], [0, 0, 0], false); });
+    } else {
+      // ruínas: blocos caídos e restos de parede
+      [[0.38, 0.2, 0.32], [-0.4, 0.3, 0.22], [0.1, -0.45, 0.26], [-0.2, 0.42, 0.18]].forEach(([x, z, h], k) => mesh(BOX, k % 2 ? stone : stoneL, g, [x, 0.44 + h / 2, z], [0.18, h, 0.16], [0, k * 0.7, k % 2 ? 0.1 : -0.08]));
+      [[0.55, -0.5], [-0.62, -0.25], [0.7, 0.35]].forEach(([x, z], k) => mesh(BOX, stoneD, g, [x, 0.3, z], [0.14, 0.1, 0.12], [0.3, k, 0.2]));
+    }
+    if (fl >= 2) {
+      tier(0.42, 0.44, gold);
+      [0, 1, 2].forEach(i => { const a = i / 3 * Math.PI * 2 + 0.5; mesh(new T.CylinderGeometry(0.06, 0.06, 0.03, 12), glow, g, [Math.cos(a) * 0.4, top - 0.24, Math.sin(a) * 0.4], [1, 1, 1], [Math.PI / 2, 0, -a + Math.PI / 2], false); });
+    }
+    if (fl >= 3) {
+      tier(0.32, 0.38, gold);
+      mesh(new T.ConeGeometry(0.36, 0.42, 6), gold, g, [0, top + 0.21, 0], [1, 1, 1], [0, Math.PI / 6, 0]);
+      const c = new T.Group(); c.position.y = top + 0.68; g.add(c);
+      mesh(OCTA, crys, c, [0, 0, 0], [0.14, 0.22, 0.14], [0, 0.4, 0]);
+      mesh(new T.TorusGeometry(0.22, 0.018, 6, 28), gold, c, [0, 0, 0], [1, 1, 1], [Math.PI / 2.4, 0, 0], false);
+      [-1, 1].forEach(sd => mesh(SPH_LO, glow, c, [sd * 0.3, -0.05, 0], [0.04, 0.04, 0.04], [0, 0, 0], false));
+    } else {
+      // andaime de madeira em cima do último andar: falta peça
+      const y0 = fl ? top : 0.44, r = fl === 2 ? 0.34 : fl === 1 ? 0.46 : 0.52;
+      [[1, 1], [-1, 1], [1, -1], [-1, -1]].forEach(([a, b]) => mesh(BOX, wood, g, [a * r * 0.7, y0 + 0.24, b * r * 0.7], [0.04, 0.48, 0.04], [0, 0, 0], false));
+      [0.22, 0.44].forEach(h => { mesh(BOX, wood, g, [0, y0 + h, r * 0.7], [r * 1.5, 0.03, 0.03], [0, 0, 0], false); mesh(BOX, wood, g, [r * 0.7, y0 + h, 0], [0.03, 0.03, r * 1.5], [0, 0, 0], false); });
+      const c = new T.Group(); c.position.y = y0 + 0.75; g.add(c);
+      mesh(OCTA, rune, c, [0, 0, 0], [0.1, 0.16, 0.1], [0, 0.4, 0]);
+    }
+    return g;
+  };
   B.tree = n => { const k = n % 2 ? 'treeB' : 'treeA'; if (!G[k]) return PB.tree(n); const g = new T.Group(); glb(k, g, [0, 0, 0], 0.75, n); return g; };
   B.rock = () => { if (!G.rockA) return PB.rock(); const g = new T.Group(); glb('rockA', g, [0, 0, 0], 0.45); return g; };
   B.chocadeira = () => { const g = PB.chocadeira(); if (G.sack) { glb('sack', g, [0.72, 0.03, 0.55], 0.25); glb('crate', g, [-0.72, 0.03, 0.62], 0.24); } return g; };
@@ -9098,12 +9159,27 @@ const MOD = k => (S && S.mods ? S.mods[k] : MODS0[k]);
 const isNative = d => !!(S && S.meadow && d.els && d.els.some(e => S.meadow.includes(e)));
 const unlockLvl = k => (S && S.unlock ? S.unlock[k] : EL[k].unlock);
 const mutOf = (d, k) => (d && d.mut && MUTS[d.mut] && MUTS[d.mut][k]) || (k === 'crit' ? 0 : 1);
+// Torre da Ascensão: 3 peças (chefe do Ato I, chefe do Ato II, liga dos Campeões); cada peça + mel ergue um andar e libera uma ascensão
+const TOWER_PARTS = [
+  { k: 'insignia', n: 'Insígnia do General', i: '🎖️', from: 'Vença o General Vespa no fim do Ato I', cost: 2500 },
+  { k: 'coroa', n: 'Coroa de Espinhos', i: '👑', from: 'Vença a Vespa Rainha no fim do Ato II', cost: 9000 },
+  { k: 'trofeu', n: 'Troféu dos Campeões', i: '🏆', from: 'Vença a liga dos Campeões na Arena (Ato III)', cost: 20000 },
+];
+const ASC = {
+  guardia: { n: 'Guardiã', i: '🛡️', d: '+40% de vida. Uma vez por batalha aguenta o golpe que a derrubaria e fica com 1 de vida.', hp: 1.4 },
+  carrasca: { n: 'Carrasca', i: '🪓', d: '+25% de ataque. Causa o dobro de dano em inimigos com menos de 35% de vida.', atk: 1.25 },
+  sabia: { n: 'Sábia', i: '🔮', d: 'Especial 40% mais forte, recarrega em 2 turnos e cura 10% da vida da equipe a cada uso.' },
+};
+const ASC_ELIG = d => d && (d.rar === 'E' || d.rar === 'L') && !d.asc;
+const towerOf = () => (S && S.tower) || { items: [], floors: 0, used: 0 };
+// bônus da ascensão; o 3º andar dá +15% em vida e ataque para todas as ascendidas
+const ascOf = (d, k) => !d || !d.asc || !ASC[d.asc] ? 1 : (ASC[d.asc][k] || 1) * (towerOf().floors >= 3 ? 1.15 : 1);
 const seasonOf = d => (S && S.season && d && d.els && d.els.includes(SEASONS[S.season].el) ? SEASON_BOOST : 1);
 const gpsOf = d => RARITY[d.rar].gps * (1 + 0.4 * (d.lvl - 1)) * MOD('gold') * (isNative(d) ? MEADOW_GOLD : 1) * (d.key === BETMEL.key ? 2 : 1) * mutOf(d, 'gold');
 const hpOf = d => Math.round(RARITY[d.rar].hp * (1 + 0.2 * (d.lvl - 1)));
 const atkOf = d => Math.round(RARITY[d.rar].atk * (1 + 0.16 * (d.lvl - 1)));
-const myHp = d => Math.round(hpOf(d) * MOD('hp') * mutOf(d, 'hp') * seasonOf(d));
-const myAtk = d => Math.round(atkOf(d) * MOD('atk') * (1 + (d.atkUp || 0)) * mutOf(d, 'atk') * seasonOf(d));
+const myHp = d => Math.round(hpOf(d) * MOD('hp') * mutOf(d, 'hp') * seasonOf(d) * ascOf(d, 'hp'));
+const myAtk = d => Math.round(atkOf(d) * MOD('atk') * (1 + (d.atkUp || 0)) * mutOf(d, 'atk') * seasonOf(d) * ascOf(d, 'atk'));
 const powerOf = d => Math.round(hpOf(d) / 4 + atkOf(d) * 2);
 const feedCost = lvl => Math.round(10 * Math.pow(1.5, lvl - 1) * MOD('feed'));
 const sellValue = d => Math.round(25 * RARITY[d.rar].rv * d.lvl);
@@ -9147,6 +9223,7 @@ function newState(modeKey) {
     missions: [], ach: {}, dex: {}, stats: newStats(),
     buffs: {}, event: null, nextEvent: 50, lostEgg: null, warned: [], finalPhase: false, finalResult: null, nextInvasion: 900, wave: 0, weakened: false,
     history: [{ t: 0, earned: 0, gps: 0 }], nextId: 1, tab: 'ilha', breedA: null, breedB: null, crystals: 1, nextCrystal: CRYSTAL_EVERY, labSel: null,
+    tower: { items: [], floors: 0, used: 0 }, towerSel: null,
     mods: { ...MODS0 }, queen: null, relics: [], nextRelic: RELIC_EVERY, relicOffer: null, choosing: false,
   };
   // Prado sorteado: 3 tipos básicos nativos (liberados no nível 1); os outros 3 abrem nos níveis 2, 3 e 4
@@ -9713,7 +9790,7 @@ function speedEgg(id) {
 // ARENA
 // ============================================================
 function fighterFromDragon(d) {
-  return { name: d.name, els: d.els, rar: d.rar, lvl: d.lvl, hpMax: hpOf(d), hp: hpOf(d), atk: atkOf(d), cd: 0, xcd: 0, move: d.move || null, did: d.id, skin: d.skin, critB: mutOf(d, 'crit') };
+  return { name: d.name, els: d.els, rar: d.rar, lvl: d.lvl, hpMax: hpOf(d), hp: hpOf(d), atk: atkOf(d), cd: 0, xcd: 0, move: d.move || null, did: d.id, skin: d.skin, critB: mutOf(d, 'crit'), asc: d.asc || null };
 }
 function randomSpeciesOfRarity(r) {
   return pick(ALL_SPECIES.filter(s => s.rar === r));
@@ -9775,7 +9852,8 @@ function advanceRoute(text) {
   S.leagueFight++;
   if (S.leagueFight >= 3) {
     S.leagueFight = 0; S.league++;
-    return S.league > LEAGUES.length ? 'Você venceu a liga dos Campeões! A Vespa Rainha aguarda.' : `Promovido para a liga ${LEAGUES[S.league - 1]}!`;
+    if (S.league > LEAGUES.length) { towerPart('trofeu'); return 'Você venceu a liga dos Campeões! Ganhou o Troféu dos Campeões, a última peça da Torre da Ascensão.'; }
+    return `Promovido para a liga ${LEAGUES[S.league - 1]}!`;
   }
   return text || `Etapa ${S.leagueFight} de 3 da liga ${LEAGUES[S.league - 1]} concluída.`;
 }
@@ -9854,16 +9932,19 @@ function moveEl(f, kind) {
   if (kind === 'x') { const A = ATTACKS[f.move]; return !A || A.el === null ? null : A.el === 'second' ? (f.els[1] || f.els[0]) : f.els[0]; }
   return kind === 'sp' ? (f.els[1] || f.els[0]) : f.els[0];
 }
-function movePower(f, kind) { if (kind === 'x') return ATTACKS[f.move] ? ATTACKS[f.move].pow : 1; return kind === 'sp' ? (f.rar === 'L' || f.boss ? 2.0 : 1.7) : 1; }
+function movePower(f, kind) { if (kind === 'x') return ATTACKS[f.move] ? ATTACKS[f.move].pow : 1; return kind === 'sp' ? (f.rar === 'L' || f.boss ? 2.0 : 1.7) * (f.asc === 'sabia' ? 1.4 : 1) : 1; }
 function doAttack(a, d, kind, isPlayer) {
   const el = moveEl(a, kind);
   const A = kind === 'x' ? ATTACKS[a.move] : null;
   let m = el ? eff(el, d.els) : 1;
   if (isPlayer && m > 1) m *= MOD('eff') / 1.5;
   const crit = Math.random() < (isPlayer ? MOD('crit') + (A && A.crit || 0) + (a.critB || 0) : 0.12);
-  const dmg = Math.max(1, Math.round(a.atk * movePower(a, kind) * m * (crit ? 1.5 : 1) * rnd(0.9, 1.1)));
+  const exe = a.asc === 'carrasca' && d.hp < d.hpMax * 0.35;
+  const dmg = Math.max(1, Math.round(a.atk * movePower(a, kind) * m * (crit ? 1.5 : 1) * (exe ? 2 : 1) * rnd(0.9, 1.1)));
   d.hp = Math.max(0, d.hp - dmg);
-  if (kind === 'sp') a.cd = 3; else if (a.cd > 0) a.cd--;
+  if (d.hp <= 0 && d.asc === 'guardia' && !d.guardUsed) { d.hp = 1; d.guardUsed = true; logB(`🛡️ ${d.name} aguentou firme com 1 de vida!`, 'se'); }
+  if (exe) logB(`🪓 ${a.name} executou o golpe da Carrasca!`, 'cr');
+  if (kind === 'sp') { a.cd = a.asc === 'sabia' ? 2 : 3; if (a.asc === 'sabia' && isPlayer && S.battle) { let h = 0; S.battle.team.forEach(f => { if (f.hp > 0) { const v = Math.min(f.hpMax - f.hp, Math.round(f.hpMax * 0.1)); f.hp += v; h += v; } }); if (h) logB(`🔮 A sabedoria de ${a.name} curou ${h} de vida da equipe.`, 'se'); } } else if (a.cd > 0) a.cd--;
   if (kind === 'x') a.xcd = A.cd; else if (a.xcd > 0) a.xcd--;
   if (A && A.heal) { const h = Math.min(a.hpMax - a.hp, Math.round(a.hpMax * A.heal)); if (h > 0) { a.hp += h; logB(`${a.name} recuperou ${h} de vida.`, 'se'); } }
   const moveName = A ? `${A.n}${el ? ' ' + EL[el].i : ''}` : kind === 'sp' ? (a.boss ? 'Ferroada Real' : `Especial ${EL[el].i}`) : `Ataque ${EL[el].i}`;
@@ -9983,6 +10064,7 @@ function endBattle(win) {
         const A = curAct(), N = ACTS[S.act + 1];
         r.gold = A.reward.gold; r.gems = A.reward.gems; r.xp = A.reward.xp;
         addCrystals(2, `Prêmio por vencer o ${A.n}.`);
+        towerPart(S.act === 0 ? 'insignia' : 'coroa');
         r.text = `${A.boss} caiu! O ${A.n} acabou. Começa o ${N.n}, com mais lotes e ligas. Próximo chefe: ${N.boss}.`;
       } else if (S.mode === 'infinito') {
         S.wave++; r.gold = 3000 * S.wave; r.gems = 20; r.xp = 300;
@@ -10053,6 +10135,26 @@ function nextSeason() {
   Object.entries(old.mods).forEach(([k, v]) => { S.mods[k] = k === 'lvlGems' ? S.mods[k] - v : S.mods[k] / v; });
   S.season = pick(Object.keys(SEASONS).filter(k => k !== S.season));
   applyMods(SEASONS[S.season].mods);
+}
+function towerPart(k) {
+  const T = S.tower, P = TOWER_PARTS.find(p => p.k === k);
+  if (!T || !P || T.items.includes(k)) return;
+  T.items.push(k); S.stats.towerParts = (S.stats.towerParts || 0) + 1;
+  setTimeout(() => toast(`${P.i} ${P.n}!`, `Leve à Torre da Ascensão, no canto da ilha, para erguer o ${T.items.length}º andar.`, 'ach'), 1800);
+}
+function buildFloor() {
+  const T = S.tower, P = TOWER_PARTS[T.floors];
+  if (!P) return;
+  if (!T.items.includes(P.k)) { toast('Falta uma peça', `${P.i} ${P.n}: ${P.from}.`, 'bad'); return; }
+  if (!spendGold(P.cost)) return;
+  T.floors++; sfx('nivelJogador'); lastMap = '';
+  toast(`🗼 ${T.floors}º andar erguido!`, T.floors >= 3 ? 'A Torre está completa: suas ascendidas ganham +15% de vida e ataque.' : 'Você pode ascender uma abelha Épica ou Lendária.', 'ach');
+}
+function ascend(path) {
+  const T = S.tower, d = S.dragons.find(x => x.id === S.towerSel);
+  if (!ASC[path] || T.used >= T.floors || !ASC_ELIG(d)) return;
+  d.asc = path; T.used++; S.stats.ascended = (S.stats.ascended || 0) + 1; S.towerSel = null;
+  sfx('lendaria'); toast(`${ASC[path].i} ${d.name} ascendeu!`, `Agora é ${ASC[path].n}: ${ASC[path].d}`, 'ach');
 }
 function toggleTeam(id) {
   const has = S.team.includes(id);
@@ -10238,7 +10340,7 @@ function startFinal() {
   const bn = bossName(), bd = isActs() ? curAct().disp : ['trevas', 'fogo'];
   despertar.then(r => { if (r && r.semCena) { sfx('despertar'); music('invasao'); } if (S && !S.ended) overlay(`<div class="card hero">${isActs() ? `<span class="cat">${curAct().n} · chefe</span>` : ''}${dIcon(bd, 'B', 'xl', 'pop', 5)}
     <h1>${bn} chegou com o enxame!</h1>
-    <p>Voa em direção à colmeia com seu enxame. Escolha até 3 abelhas para a batalha final. Tudo o que você construiu decide este momento.</p>
+    <p>Voa em direção à colmeia com seu enxame. Escolha até 3 abelhas para a batalha final. Tudo o que você construiu decide este momento.${isActs() && S.act < 2 ? ` Vencer dá a ${TOWER_PARTS[S.act].i} <b>${TOWER_PARTS[S.act].n}</b>, peça da Torre da Ascensão.` : ''}</p>
     <button class="btn primary" data-a="cancelEnd">Escolher meu time</button></div>`); });
 }
 
@@ -10287,6 +10389,7 @@ const TUTOR = [
   ['🎯', 'Abelhas novas', 'Toda abelha nova vem da <b>Roleta do Enxame</b>. Há um giro grátis de tempos em tempos, e as fichas também giram. Abelha repetida sobe de nível.'],
   ['💎', 'Geleia real e cristais', 'Geleia real vem das batalhas, missões e conquistas e compra tesouros na <b>Loja</b>. Os cristais são raros e servem para dar mutações no <b>Laboratório</b>.'],
   ['⚔️', 'Arena e chefes', 'Na <b>Arena</b> você escolhe até 3 abelhas e luta para subir de liga. Elites e invasões podem dar relíquias. No fim de cada ato chega um chefe: <b>se perder para ele, a partida acaba</b>.'],
+  ['🗼', 'Torre da Ascensão', 'No canto da ilha há uma torre em ruínas. Vença o <b>chefe do Ato I</b>, o <b>chefe do Ato II</b> e a <b>liga dos Campeões</b> da Arena para ganhar as 3 peças dela. Cada andar erguido deixa uma abelha Épica ou Lendária <b>ascender</b> e ganhar um poder novo.'],
   ['📜', 'Missões e conquistas', 'As <b>Missões</b> e as <b>Conquistas</b> dão mel e geleia real. Em <b>Estatísticas</b> você vê tudo o que fez na partida.'],
 ];
 function renderTutor() {
@@ -10309,6 +10412,7 @@ const TAB_TIPS = {
   missoes: 'Cumpra as missões para ganhar prêmios. Quando uma termina, outra entra no lugar.',
   loja: 'Compre colmeias e canteiros com mel, e tesouros e impulsos com geleia real.',
   conquistas: 'Cada conquista dá geleia real uma vez. Elas ficam marcadas quando você consegue.',
+  torre: 'A Torre da Ascensão se ergue com 3 peças: a Insígnia do General (chefe do Ato I), a Coroa de Espinhos (chefe do Ato II) e o Troféu dos Campeões (última liga da Arena). Cada andar libera uma ascensão para uma abelha Épica ou Lendária.',
   jardim: 'Escolha a flor de cada canteiro, plante e colha. Flores mais caras dão mais néctar. O botão Colher e replantar faz tudo de uma vez.',
 };
 function tabTip() {
@@ -10686,7 +10790,7 @@ const costTag = (n, kind = 'g') => `<span class="cost ${kind}">${kind === 'g' ? 
 
 const TABS = [
   ['ilha', '🏝️', 'Ilha'], ['dragoes', '🐉', 'Abelhas'], ['cruzar', '🧪', 'Laboratório'], ['chocadeira', '🎯', 'Roleta'], ['arena', '⚔️', 'Arena'],
-  ['missoes', '📜', 'Missões'], ['loja', '🛒', 'Loja'], ['conquistas', '🏆', 'Conquistas'], ['stats', '📊', 'Estatísticas'], ['jardim', '🌱', 'Jardim', 1],
+  ['missoes', '📜', 'Missões'], ['loja', '🛒', 'Loja'], ['conquistas', '🏆', 'Conquistas'], ['stats', '📊', 'Estatísticas'], ['jardim', '🌱', 'Jardim', 1], ['torre', '🗼', 'Torre da Ascensão', 1],
 ];
 const TAB_TITLE = Object.fromEntries(TABS.map(t => [t[0], t[2]]));
 let lastTop = '', lastTabs = '', lastView = '', lastMap = '', lastHud = '', mapCentered = false;
@@ -10755,6 +10859,7 @@ function renderView() {
     case 'chocadeira': return viewSwarm();
     case 'dragoes': return viewDragons();
     case 'cruzar': return viewLab();
+    case 'torre': return viewTower();
     case 'arena': return viewArena();
     case 'missoes': return viewMissions();
     case 'loja': return viewShop();
@@ -10863,6 +10968,7 @@ const SPOTS = {
   loja: { at: gridAt(324, 178), n: 'Mercado', px: [324, 178] },
   cruzar: { at: gridAt(842, 262), n: 'Laboratório', px: [842, 262] },
   missoes: { at: gridAt(158, 262), n: 'Mural de Missões', px: [158, 262] },
+  torre: { at: gridAt(222, 176), n: 'Torre da Ascensão', px: [222, 176] },
 };
 // Enfeites em grupos, perto das bordas: potes de mel (0), colunas de cera (1) e pólen (2)
 const TREES = [[400, 108, 1], [600, 108, 1], [240, 476, 2], [760, 476, 2], [710, 524, 0], [290, 524, 0], [250, 140, 1], [750, 140, 1], [110, 340, 0], [890, 340, 0]].map(([X, Y, n]) => [...gridAt(X, Y), n]);
@@ -11061,6 +11167,7 @@ function isoSpecial(k) {
     if (k === 'arena') { const alert = S.finalPhase ? '☠️' : (S.event && S.event.type === 'selvagem' && S.event.until > S.t) ? '🐲' : (S.battle && !S.battle.over) ? '⚔️' : ''; if (alert) bubble(X + 50, Y - 78, alert, true, '', 'data-a="tab" data-k="arena"'); }
     else if (k === 'missoes') { const claim = S.missions.filter(m => missionProg(m) >= m.target).length; if (claim) bubble(X + 30, Y - 68, '📜', true, String(claim), 'data-a="tab" data-k="missoes"'); }
     else if (k === 'chocadeira') { const n = (S.t >= S.freeAt ? 1 : 0) + S.tickets; if (n) bubble(X + 46, Y - 112, '🎯', true, String(n), 'data-a="tab" data-k="chocadeira"'); }
+    else if (k === 'torre') { const T = towerOf(), P = TOWER_PARTS[T.floors]; if ((P && T.items.includes(P.k)) || T.used < T.floors) bubble(X + 40, Y - 88, '🗼', true, '!', 'data-a="tab" data-k="torre"'); }
     return out + pill(X, Y + (big ? 52 : 40), sp.n) + '</g>';
   }
   if (k === 'chocadeira') {
@@ -11301,9 +11408,9 @@ function hiveWall() {
 let ISO3D = false, W3 = null, w3Sig = '', w3Last = 0, w3Box = '';
 const WAYS = [[500, 150], [676, 200], [324, 200], [842, 282], [158, 282], [500, 440], [620, 300], [380, 300], [660, 380], [340, 380], [748, 310], [252, 310], [818, 390], [182, 390]];
 // Poucos enfeites, bem espaçados
-const DECO3D = [[300, 108, 'vela'], [700, 108, 'vela'], [468, 222, 'lanterna'], [532, 222, 'lanterna'], [232, 205, 'skep'], [768, 205, 'potmel'], [110, 330, 'girassol'], [890, 330, 'girassol'], [395, 540, 'flores'], [605, 540, 'flores'], [255, 520, 'potmel'], [745, 520, 'skep']];
+const DECO3D = [[300, 108, 'vela'], [700, 108, 'vela'], [468, 222, 'lanterna'], [532, 222, 'lanterna'], [768, 205, 'potmel'], [110, 330, 'girassol'], [890, 330, 'girassol'], [395, 540, 'flores'], [605, 540, 'flores'], [255, 520, 'potmel'], [745, 520, 'skep']];
 function w3Lots() {
-  const L = Object.entries(SPOTS).map(([k, sp]) => ({ id: 's:' + k, k: k === 'chocadeira' ? 'roleta' : k, x: sp.at[0], z: sp.at[1] }));
+  const L = Object.entries(SPOTS).map(([k, sp]) => ({ id: 's:' + k + (k === 'torre' ? towerOf().floors : ''), k: k === 'chocadeira' ? 'roleta' : k, a: k === 'torre' ? towerOf().floors : undefined, x: sp.at[0], z: sp.at[1] }));
   S.habitats.forEach((h, i) => { const th = habTheme(habDragons(i)); L.push({ id: `h${i}:${th}`, k: 'habitat', a: th, x: HAB_LOTS[i][0], z: HAB_LOTS[i][1] }); });
   S.farms.forEach((f, i) => L.push({ id: 'f' + i, k: 'farm', x: FARM_LOTS[i][0], z: FARM_LOTS[i][1] }));
   const [px, pz] = gridAt(...PLAZA); L.push({ id: 'fonte', k: 'deco', a: 'fonte', x: px, z: pz });
@@ -11491,6 +11598,31 @@ function viewLab() {
     </section>
   </div>`;
 }
+function viewTower() {
+  const T = towerOf(), next = TOWER_PARTS[T.floors], free = T.floors - T.used;
+  const parts = TOWER_PARTS.map((P, i) => {
+    const has = T.items.includes(P.k), built = T.floors > i;
+    return `<div class="tw-part ${built ? 'built' : has ? 'have' : ''}"><span class="tw-ic">${P.i}</span><div><b>${i + 1}º andar · ${P.n}</b><span class="hint">${built ? 'Andar erguido.' : has ? `Peça na mão! Falta erguer: ${costTag(P.cost)}` : `Como ganhar: ${P.from}.`}</span></div>${!built && has && i === T.floors ? `<button class="btn go" data-a="buildFloor">Erguer ${costTag(P.cost)}</button>` : ''}</div>`;
+  }).join('');
+  const d = S.dragons.find(x => x.id === S.towerSel);
+  const elig = S.dragons.filter(ASC_ELIG);
+  const asc = S.dragons.filter(x => x.asc);
+  const chips = elig.map(x => `<button class="chip" aria-pressed="${x.id === S.towerSel}" data-a="towerSel" data-id="${x.id}">${dIcon(x.els, x.rar, 's', '', x.id, x.skin)}${x.name} · Nv ${x.lvl}</button>`).join('');
+  const paths = Object.entries(ASC).map(([k, A]) => `<div class="labopt"><span class="lab-ic">${A.i}</span><div><b>${A.n}</b><span class="hint">${A.d}</span></div><button class="btn ${d && free > 0 ? 'go' : ''}" data-a="ascend" data-k="${k}" ${d && free > 0 ? '' : 'disabled'}>Ascender como ${A.n}</button></div>`).join('');
+  return `<div class="grid">
+    <section class="panel">
+      <h2>Torre da Ascensão</h2>
+      <p class="hint" style="margin-top:0">Cada peça vem de um grande desafio. Com a peça e mel, você ergue um andar, e cada andar libera <b>uma ascensão</b>.${T.floors >= 3 ? ' Torre completa: as ascendidas ganham +15% de vida e ataque.' : ' Com os 3 andares, as ascendidas ainda ganham +15% de vida e ataque.'}</p>
+      <div class="tw-parts">${parts}</div>
+      ${asc.length ? `<h3 style="margin:12px 0 6px">Ascendidas</h3><div class="chips">${asc.map(x => `<span class="chip asc">${dIcon(x.els, x.rar, 's', '', x.id, x.skin)}${x.name} · ${ASC[x.asc].i} ${ASC[x.asc].n}</span>`).join('')}</div>` : ''}
+    </section>
+    <section class="panel">
+      <h2>Ascender <span class="muted">· ${free > 0 ? `${free} disponível${free > 1 ? 'is' : ''}` : T.floors ? 'nenhuma livre' : 'erga o 1º andar'}</span></h2>
+      ${free > 0 ? (elig.length ? `<p class="hint" style="margin-top:0">Escolha uma abelha Épica ou Lendária e um caminho. A escolha é para sempre.</p><div class="chips">${chips}</div>` : '<p class="hint">Você não tem abelha Épica ou Lendária sem ascensão. Gire a Roleta para conseguir uma.</p>') : `<p class="hint" style="margin-top:0">${next ? `Próxima peça: ${next.i} ${next.n}. ${next.from}.` : 'Todas as ascensões foram usadas.'}</p>`}
+      ${paths}
+    </section>
+  </div>`;
+}
 function viewBreed() {
   const a = S.dragons.find(d => d.id === S.breedA), b = S.dragons.find(d => d.id === S.breedB);
   const slot = (d, w) => d
@@ -11593,6 +11725,7 @@ function viewArena() {
     <section class="panel" style="grid-column:1/-1">
       <div class="panel-head"><h2>Arena</h2><span class="muted">${champion ? 'Todas as ligas vencidas' : `Liga ${LEAGUES[S.league - 1]} · etapa ${S.leagueFight + 1} de 3`}</span></div>
       <div class="ladder">${ladder}</div>
+      ${isActs() && !champion && !towerOf().items.includes('trofeu') ? '<p class="hint" style="margin:4px 0 0">🏆 Vencer a liga dos Campeões dá o <b>Troféu dos Campeões</b>, a última peça da Torre da Ascensão.</p>' : ''}
       ${wild ? `<div class="row"><button class="btn primary" data-a="fight" data-k="wild">🐲 Enfrentar a abelha selvagem (recompensa x3)</button><span class="hint">${Math.ceil(S.event.until - S.t)}s restantes</span></div>` : ''}
       <div class="row">
         ${champion
@@ -11950,6 +12083,7 @@ const ACTIONS = {
   start: el => { landscapeLock(); startGame(el.dataset.k); },
   fullscreen: () => landscapeLock(true),
   fsToggle: () => toggleFs(),
+  buildFloor: () => buildFloor(), towerSel: el => { S.towerSel = +el.dataset.id; }, ascend: el => ascend(el.dataset.k),
   queen: el => chooseQueen(el.dataset.k),
   tutorNext: () => tutorNext(false), tutorSkip: () => tutorNext(true),
   tipOk: () => { S.tipsSeen = [...(S.tipsSeen || []), S.tab]; },
