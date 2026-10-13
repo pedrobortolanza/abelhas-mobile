@@ -425,3 +425,9 @@ Clique/toque em tudo. Teclas: `1`–`9` abrem os painéis do dock (1 = Ilha), `E
 - Batalhas dão 30% menos mel nos atos II e III. O prêmio por vencer o ato não mudou.
 - `powerK()`: inimigos comuns e invasões +5% por mutação rara (Dourada ou Fúria) e +8% por abelha ascendida. Os chefes recebem 70% desse aumento.
 - Fazendas sem nerf.
+
+## v7.5 (13/10/2026): partida guardada por 10 min
+
+- `saveRun()` grava o estado em `localStorage` (`honeyTroop.save`) a cada 5 s e ao esconder ou fechar a página. O menu mostra "Continuar partida" enquanto o salvo tem menos de 10 min (`SAVE_TTL`).
+- `resumeRun()` volta pausada. Giro da roleta e batalha em andamento não voltam.
+- Começar uma partida nova ou terminar a partida apaga o salvo.
