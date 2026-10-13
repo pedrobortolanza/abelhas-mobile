@@ -431,3 +431,8 @@ Clique/toque em tudo. Teclas: `1`–`9` abrem os painéis do dock (1 = Ilha), `E
 - `saveRun()` grava o estado em `localStorage` (`honeyTroop.save`) a cada 5 s e ao esconder ou fechar a página. O menu mostra "Continuar partida" enquanto o salvo tem menos de 10 min (`SAVE_TTL`).
 - `resumeRun()` volta pausada. Giro da roleta e batalha em andamento não voltam.
 - Começar uma partida nova ou terminar a partida apaga o salvo.
+
+## v7.6 (13/10/2026): voo das abelhas e venda na roleta
+
+- As 2 abelhas grandes que voavam pela ilha eram cópias das melhores e ficavam em dobro. Agora `flyingBees()` tira no máximo 2 abelhas da colmeia de tempos em tempos (ciclo de 70 s, janelas `FLY_WIN`). Cada uma sai da colmeia, dá uma volta pela ilha (`flyPathFrom`, 26 s) e volta. É só visual: o mel da colmeia não muda.
+- O resultado de um giro na roleta tem o botão Vender quando a abelha é nova (não repetida). São dois toques: o primeiro mostra "Confirmar venda" com o valor.
