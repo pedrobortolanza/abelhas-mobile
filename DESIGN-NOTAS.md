@@ -418,3 +418,10 @@ Clique/toque em tudo. Teclas: `1`–`9` abrem os painéis do dock (1 = Ilha), `E
   - Troca de Almas: 2 abelhas fora do time somem e chega 1 Lendária no nível médio.
 - **Veteranas**: cada abelha guarda `st` (lutas, vitórias, nocautes, dano, maior golpe). 5 vitórias = Experiente (+5%), 12 = Veterana (+10% e traço fixo Implacável +8% crítico, Sobrevivente +15% vida ou Feroz +12% ataque), 25 = Heroína da Tropa (+15%).
 - **Ficha da abelha**: tocar no ícone na aba Abelhas abre a ficha. Mostra personalidade, flor favorita e sonho (fixos pelo id), números, batalhas, poderes, forças e fraquezas de tipo e a barra até o próximo título.
+
+## v7.4 (13/10/2026): dificuldade moderada
+
+- Nível máximo das abelhas 25, com a mesma força final do antigo 15 (`LV_K = 14/24` no crescimento de mel, vida e ataque). Alimentar custa `10 × 1,255^(nível−1)`, uns 60% a mais no total até o máximo. `oldLv()` converte o nível dos inimigos da escala antiga. Repetidas da roleta: C1/R3/E4/L6. Poção de Treino +3. Conquistas de nível: 8, 16 e 25.
+- Batalhas dão 30% menos mel nos atos II e III. O prêmio por vencer o ato não mudou.
+- `powerK()`: inimigos comuns e invasões +5% por mutação rara (Dourada ou Fúria) e +8% por abelha ascendida. Os chefes recebem 70% desse aumento.
+- Fazendas sem nerf.
