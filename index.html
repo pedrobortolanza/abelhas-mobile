@@ -10140,6 +10140,8 @@ function endBattle(win) {
         r.text = advanceRoute(`Luta ${S.leagueFight + 1} de 3 da liga ${LEAGUES[S.league - 1]} vencida.`) + extra;
       }
     }
+    // Atos II e III: batalhas dão 30% menos mel (o prêmio por vencer o ato fica igual)
+    if (isActs() && S.act >= 1 && !actGo) r.gold = Math.round(r.gold * 0.7);
     addGold(r.gold); addGems(r.gems); addXp(r.xp);
   } else {
     st.battlesLost++; st.streak = 0;
