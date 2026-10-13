@@ -169,6 +169,7 @@ body { padding-bottom: calc(76px + env(safe-area-inset-bottom, 0px)); }
 .dic.unknown .dg { filter: brightness(0); opacity: .35; }
 .dic.unknown .els { display: none; }
 .dic.flip .dg { transform: scaleX(-1); }
+.stand .dic.r-B { transform: scale(1.5); transform-origin: 50% 85%; filter: drop-shadow(0 0 14px rgba(255, 40, 40, .45)); }
 .dic.pop { animation: popin .6s cubic-bezier(.2, 1.6, .4, 1); }
 .dg { display: block; width: 100%; height: 100%; overflow: visible; }
 .dg .shadow { fill: rgba(0, 0, 0, .35); transform-box: fill-box; transform-origin: center; animation: shadowp 2.4s ease-in-out infinite; animation-delay: var(--dl); }
@@ -7636,6 +7637,91 @@ const M3 = (() => {
     const b = { root, parts, kind: 'vespa', M };
     return b;
   }
+  // Chefes do modo atos: vespas grandonas e malvadas (cabeça pequena e angulosa, olhos vermelhos puxados,
+  // sobrancelha em V, mandíbulas curvas, cintura fina e ferrão enorme). Cada chefe tem sua armadura.
+  const BOSS_OF = els => ({ 'fogo+metal': 'general', 'trevas+luz': 'imperatriz' })[els.join('+')] || 'rainha';
+  function bossHead(M, s, eyeM) {
+    const head = new T.Group();
+    mesh(SPH, M.body, head, [0, 0, 0], [0.6 * s, 0.52 * s, 0.56 * s]);
+    mesh(SPH, M.face, head, [0.22 * s, -0.1 * s, 0], [0.38 * s, 0.34 * s, 0.4 * s]);
+    // olhos compostos grandes, puxados para cima e para fora
+    [1, -1].forEach(z => {
+      const e = new T.Group(); e.position.set(0.5 * s, 0.1 * s, z * 0.27 * s); e.rotation.set(z * -0.5, z * -0.35, -0.2); head.add(e);
+      mesh(SPH, eyeM, e, [0, 0, 0], [0.16 * s, 0.13 * s, 0.2 * s]);
+      mesh(SPH_LO, mat('#14060a', { roughness: 0.2 }), e, [0.15 * s, 0, 0], [0.04 * s, 0.03 * s, 0.11 * s], [0, 0, 0], false);
+      mesh(SPH_LO, mat('#ffffff', { emissive: col('#ffffff'), emissiveIntensity: 0.4 }), e, [0.16 * s, 0.05 * s, z * -0.04 * s], [0.025 * s, 0.02 * s, 0.025 * s], [0, 0, 0], false);
+      // sobrancelha grossa em V: a ponta de dentro desce
+      mesh(BOX, M.dark, head, [0.6 * s, 0.27 * s, z * 0.2 * s], [0.12 * s, 0.08 * s, 0.36 * s], [z * 0.6, 0, -0.25]);
+    });
+    // mandíbulas curvas com dentes
+    [1, -1].forEach(z => {
+      const m = taper([[0.45 * s, -0.32 * s, z * 0.16 * s], [0.68 * s, -0.48 * s, z * 0.24 * s], [0.88 * s, -0.42 * s, z * 0.1 * s], [0.92 * s, -0.34 * s, z * 0.0 * s]], 0.08 * s, 0.015 * s, 8, 12);
+      mesh(m.geo, M.claw, head, [0, 0, 0], [1, 1, 1], [0, 0, 0]);
+      mesh(CONE, M.claw, head, [0.74 * s, -0.36 * s, z * 0.12 * s], [0.025 * s, 0.07 * s, 0.025 * s], [0, 0, Math.PI * 0.9], false);
+    });
+    // antenas com cotovelo, apontando para trás
+    const ants = [1, -1].map(z => {
+      const a = new T.Group(); a.position.set(0.3 * s, 0.38 * s, z * 0.14 * s); head.add(a);
+      const tb = taper([[0, 0, 0], [0.12 * s, 0.4 * s, z * 0.08 * s], [-0.1 * s, 0.75 * s, z * 0.22 * s], [-0.45 * s, 0.85 * s, z * 0.3 * s]], 0.035 * s, 0.012 * s, 8, 16);
+      mesh(tb.geo, M.dark, a, [0, 0, 0], [1, 1, 1], [0, 0, 0], false);
+      return a;
+    });
+    head.userData.s = s;
+    return { head, ants };
+  }
+  function buildBoss(els) {
+    const kind = BOSS_OF(els);
+    const C = { general: ['#ff7a1a', '#1a1214', '#ff2a1a'], rainha: ['#ff8a1f', '#2b1a33', '#ff1a3a'], imperatriz: ['#f4f0ff', '#1c1030', '#c23cff'] }[kind];
+    const M = bMats(kind === 'imperatriz' ? ['trevas', 'luz'] : ['trevas', 'fogo'], 'L');
+    M.body = mat(C[1], { roughness: 0.35 }); M.face = mat(C[0], { roughness: 0.4 });
+    M.fuzz = mat(mix(C[1], '#000000', 0.1), { roughness: 0.55 }); M.leg = mat('#14080c', { roughness: 0.5 });
+    M.claw = mat('#0e0608', { roughness: 0.3 }); M.dark = mat('#0e0608', { roughness: 0.5 });
+    M.bwing = mat(kind === 'imperatriz' ? '#7a4aa8' : '#8a4a2a', { transparent: true, opacity: 0.62, roughness: 0.1, side: T.DoubleSide, emissive: col(kind === 'imperatriz' ? '#3a0a5a' : '#5a1a00'), emissiveIntensity: 0.5, depthWrite: false });
+    M.vein = mat('#3a1408'); M.has = () => false;
+    const eyeM = mat(C[2], { roughness: 0.15, emissive: col(C[2]), emissiveIntensity: 0.8 });
+    const metal = mat('#5a6478', { metalness: 0.4, roughness: 0.35 }), gold = mat('#ffcc33', { metalness: 0.5, roughness: 0.25, emissive: col('#5a3a00'), emissiveIntensity: 0.3 });
+    const root = new T.Group(), parts = {};
+    const body = new T.Group(); root.add(body); parts.body = body;
+    // tórax em armadura e cintura fininha
+    mesh(SPH, M.body, body, [0.2, 2.05, 0], [0.62, 0.55, 0.52]);
+    mesh(SPH, M.face, body, [0.38, 2.2, 0], [0.34, 0.26, 0.42], [0, 0, -0.3], false);
+    mesh(CYL, M.dark, body, [-0.38, 1.88, 0], [0.11, 0.42, 0.11], [0, 0, 1.25]);
+    beeAbdomen(body, M, parts, [-0.55, 1.78, 0], 2.6, 0.62, 8, { c1: C[0], c2: '#14080c', taper: 0.75, sting: 2.6, tilt: 0.5, stingMat: kind === 'general' ? metal : M.claw, noTip: true });
+    // pernas longas e espinhosas
+    parts.legs = [];
+    [-0.15, 0.15, 0.42].forEach((dx, k) => [1, -1].forEach(z => {
+      const g = new T.Group(); g.position.set(0.2 + dx, 1.72, z * 0.3); body.add(g);
+      const l = taper([[0, 0, 0], [0.1, -0.25, z * 0.25], [0.28 - k * 0.12, -0.55, z * 0.35], [0.4 - k * 0.15, -0.82, z * 0.3]], 0.06, 0.02, 8, 12);
+      mesh(l.geo, M.leg, g, [0, 0, 0], [1, 1, 1], [0, 0, 0]);
+      mesh(CONE, M.leg, g, [0.12, -0.32, z * 0.3], [0.02, 0.1, 0.02], [0, 0, -0.9], false);
+      parts.legs.push(g);
+    }));
+    const { head, ants } = bossHead(M, 1.5, eyeM); head.position.set(1.05, 2.45, 0); root.add(head); parts.head = head; parts.ants = ants;
+    if (kind === 'general') {
+      // elmo de metal com crista de espinhos, ombreiras e uma cicatriz
+      const hg = new T.Group(); hg.scale.setScalar(1.5); head.add(hg);
+      mesh(new T.SphereGeometry(1, 24, 12, 0, Math.PI * 2, 0, Math.PI / 2.1), metal, hg, [-0.06, 0.06, 0], [0.64, 0.56, 0.62], [0, 0, 0.3]);
+      for (let i = 0; i < 5; i++) mesh(CONE, mat('#c23a1a', { roughness: 0.4 }), hg, [-0.1 - i * 0.14, 0.6 - i * 0.1, 0], [0.06, 0.26, 0.04], [0, 0, 0.5 + i * 0.25]);
+      [1, -1].forEach(z => mesh(SPH, metal, body, [0.25, 2.3, z * 0.42], [0.3, 0.16, 0.24], [z * 0.4, 0, 0]));
+      mesh(BOX, mat('#5a0a0a'), head, [0.62, 0.32, 0.34], [0.05, 0.4, 0.04], [0.3, 0.5, 0.4], false);
+    } else if (kind === 'rainha') {
+      const crown = new T.Group(); crown.position.set(-0.05, 0.72, 0); crown.scale.setScalar(1.5); head.add(crown);
+      const cm = mat('#7a2a8a', { metalness: 0.3, roughness: 0.3, emissive: col('#3a0040') });
+      mesh(CYL, cm, crown, [0, 0, 0], [0.32, 0.12, 0.32]);
+      for (let i = 0; i < 7; i++) { const a = i / 7 * Math.PI * 2; mesh(CONE, cm, crown, [Math.cos(a) * 0.28, 0.24, Math.sin(a) * 0.28], [0.07, 0.42, 0.07], [Math.sin(a) * 0.35, 0, -Math.cos(a) * 0.35]); }
+      mesh(OCTA, mat('#ff3b3b', { emissive: col('#a00000') }), crown, [0.33, 0.03, 0], [0.09, 0.12, 0.09], [0, 0, 0], false);
+    } else {
+      // Imperatriz: coroa alta de ouro com joias, gola de espinhos e brilho roxo
+      const crown = new T.Group(); crown.position.set(-0.05, 0.74, 0); crown.scale.setScalar(1.55); head.add(crown);
+      mesh(CYL, gold, crown, [0, 0, 0], [0.34, 0.16, 0.34]);
+      for (let i = 0; i < 8; i++) { const a = i / 8 * Math.PI * 2, h = i % 2 ? 0.36 : 0.58; mesh(CONE, gold, crown, [Math.cos(a) * 0.3, h / 2 + 0.06, Math.sin(a) * 0.3], [0.08, h, 0.08]); }
+      [0, 2, 4, 6].forEach(i => { const a = i / 8 * Math.PI * 2; mesh(OCTA, mat('#c23cff', { emissive: col('#6a00a0'), emissiveIntensity: 0.8 }), crown, [Math.cos(a) * 0.35, 0.06, Math.sin(a) * 0.35], [0.06, 0.08, 0.06], [0, 0, 0], false); });
+      for (let i = 0; i < 10; i++) { const a = i / 10 * Math.PI * 2; mesh(CONE, M.dark, body, [0.55, 2.2 + Math.sin(a) * 0.45, Math.cos(a) * 0.45], [0.06, 0.34, 0.06], [a, 0, -Math.PI / 2]); }
+      [0.7, 1.4].forEach(x => mesh(new T.TorusGeometry(0.55, 0.035, 6, 30), gold, parts.abd, [-x, 0, 0], [1, 1, 1], [0, Math.PI / 2, 0], false));
+    }
+    [parts.wingN, parts.wingF] = beeWings(root, M, [-0.05, 2.62, 0.3], kind === 'imperatriz' ? 2.1 : 1.85);
+    return { root, parts, kind: 'chefe', M };
+  }
   const BODY_OF = { C: buildOperaria, R: buildGuardia, E: buildGuerreira, L: buildSoberana };
   const isVespa = (els, rar) => rar === 'L' && els[0] === 'trevas' && els[1] === 'fogo';
   // BetMel: Soberana dourada com óculos escuros e uma moeda de mel na coroa (só sai na roleta)
@@ -7651,6 +7737,7 @@ const M3 = (() => {
     return b;
   }
   function buildBee(els, rar) {
+    if (rar === 'B') return buildBoss(els);
     if (isVespa(els, rar)) return buildVespa();
     if (isBetMel(els, rar)) return buildBetMel();
     const M = bMats(els, rar);
@@ -7737,7 +7824,7 @@ const M3 = (() => {
     OUT = 0.045;
     const d = buildBee(els, rar);
     dressBee(d, skin);
-    const sc = { operaria: 1.22, guardia: 1.1, guerreira: 1.05, soberana: 0.96, vespa: 0.98 }[d.kind];
+    const sc = { operaria: 1.22, guardia: 1.1, guerreira: 1.05, soberana: 0.96, vespa: 0.98, chefe: 0.9 }[d.kind];
     d.root.scale.setScalar(sc);
     const holder = new T.Group(); holder.add(d.root); holder.rotation.y = -0.62;
     toonBee(holder);
@@ -10138,7 +10225,7 @@ function startFinal() {
   S.battle = null; S.lastResult = null; S.lostEgg = null; S.event = null; S.buffs = {}; S.tab = 'arena'; S.autoBattle = false; S.raid = null; S.bonusRelic = false;
   render(true);
   const bn = bossName(), bd = isActs() ? curAct().disp : ['trevas', 'fogo'];
-  despertar.then(r => { if (r && r.semCena) { sfx('despertar'); music('invasao'); } if (S && !S.ended) overlay(`<div class="card hero">${isActs() ? `<span class="cat">${curAct().n} · chefe</span>` : ''}${dIcon(bd, 'L', 'xl', 'pop', 5)}
+  despertar.then(r => { if (r && r.semCena) { sfx('despertar'); music('invasao'); } if (S && !S.ended) overlay(`<div class="card hero">${isActs() ? `<span class="cat">${curAct().n} · chefe</span>` : ''}${dIcon(bd, 'B', 'xl', 'pop', 5)}
     <h1>${bn} chegou com o enxame!</h1>
     <p>Voa em direção à colmeia com seu enxame. Escolha até 3 abelhas para a batalha final. Tudo o que você construiu decide este momento.</p>
     <button class="btn primary" data-a="cancelEnd">Escolher meu time</button></div>`); });
@@ -10411,7 +10498,7 @@ function shade(hex, f) {
   const ch = [(n >> 16) & 255, (n >> 8) & 255, n & 255].map(c => Math.round(f < 0 ? c * (1 + f) : c + (255 - c) * f));
   return '#' + ch.map(c => c.toString(16).padStart(2, '0')).join('');
 }
-const RING = { C: '#b9b3cc', R: '#4fb3ff', E: '#c77dff', L: '#ffb703' };
+const RING = { C: '#b9b3cc', R: '#4fb3ff', E: '#c77dff', L: '#ffb703', B: '#ff3b3b' };
 // Gradientes e padrões compartilhados por todos os desenhos (um <svg> oculto no topo da página)
 function buildDefs() {
   const stops = arr => arr.map(([o, c, op]) => `<stop offset="${o}" stop-color="${c}"${op !== undefined ? ` stop-opacity="${op}"` : ''}/>`).join('');
@@ -10463,10 +10550,10 @@ function dragonSVG(els, rar, seed = 0, skin) {
   if (!sprOff) { const u = dragonSprite(els, rar, skin); return u ? spriteSVG(u, rar, seed) : placeholderSVG(rar); }
   const key = els.join('+') + rar + (seed % 9);
   if (dgCache.has(key)) return dgCache.get(key);
-  const vespa = rar === 'L' && els[0] === 'trevas' && els[1] === 'fogo';
+  const vespa = (rar === 'L' || rar === 'B') && els[0] === 'trevas' && els[1] === 'fogo';
   const e1 = els[0] || 'fogo', e2 = els[1] || e1;
   const c1 = vespa ? '#ff8a1f' : EL[e1].c, c2 = vespa ? '#2b1a33' : EL[e2].c, ink = '#1b1230', st = '#2a1a12';
-  const dl = -((seed * 0.37) % 2).toFixed(2), big = { C: 1, R: 1.08, E: 1.1, L: 1.16 }[rar];
+  const dl = -((seed * 0.37) % 2).toFixed(2), big = { C: 1, R: 1.08, E: 1.1, L: 1.16, B: 1.25 }[rar];
   let g = `<svg class="dg" viewBox="-6 -8 132 108" style="--dl:${dl}s" aria-hidden="true">`;
   g += `<ellipse class="shadow" cx="64" cy="93" rx="34" ry="7" fill="url(#g-shadow)"/>`;
   g += `<ellipse class="base" cx="64" cy="93" rx="30" ry="4.5" fill="none" stroke="${RING[rar]}" stroke-width="2.2" opacity=".8"/>`;
@@ -11431,7 +11518,7 @@ function fighterView(f, side, bench, active, B) {
       <span class="muted" style="font-size:.8rem">${f.boss ? 'Ataca com elementos aleatórios' : elTags(f.els)}</span>
       <div class="hpw"><div class="bar hp ${f.hp / f.hpMax < 0.3 ? 'low' : ''}"><i style="width:${pct(f.hp, f.hpMax)}%"></i></div><span class="hpn num">❤️ ${f.hp} / ${f.hpMax}</span></div>
     </div>
-    <div class="stand${f.hp <= 0 ? ' down' : ''}">${dIcon(disp, f.rar, 'xl', side === 'foe' ? 'flip' : '', f.did || 3, f.skin)}</div>
+    <div class="stand${f.hp <= 0 ? ' down' : ''}">${dIcon(disp, f.boss ? 'B' : f.rar, 'xl', side === 'foe' ? 'flip' : '', f.did || 3, f.skin)}</div>
     <div class="bench">${bench.map((x, i) => i === active ? '' : `<span class="${x.hp <= 0 ? 'ko' : ''}">${dIcon(x.disp || x.els, x.rar, 's')}</span>`).join('')}</div>
   </div>`;
 }
@@ -11469,7 +11556,7 @@ function viewArena() {
     const boss = bossTeam(true)[0];
     teamDragons();
     return `<section class="panel"><div class="panel-head"><h2>${isActs() ? `${curAct().n} · chefe` : 'Ataque final'}</h2><span class="muted num">${boss.name}: ❤️ ${fmt(boss.hpMax)} · 🗡️ ${boss.atk}</span></div>
-      <div class="row" style="justify-content:center"><div class="stand">${dIcon(boss.disp, 'L', 'xl', 'flip', 5)}</div></div>
+      <div class="row" style="justify-content:center"><div class="stand">${dIcon(boss.disp, 'B', 'xl', 'flip', 5)}</div></div>
       <p style="margin:0">${boss.name} ataca com tipos aleatórios e não tem fraquezas. Leve as suas abelhas com mais vida e ataque.${S.weakened ? ' Está ferida: você lutou com ela no ninho, e ela perdeu 30% da vida.' : ''}${S.mode === 'infinito' ? ` Esta é a invasão ${S.wave + 1}.` : ''}</p>
       <div class="chips">${chips}</div>
       <div class="row"><button class="btn primary big pulse-go" data-a="fight" data-k="final">🛡️ Defender a colmeia</button><span class="hint">Time: ${S.team.length}/3</span></div></section>`;
