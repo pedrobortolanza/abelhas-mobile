@@ -750,6 +750,14 @@ svg.gi { width: 1.2em; height: 1.2em; vertical-align: -.25em; display: inline-bl
 .labopt > .btn, .labopt > .labpick { grid-column: 1 / -1; justify-self: start; }
 .labopt .lab-ic .gi { width: 34px; height: 34px; }
 .labopt .hint { display: block; }
+.hud .crisis-box { order: -1; flex: 1 1 100%; max-width: 560px; margin: 0 auto; flex-wrap: nowrap; gap: 10px; padding: 8px 10px; background: linear-gradient(180deg, rgba(150, 30, 30, .95), rgba(80, 14, 14, .95)) !important; border: 2px solid #ffb04a !important; animation: crisisPulse 1s ease-in-out infinite; }
+.crisis-box .cr-ic { font-size: 1.7rem; } .crisis-box .cr-ic .gi { width: 34px; height: 34px; }
+.crisis-box .cr-txt { flex: 1; display: grid; gap: 2px; color: #fff; font-size: .82rem; line-height: 1.2; }
+.crisis-box .cr-txt b { font-family: var(--font-display, inherit); font-size: 1rem; }
+.crisis-box .bar { height: 6px; } .crisis-box .bar i { background: #ffcf4a; transition: width .9s linear; }
+.crisis-box .btn { white-space: nowrap; }
+@keyframes crisisPulse { 50% { box-shadow: 0 0 0 4px rgba(255, 120, 60, .35); } }
+@media (orientation: landscape) and (max-height: 520px) { .hud .crisis-box { max-width: 440px; padding: 4px 8px; } .crisis-box .cr-txt span { display: none; } }
 .tw-parts { display: grid; gap: 8px; }
 .tw-part { display: grid; grid-template-columns: auto 1fr; gap: 6px 12px; align-items: center; padding: 10px 12px; border-radius: 14px; background: rgba(0,0,0,.18); opacity: .78; }
 .tw-part.have { opacity: 1; box-shadow: inset 0 0 0 2px #ffcc33; }
@@ -9252,7 +9260,7 @@ function addDragon(sp, lvl = 1) {
 const capacity = () => S.habitats.length * HAB_CAP;
 const habDragons = i => S.dragons.slice(i * HAB_CAP, i * HAB_CAP + HAB_CAP);
 const habGps = i => habDragons(i).reduce((a, d) => a + gpsOf(d), 0);
-const goldMult = () => (S.buffs.chuva > S.t ? 2 : 1) * (S.buffs.frio > S.t ? 0.5 : 1);
+const goldMult = () => (S.buffs.chuva > S.t ? 2 : 1) * (S.buffs.frio > S.t ? 0.5 : 1) * (S.buffs.doente > S.t ? 0.6 : 1) * (S.buffs.rachado > S.t ? 0.5 : 1);
 const farmMult = () => (S.buffs.colheita > S.t ? 3 : 1);
 const totalGps = () => S.habitats.reduce((a, h, i) => a + habGps(i), 0) * goldMult();
 const unlockedCrop = k => S.level >= CROPS[k].lvl;
@@ -10136,6 +10144,62 @@ function nextSeason() {
   S.season = pick(Object.keys(SEASONS).filter(k => k !== S.season));
   applyMods(SEASONS[S.season].mods);
 }
+// Crises: do meio do Ato II até o fim, pedem uma reação rápida (tocar várias vezes ou pagar) antes do tempo acabar
+const CRISES = {
+  fogo: { i: '🔥', n: 'Incêndio no canteiro', d: 'Um canteiro pegou fogo! Jogue água antes que se espalhe.', dur: 20, taps: 6, btn: '💧 Jogar água', fail: 'O fogo queimou as flores de todos os canteiros.', can: () => S.farms.some(f => f.crop) },
+  ladras: { i: '🦹', n: 'Ladras de mel', d: 'Vespas estão roubando os potes da colmeia! Espante todas.', dur: 15, taps: 8, btn: '👋 Espantar', fail: 'As ladras levaram 12% do seu mel.', can: () => S.gold > 200 },
+  doente: { i: '🤒', n: 'Rainha doente', d: 'A rainha está com febre. Entregue néctar para ela melhorar.', dur: 40, pay: 'food', btn: 'Dar néctar', fail: 'Sem o néctar, as colmeias produzem 40% menos mel por 90 s.', can: () => true },
+  rachado: { i: '🧱', n: 'Favo rachado', d: 'Uma rachadura no favo está vazando mel. Pague o conserto.', dur: 40, pay: 'gold', btn: 'Consertar', fail: 'O vazamento cortou o mel pela metade por 2 min.', can: () => true },
+};
+const crisisFrom = () => actEndAt(0) + ACTS[1].dur / 2;
+function crisisTick(dt) {
+  if (!isActs()) return;
+  const C = S.crisis;
+  if (C) {
+    if (S.battle || S.relicOffer) { C.until += dt; return; }
+    if (S.t >= C.until) crisisEnd(false);
+    return;
+  }
+  if (S.nextCrisis === undefined) S.nextCrisis = crisisFrom();
+  if (S.t < S.nextCrisis || S.battle || S.relicOffer || S.raid || S.finalPhase || invadeAt() - S.t < 45) return;
+  const keys = Object.keys(CRISES).filter(k => k !== S.lastCrisis && CRISES[k].can());
+  const k = pick(keys), K = CRISES[k];
+  const amt = K.pay === 'food' ? 15 + 6 * S.level : K.pay === 'gold' ? round5(Math.max(300, totalGps() * 45)) : 0;
+  S.crisis = { k, until: S.t + K.dur, dur: K.dur, taps: 0, amt };
+  S.lastCrisis = k; sfx('tremor', { intensidade: 0.4 });
+}
+function crisisAct() {
+  const C = S.crisis; if (!C) return;
+  const K = CRISES[C.k];
+  if (K.taps) { C.taps++; sfx('clique'); if (C.taps >= K.taps) crisisEnd(true); return; }
+  if (K.pay === 'food') { if (S.food < C.amt) { toast('Néctar insuficiente', `Precisa de ${C.amt} de néctar. Colha flores no Jardim.`, 'bad'); return; } S.food -= C.amt; }
+  else if (!spendGold(C.amt)) return;
+  crisisEnd(true);
+}
+function crisisEnd(ok) {
+  const C = S.crisis, K = CRISES[C.k];
+  S.crisis = null; S.nextCrisis = S.t + 110 + Math.random() * 50;
+  const st = S.stats;
+  if (ok) {
+    st.crisesOk = (st.crisesOk || 0) + 1;
+    const g = 4 + 2 * (S.act || 0); addGems(g); addXp(30 + 20 * (S.act || 0));
+    const cr = Math.random() < 0.2; if (cr) addCrystals(1, 'Achado depois da crise.');
+    sfx('conquista'); toast(`${K.i} Crise resolvida!`, `+${g} de geleia real${cr ? ' e 1 cristal' : ''}.`, 'ach');
+    return;
+  }
+  st.crisesFail = (st.crisesFail || 0) + 1;
+  if (C.k === 'fogo') S.farms.forEach(f => { f.crop = null; f.prog = 0; });
+  if (C.k === 'ladras') { const n = Math.round(S.gold * 0.12); S.gold -= n; }
+  if (C.k === 'doente') S.buffs.doente = S.t + 90;
+  if (C.k === 'rachado') S.buffs.rachado = S.t + 120;
+  sfx('erro'); toast(`${K.i} ${K.n}`, K.fail, 'bad');
+}
+function crisisBox() {
+  const C = S.crisis; if (!C) return '';
+  const K = CRISES[C.k], left = Math.max(0, C.until - S.t);
+  const label = K.taps ? `${K.btn} (${C.taps}/${K.taps})` : `${K.btn} ${costTag(C.amt, K.pay === 'food' ? 'f' : undefined)}`;
+  return `<div class="box crisis-box"><span class="cr-ic">${K.i}</span><div class="cr-txt"><b>${K.n}</b><span>${K.d}</span><div class="bar"><i style="width:${pct(left, C.dur)}%"></i></div></div><button class="btn danger" data-a="crisis">${label}</button></div>`;
+}
 function towerPart(k) {
   const T = S.tower, P = TOWER_PARTS.find(p => p.k === k);
   if (!T || !P || T.items.includes(k)) return;
@@ -10309,6 +10373,7 @@ function tick() {
   }
   if (S.raid && S.t > S.raid.until && !(S.battle && S.battle.kind === 'raid')) { overlay(''); raidPenalty(); }
   if ((S.t >= S.nextRelic || S.bonusRelic) && !S.battle && !S.relicOffer && !S.raid) offerRelics();
+  crisisTick(dt);
   if (S.t >= S.nextCrystal) { S.nextCrystal += CRYSTAL_EVERY; addCrystals(1, 'Um cristal brotou no Laboratório.'); }
   if (S.lostEgg && S.t > S.lostEgg.until) S.lostEgg = null;
   if (S.battle && !S.battle.over && S.autoBattle && S.tab === 'arena') {
@@ -10335,7 +10400,7 @@ function startFinal() {
   const despertar = isActs() ? cena(S.act === 1 ? 'despertar' : 'atoChefe', { modo: S.mode, vars: { chefe: curAct().boss, ato: curAct().n } })
     : cena(S.mode === 'infinito' && S.wave > 0 ? 'despertarOnda' : 'despertar', { modo: S.mode, vars: { onda: S.wave + 1 } });
   if (S.battle && !S.battle.over) S.stats.battles--;
-  S.battle = null; S.lastResult = null; S.lostEgg = null; S.event = null; S.buffs = {}; S.tab = 'arena'; S.autoBattle = false; S.raid = null; S.bonusRelic = false;
+  S.battle = null; S.lastResult = null; S.lostEgg = null; S.event = null; S.buffs = {}; S.crisis = null; S.tab = 'arena'; S.autoBattle = false; S.raid = null; S.bonusRelic = false;
   render(true);
   const bn = bossName(), bd = isActs() ? curAct().disp : ['trevas', 'fogo'];
   despertar.then(r => { if (r && r.semCena) { sfx('despertar'); music('invasao'); } if (S && !S.ended) overlay(`<div class="card hero">${isActs() ? `<span class="cat">${curAct().n} · chefe</span>` : ''}${dIcon(bd, 'B', 'xl', 'pop', 5)}
@@ -10832,6 +10897,8 @@ function renderTop() {
   if (S.buffs.chuva > S.t) buffs.push(`🌧️ Mel x2 · ${Math.ceil(S.buffs.chuva - S.t)}s`);
   if (S.buffs.colheita > S.t) buffs.push(`🌻 Flores x3 · ${Math.ceil(S.buffs.colheita - S.t)}s`);
   if (S.buffs.frio > S.t) buffs.push(`❄️ Colmeias frias · ${Math.ceil(S.buffs.frio - S.t)}s`);
+  if (S.buffs.doente > S.t) buffs.push(`🤒 Rainha doente · ${Math.ceil(S.buffs.doente - S.t)}s`);
+  if (S.buffs.rachado > S.t) buffs.push(`🧱 Favo vazando · ${Math.ceil(S.buffs.rachado - S.t)}s`);
   if (S.raid) buffs.push(`${RIVALS[S.rival].i} Invasão · ${Math.max(0, Math.ceil(S.raid.until - S.t))}s`);
   if (S.event && S.event.until > S.t && ['selvagem', 'mercador'].includes(S.event.type)) buffs.push(`${EVENTS[S.event.type].i} ${EVENTS[S.event.type].n} · ${Math.ceil(S.event.until - S.t)}s`);
   return `<div class="wrap">
@@ -11540,7 +11607,7 @@ function viewHud() {
     + (S.level >= 5 ? '<button class="btn small primary" data-a="collectAll">🪙 Coletar tudo</button>' : '');
   const ready = S.farms.filter(f => f.crop && f.prog >= CROPS[f.crop].dur).length;
   const se = SEASONS[S.season], rv = RIVALS[S.rival], nextRaid = S.raidIdx < S.raids.length ? S.raids[S.raidIdx] - S.t : null;
-  return `<div class="box run-box"><span class="hud-lbl" title="${se.d}">${se.i} ${se.n}</span><span class="hud-lbl" title="${rv.d}">${rv.i} ${S.raid ? '<b>Invasão agora!</b>' : nextRaid !== null ? `Invasão em ${fmtTime(Math.max(0, nextRaid))}` : 'Sem mais invasões'}</span></div><div class="box"><button class="btn small go" data-a="tab" data-k="jardim">🌱 Jardim${ready ? ` <span class="badge">${ready}</span>` : ''}</button>${S.gardener ? '<span class="hint hud-lbl">👩‍🌾 Jardineira trabalhando</span>' : ''}</div>${acts ? `<div class="box">${acts}</div>` : ''}`;
+  return crisisBox() + `<div class="box run-box"><span class="hud-lbl" title="${se.d}">${se.i} ${se.n}</span><span class="hud-lbl" title="${rv.d}">${rv.i} ${S.raid ? '<b>Invasão agora!</b>' : nextRaid !== null ? `Invasão em ${fmtTime(Math.max(0, nextRaid))}` : 'Sem mais invasões'}</span></div><div class="box"><button class="btn small go" data-a="tab" data-k="jardim">🌱 Jardim${ready ? ` <span class="badge">${ready}</span>` : ''}</button>${S.gardener ? '<span class="hint hud-lbl">👩‍🌾 Jardineira trabalhando</span>' : ''}</div>${acts ? `<div class="box">${acts}</div>` : ''}`;
 }
 function dragonCard(d) {
   const maxed = d.lvl >= MAX_DLVL;
@@ -12083,6 +12150,7 @@ const ACTIONS = {
   start: el => { landscapeLock(); startGame(el.dataset.k); },
   fullscreen: () => landscapeLock(true),
   fsToggle: () => toggleFs(),
+  crisis: () => crisisAct(),
   buildFloor: () => buildFloor(), towerSel: el => { S.towerSel = +el.dataset.id; }, ascend: el => ascend(el.dataset.k),
   queen: el => chooseQueen(el.dataset.k),
   tutorNext: () => tutorNext(false), tutorSkip: () => tutorNext(true),
