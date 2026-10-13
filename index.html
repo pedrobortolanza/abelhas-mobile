@@ -9742,7 +9742,7 @@ function showSwarm(out) {
       ${dIcon(o.sp.els, o.sp.rar, 'xl', 'pop', o.d ? o.d.id : S.nextId)}
       <h1>${o.sp.name}</h1><p><span class="rar-${o.sp.rar}">${RARITY[o.sp.rar].n}</span> · ${RARITY[o.sp.rar].f} · ${elTags(o.sp.els)}</p>
       <p class="${o.d && o.d.mut && !o.dup ? 'mut-line' : 'muted'}">${o.d && o.d.mut && !o.dup ? `🧬 Mutação: ${MUTS[o.d.mut].n} (${MUTS[o.d.mut].d})` : swLine(o)}</p>
-      <div class="row" style="justify-content:center"><button class="btn primary" data-a="cancelEnd">Continuar</button><button class="btn" data-a="swAgain">Girar de novo</button></div></div>`);
+      <div class="row" style="justify-content:center"><button class="btn primary" data-a="cancelEnd">Continuar</button><button class="btn" data-a="swAgain">Girar de novo</button>${o.d && !o.dup && !o.full ? `<button class="btn danger" data-a="swSell" data-id="${o.d.id}">Vender (+${fmt(sellValue(o.d))} 🪙)</button>` : ''}</div></div>`);
     return;
   }
   const cards = out.map(x => `<div class="swr r-${x.sp.rar}">${dIcon(x.sp.els, x.sp.rar, 'm', '', x.d ? x.d.id : 7)}<b class="rar-${x.sp.rar}">${x.sp.name}</b><small>${x.isNew ? 'NOVA! ' : ''}${x.dup ? (x.up ? `+${x.up} nível` : 'virou mel') : x.full ? 'virou mel' : x.d && x.d.mut ? '🧬 ' + MUTS[x.d.mut].n : RARITY[x.sp.rar].n}</small></div>`).join('');
@@ -12330,6 +12330,13 @@ const ACTIONS = {
   buyHab: () => buyHabitat(), buyFarm: () => buyFarm(), buyHatch: () => buyHatch(),
   buy: el => buyDragon(el.dataset.k),
   feed: el => feed(+el.dataset.id), sell: el => sell(+el.dataset.id),
+  swSell: el => {
+    const d = S.dragons.find(x => x.id === +el.dataset.id);
+    if (!d) { overlay(''); return; }
+    if (!el.dataset.ok) { el.dataset.ok = '1'; el.innerHTML = iconize(`Confirmar venda: +${fmt(sellValue(d))} 🪙`); return; }
+    d._confirm = true; const n = S.dragons.length; sell(d.id);
+    if (S.dragons.length < n) { overlay(''); render(); } else d._confirm = false;
+  },
   hatch: el => hatch(+el.dataset.id), speed: el => speedEgg(+el.dataset.id),
   swarm: el => spinSwarm(el.dataset.k, +(el.dataset.n || 1)),
   swAgain: () => { overlay(''); S.tab = 'chocadeira'; spinSwarm(S.t >= S.freeAt ? 'free' : S.tickets ? 'ticket' : 'gold'); },
