@@ -436,3 +436,9 @@ Clique/toque em tudo. Teclas: `1`–`9` abrem os painéis do dock (1 = Ilha), `E
 
 - As 2 abelhas grandes que voavam pela ilha eram cópias das melhores e ficavam em dobro. Agora `flyingBees()` tira no máximo 2 abelhas da colmeia de tempos em tempos (ciclo de 70 s, janelas `FLY_WIN`). Cada uma sai da colmeia, dá uma volta pela ilha (`flyPathFrom`, 26 s) e volta. É só visual: o mel da colmeia não muda.
 - O resultado de um giro na roleta tem o botão Vender quando a abelha é nova (não repetida). São dois toques: o primeiro mostra "Confirmar venda" com o valor.
+
+## v7.7 (13/10/2026): ilha em diagonal, maior, e Laboratório fechado no começo
+
+- Construções em diagonal: da praça saem duas avenidas retas (Roleta e Laboratório à direita; Mercado e Mural à esquerda), um caminho reto até a Arena e um ramal do Mercado até a Torre da Ascensão, no lado esquerdo. Caminhos em `WAYS` podem ser `[X, Y]` (da praça) ou `[X0, Y0, X1, Y1]`, sempre retos.
+- Ilha 10% maior (`HEX`) e câmera mais longe: o mapa mostra `MAP_VB = [-60, -36, 1120, 672]` em vez de 1000x600 (SVG e câmera 3D usam o mesmo). Colmeias 5 e 6 desceram um pouco para os nomes não baterem nos balões. Enfeites 3D novos no lado direito.
+- Laboratório fechado até o nível 9 (`LAB_OPEN`), depois abre pagando 6.000 de mel. Cristais continuam chegando e ficam guardados. Missões de mutação só aparecem com ele aberto.
