@@ -11502,11 +11502,11 @@ function isoSpecial(k) {
   if (ISO3D) {
     const big = size === 3, hh = big ? 170 : 120;
     out += `<polygon class="lot hit" points="${pts(diamond(cx, cy, size, size))}" fill="transparent"/><rect class="hit" x="${X - (big ? 80 : 46)}" y="${Y - hh}" width="${big ? 160 : 92}" height="${hh}" fill="transparent"/>`;
-    if (k === 'arena') { const alert = S.finalPhase ? '☠️' : (S.event && S.event.type === 'selvagem' && S.event.until > S.t) ? '🐲' : (S.battle && !S.battle.over) ? '⚔️' : ''; if (alert) bubble(X + 50, Y - 78, alert, true, '', 'data-a="tab" data-k="arena"'); }
+    if (k === 'arena') { const alert = S.finalPhase ? '☠️' : (S.event && S.event.type === 'selvagem' && S.event.until > S.t) ? '🐲' : (S.battle && !S.battle.over) ? '⚔️' : ''; if (alert) bubble(X, Y - 122, alert, true, '', 'data-a="tab" data-k="arena"'); }
     else if (k === 'missoes') { const claim = S.missions.filter(m => missionProg(m) >= m.target).length; if (claim) bubble(X + 30, Y - 68, '📜', true, String(claim), 'data-a="tab" data-k="missoes"'); }
-    else if (k === 'chocadeira') { const n = (S.t >= S.freeAt ? 1 : 0) + S.tickets; if (n) bubble(X + 46, Y - 112, '🎯', true, String(n), 'data-a="tab" data-k="chocadeira"'); }
-    else if (k === 'torre') { const T = towerOf(), P = TOWER_PARTS[T.floors]; if ((P && T.items.includes(P.k)) || T.used < T.floors) bubble(X + 40, Y - 88, '🗼', true, '!', 'data-a="tab" data-k="torre"'); }
-    else if (k === 'cruzar' && labLocked() && S.level >= LAB_OPEN.lvl) bubble(X + 40, Y - 88, '🧪', true, '!', 'data-a="tab" data-k="cruzar"');
+    else if (k === 'chocadeira') { const n = (S.t >= S.freeAt ? 1 : 0) + S.tickets; if (n) bubble(X, Y - 128, '🎯', true, String(n), 'data-a="tab" data-k="chocadeira"'); }
+    else if (k === 'torre') { const T = towerOf(), P = TOWER_PARTS[T.floors]; if ((P && T.items.includes(P.k)) || T.used < T.floors) bubble(X, Y - 96 - towerOf().floors * 14, '🗼', true, '!', 'data-a="tab" data-k="torre"'); }
+    else if (k === 'cruzar' && labLocked() && S.level >= LAB_OPEN.lvl) bubble(X, Y - 104, '🧪', true, '!', 'data-a="tab" data-k="cruzar"');
     return out + pill(X, Y + (big ? 52 : 26), spotName(k)) + '</g>';
   }
   if (k === 'chocadeira') {
