@@ -8559,7 +8559,7 @@ const M3 = (() => {
     g.lineCap = 'round'; g.lineJoin = 'round';
     const road = (ctx, pp, w, k = 1) => { ctx.beginPath(); ctx.moveTo(pp[0][0] * k, pp[0][1] * k); ctx.quadraticCurveTo(pp[1][0] * k, pp[1][1] * k, pp[2][0] * k, pp[2][1] * k); ctx.lineWidth = w * k; ctx.stroke(); };
     const wid = i => (i < 6 ? 0.42 : 0.34) * K;
-    const COB = [0, 1, 2, 3, 4, 5, 8, 9, 14], riv = [];
+    const COB = [0, 1, 2, 5, 8, 9, 14, 15], riv = [];
     // caminhos de lajotas: sombra, leito de terra batida e pedras irregulares com relevo
     { const FY = L.farmRect[0][1];
       const pts = i => curve(i === 5 ? [L.ways[5][0], FY + 8] : L.ways[i]);
@@ -11171,15 +11171,14 @@ const gridAt = (X, Y) => { const a = (X - OX) * 2 / TW, b = (Y - OY) * 2 / TH; r
 // Vila da colmeia: praça com a fonte de mel no meio, construções em arco no fundo,
 // colmeias dos dois lados da praça e o jardim de flores na frente.
 const PLAZA = [500, 300];
-const HAB_LOTS = [[620, 292], [380, 292], [660, 372], [340, 372], [750, 320], [250, 320], [500, 384], [818, 382], [182, 382]].map(p => gridAt(...p));
-const FARM_ROWS = [446, 480], FARM_X = [324, 388, 452, 548, 612, 676];
+const HAB_LOTS = [[620, 292], [380, 292], [635, 368], [365, 368], [750, 320], [250, 320], [500, 380], [818, 382], [182, 382]].map(p => gridAt(...p));
+const FARM_ROWS = [462, 496], FARM_X = [324, 388, 452, 548, 612, 676];
 const FARM_LOTS = FARM_ROWS.flatMap(Y => FARM_X.map(X => gridAt(X, Y)));
 const SPOTS = {
   arena: { at: gridAt(500, 128), n: 'Arena', size: 3, px: [500, 128] },
   chocadeira: { at: gridAt(740, 180), n: 'Roleta do Enxame', px: [740, 180] },
   loja: { at: gridAt(260, 180), n: 'Mercado', px: [260, 180] },
-  cruzar: { at: gridAt(820, 140), n: 'Laboratório', px: [820, 140] },
-  missoes: { at: gridAt(180, 140), n: 'Mural de Missões', px: [180, 140] },
+  cruzar: { at: gridAt(880, 272), n: 'Laboratório', px: [880, 272] },
   torre: { at: gridAt(140, 260), n: 'Torre da Ascensão', px: [140, 260] },
 };
 // Enfeites em grupos, perto das bordas: potes de mel (0), colunas de cera (1) e pólen (2)
@@ -11660,11 +11659,11 @@ function hiveWall() {
 }
 // ---------- Ilha 3D: uma tela WebGL atrás do SVG (o SVG fica só com cliques, balões, nomes e abelhas) ----------
 let ISO3D = false, W3 = null, w3Sig = '', w3Last = 0, w3Box = '';
-// Caminhos nas diagonais da ilha: da praça saem duas avenidas em diagonal para o fundo
-// (Roleta e Laboratório à direita; Mercado, Torre e Mural à esquerda) e um caminho reto até a Arena.
-const WAYS = [[500, 150], [740, 180], [260, 180], [800, 150], [200, 150], [500, 440], [620, 300], [380, 300], [660, 380], [340, 380], [748, 310], [252, 310], [818, 390], [182, 390], [260, 180, 150, 255]];
+// Caminhos nas diagonais da ilha: da praça saem duas avenidas em diagonal até o Mercado e a Roleta,
+// e de cada uma desce um ramal para o lado (Torre à esquerda, Laboratório à direita). Missões ficam só na barra.
+const WAYS = [[500, 150], [740, 180], [260, 180], [800, 150], [200, 150], [500, 440], [620, 300], [380, 300], [635, 368], [365, 368], [748, 310], [252, 310], [818, 390], [182, 390], [260, 180, 150, 255], [740, 180, 870, 265]];
 // Poucos enfeites, bem espaçados
-const DECO3D = [[300, 108, 'vela'], [700, 108, 'vela'], [468, 222, 'lanterna'], [532, 222, 'lanterna'], [630, 140, 'potmel'], [860, 250, 'skep'], [830, 282, 'potmel'], [895, 262, 'flores'], [110, 330, 'girassol'], [890, 330, 'girassol'], [395, 540, 'flores'], [605, 540, 'flores'], [255, 520, 'potmel'], [745, 520, 'skep']];
+const DECO3D = [[300, 108, 'vela'], [700, 108, 'vela'], [468, 222, 'lanterna'], [532, 222, 'lanterna'], [630, 140, 'potmel'], [190, 150, 'skep'], [218, 172, 'flores'], [810, 150, 'potmel'], [782, 172, 'flores'], [110, 330, 'girassol'], [890, 330, 'girassol'], [215, 470, 'flores'], [785, 470, 'flores'], [255, 520, 'potmel'], [745, 520, 'skep']];
 function w3Lots() {
   const L = Object.entries(SPOTS).map(([k, sp]) => ({ id: 's:' + k + (k === 'torre' ? towerOf().floors : ''), k: k === 'chocadeira' ? 'roleta' : k, a: k === 'torre' ? towerOf().floors : undefined, x: sp.at[0], z: sp.at[1] }));
   S.habitats.forEach((h, i) => { const th = habTheme(habDragons(i)); L.push({ id: `h${i}:${th}`, k: 'habitat', a: th, x: HAB_LOTS[i][0], z: HAB_LOTS[i][1] }); });
