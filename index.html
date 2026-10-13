@@ -8907,8 +8907,8 @@ const MODES = {
 };
 // Partida em atos: cada ato termina com um chefe; vencer leva ao próximo ato com tudo o que foi construído
 const ACTS = [
-  { n: 'Ato I', boss: 'General Vespa', disp: ['fogo', 'metal'], dur: 720, hp: 1300, atk: 50, reward: { gold: 4000, gems: 20, xp: 300 }, pts: 4000, hab: 4, farm: 6, lg: 3 },
-  { n: 'Ato II', boss: 'Vespa Rainha', disp: ['trevas', 'fogo'], dur: 720, hp: 3300, atk: 84, reward: { gold: 12000, gems: 30, xp: 600 }, pts: 8000, hab: 7, farm: 9, lg: 6 },
+  { n: 'Ato I', boss: 'General Vespa', disp: ['fogo', 'metal'], dur: 720, hp: 1300, atk: 50, reward: { gold: 4000, gems: 15, xp: 300 }, pts: 4000, hab: 4, farm: 6, lg: 3 },
+  { n: 'Ato II', boss: 'Vespa Rainha', disp: ['trevas', 'fogo'], dur: 720, hp: 3300, atk: 84, reward: { gold: 12000, gems: 20, xp: 600 }, pts: 8000, hab: 7, farm: 9, lg: 6 },
   { n: 'Ato III', boss: 'Imperatriz do Ninho', disp: ['trevas', 'luz'], dur: 720, hp: 5200, atk: 102, pts: 12000, hab: 9, farm: 12, lg: 8 },
 ];
 const actEndAt = i => ACTS.slice(0, i + 1).reduce((a, x) => a + x.dur, 0);
@@ -9258,7 +9258,8 @@ const atkOf = d => Math.round(RARITY[d.rar].atk * (1 + 0.16 * LV_K * (d.lvl - 1)
 const myHp = d => Math.round(hpOf(d) * MOD('hp') * mutOf(d, 'hp') * seasonOf(d) * ascOf(d, 'hp') * vetOf(d, 'hp'));
 const myAtk = d => Math.round(atkOf(d) * MOD('atk') * (1 + (d.atkUp || 0)) * mutOf(d, 'atk') * seasonOf(d) * ascOf(d, 'atk') * vetOf(d, 'atk'));
 const powerOf = d => Math.round(hpOf(d) / 4 + atkOf(d) * 2);
-const feedCost = lvl => Math.round(10 * Math.pow(1.255, lvl - 1) * MOD('feed'));
+// v8.0: alimentar ficou mais caro e sobe mais rápido por nível (Nv 20 custa ~1,8x o de antes)
+const feedCost = lvl => Math.round(13 * Math.pow(1.27, lvl - 1) * MOD('feed'));
 const sellValue = d => Math.round(25 * RARITY[d.rar].rv * (1 + (d.lvl - 1) * LV_K));
 const breedCost = (a, b) => Math.round(30 * (RARITY[a.rar].rv + RARITY[b.rar].rv) * MOD('breed'));
 const habitatCost = () => Math.round(150 * Math.pow(2.1, S.habitats.length - 1) * MOD('shop'));
@@ -9328,7 +9329,8 @@ function addDragon(sp, lvl = 1) {
 }
 const capacity = () => S.habitats.length * HAB_CAP;
 const habDragons = i => S.dragons.slice(i * HAB_CAP, i * HAB_CAP + HAB_CAP);
-const habGps = i => habDragons(i).reduce((a, d) => a + gpsOf(d), 0);
+const HIVE_K = 0.9; // v8.0: colmeias produzem 10% menos mel
+const habGps = i => habDragons(i).reduce((a, d) => a + gpsOf(d), 0) * HIVE_K;
 const goldMult = () => (S.buffs.chuva > S.t ? 2 : 1) * (S.buffs.frio > S.t ? 0.5 : 1) * (S.buffs.doente > S.t ? 0.6 : 1) * (S.buffs.rachado > S.t ? 0.5 : 1);
 const farmMult = () => (S.buffs.colheita > S.t ? 3 : 1);
 const totalGps = () => S.habitats.reduce((a, h, i) => a + habGps(i), 0) * goldMult();
@@ -9353,7 +9355,7 @@ function addXp(n) {
   while (S.level < MAX_PLVL && S.xp >= xpNeed(S.level)) {
     S.xp -= xpNeed(S.level); S.level++; S.stats.levelUps++;
     sfx('nivelJogador'); fxLevel(`Nível ${S.level}!`);
-    const gems = 2 + Math.floor(S.level / 5) + MOD('lvlGems');
+    const gems = 1 + Math.floor(S.level / 6) + MOD('lvlGems'); // v8.0: menos geleia por nível
     addGems(gems);
     const unlocks = [];
     EL_KEYS.forEach(k => { if (unlockLvl(k) === S.level) unlocks.push(EL[k].i + ' ' + EL[k].n); });
@@ -9407,7 +9409,9 @@ function harvest(i, ev, silent) {
   return true;
 }
 // Néctar de uma colheita: rainha, relíquias e a flor nativa do prado
-const cropFood = k => Math.round(CROPS[k].food * MOD('food') * (S && k === S.nativeFlower ? NATIVE_FLOWER : 1));
+// v8.0: colheitas dão 30% menos néctar (o XP da colheita continua o mesmo)
+const FOOD_K = 0.7;
+const cropFood = k => Math.round(CROPS[k].food * FOOD_K * MOD('food') * (S && k === S.nativeFlower ? NATIVE_FLOWER : 1));
 function harvestAll() {
   let did = false;
   S.farms.forEach((f, i) => {
@@ -10188,7 +10192,7 @@ function endBattle(win) {
     } else {
       const L = Math.min(S.league, 8), f = B.kind === 'wild' ? 2 : S.leagueFight;
       r.gold = Math.round(90 * Math.pow(L, 1.9) * (1 + f * 0.5));
-      r.gems = L; r.xp = 15 * L + 5 * f;
+      r.gems = Math.ceil(L / 2); r.xp = 15 * L + 5 * f; // v8.0: metade da geleia por luta de liga
       if (B.kind === 'wild') { r.gold *= 3; r.gems *= 3; r.xp *= 2; st.wildWins++; r.text = 'A abelha selvagem foi derrotada!'; }
       else if (B.kind === 'raid') {
         const R = RIVALS[S.rival];
@@ -10210,6 +10214,8 @@ function endBattle(win) {
     }
     // Atos II e III: batalhas dão 30% menos mel (o prêmio por vencer o ato fica igual)
     if (isActs() && S.act >= 1 && !actGo) r.gold = Math.round(r.gold * 0.7);
+    // v8.0: no Ato I também, 20% menos
+    else if (isActs() && !actGo) r.gold = Math.round(r.gold * 0.8);
     addGold(r.gold); addGems(r.gems); addXp(r.xp);
   } else {
     st.battlesLost++; st.streak = 0;
@@ -10297,7 +10303,7 @@ function crisisEnd(ok) {
   const st = S.stats;
   if (ok) {
     st.crisesOk = (st.crisesOk || 0) + 1;
-    const g = 4 + 2 * (S.act || 0); addGems(g); addXp(30 + 20 * (S.act || 0));
+    const g = 3 + (S.act || 0); addGems(g); addXp(30 + 20 * (S.act || 0));
     const cr = Math.random() < 0.2; if (cr) addCrystals(1, 'Achado depois da crise.');
     sfx('conquista'); toast(`${K.i} Crise resolvida!`, `+${g} de geleia real${cr ? ' e 1 cristal' : ''}.`, 'ach');
     return;
@@ -10432,6 +10438,8 @@ function buyMerchant() {
   addGems(10); S.event.until = S.t; sfx('gemas');
   toast('Negócio fechado', '+10 de geleia real');
 }
+// v8.0: conquistas dão 40% menos geleia real
+ACH.forEach(a => { a.g = Math.max(1, Math.round(a.g * 0.6)); });
 function checkAchievements() {
   for (const a of ACH) {
     if (S.ach[a.id] === undefined && a.c(S.stats)) {
