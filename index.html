@@ -763,10 +763,26 @@ svg.gi { width: 1.2em; height: 1.2em; vertical-align: -.25em; display: inline-bl
 .card.necro .choice { background: linear-gradient(180deg, #3a2160, #1d0f33) !important; border-color: #7a4ad0 !important; color: #f2e8ff; }
 .card.necro .choice .pro { color: #9ef0a0; } .card.necro .choice .con { color: #ff9a9a; display: block; font-size: .85rem; }
 .card.necro .dic { filter: grayscale(1) brightness(.7) sepia(.4) hue-rotate(215deg) saturate(2.4) contrast(1.15) drop-shadow(0 0 18px #b47dff); }
+.dic-btn { position: relative; background: none; border: 0; padding: 0; cursor: pointer; flex: none; }
+.dic-btn .ficha-tag { position: absolute; left: 50%; bottom: -4px; transform: translateX(-50%); font-size: .62rem; font-weight: 800; padding: 1px 6px; border-radius: 8px; background: #2a1608; color: #ffd968; border: 1px solid #ffcc33; white-space: nowrap; }
 .dcard.asc { box-shadow: inset 0 0 0 2px #ffcc33, 0 0 12px rgba(255, 204, 51, .35); }
 .meta.titles { display: flex; gap: 6px; flex-wrap: wrap; }
 .asc-tag { color: #ffd968; font-weight: 800; } .vet-tag { color: #9ef0ff; font-weight: 800; }
-@media (max-width: 600px), (max-height: 520px) { .tw-part { display: grid; grid-template-columns: auto 1fr; gap: 6px 12px; align-items: center; padding: 10px 12px; border-radius: 14px; background: rgba(0,0,0,.18); opacity: .78; }
+.card.ficha { max-width: 760px; width: calc(100vw - 32px); max-height: calc(100vh - 32px); overflow: auto; text-align: left; position: relative; }
+.card.ficha .x { position: absolute; top: 10px; right: 12px; background: none; border: 0; color: inherit; font-size: 1.3rem; cursor: pointer; }
+.fx-head { display: flex; gap: 16px; align-items: center; }
+.fx-head h1 { margin: 2px 0 4px; }
+.fx-tags { display: flex; gap: 6px; flex-wrap: wrap; margin: 0 0 6px; }
+.pill2 { padding: 2px 8px; border-radius: 10px; background: rgba(0,0,0,.25); font-size: .8rem; font-weight: 800; }
+.fx-bio { margin: 0; font-size: .9rem; opacity: .9; }
+.fx-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; margin: 12px 0; }
+.fx-grid section { background: rgba(0,0,0,.18); border-radius: 14px; padding: 8px 12px; }
+.fx-grid h3 { margin: 4px 0 6px; font-size: .95rem; }
+.fx-grid .hint { margin: 4px 0; display: block; }
+.fx-row { display: flex; justify-content: space-between; gap: 8px; padding: 2px 0; border-bottom: 1px dashed rgba(255,255,255,.12); font-size: .88rem; }
+@media (max-width: 600px), (max-height: 520px) { .fx-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 6px; } .fx-head .dic { width: 90px; height: 90px; } .card.ficha { padding: 12px; } }
+.tw-parts { display: grid; gap: 8px; }
+.tw-part { display: grid; grid-template-columns: auto 1fr; gap: 6px 12px; align-items: center; padding: 10px 12px; border-radius: 14px; background: rgba(0,0,0,.18); opacity: .78; }
 .tw-part.have { opacity: 1; box-shadow: inset 0 0 0 2px #ffcc33; }
 .tw-part.built { opacity: 1; background: linear-gradient(90deg, rgba(255,204,51,.28), rgba(0,0,0,.12)); }
 .tw-part > .btn { grid-column: 1 / -1; justify-self: start; }
@@ -10848,6 +10864,7 @@ function pumpSprites() {
     if (b) { const u = URL.createObjectURL(b); SPR.set(job.key, u); if (r.w) ISO[job.key] = { u, w: r.w, h: r.h, ax: r.ax, ay: r.ay }; }
     if (!S && job.key.startsWith('d:') && document.querySelector('.overlay .dg.ph') && !document.querySelector('.loading')) renderStart();
     if (S && S.choosing && !S.relicOffer && job.key.startsWith('d:') && document.querySelector('.overlay .dg.ph')) { if (S.necroOffer) renderNecro(); else if (!S.queen) renderQueens(); }
+    else if (S && S.ficha && job.key.startsWith('d:') && document.querySelector('.overlay .ficha .dg.ph')) renderFicha();
     // telas de revelação (ovo chocado, roleta): troca o brilho pelo sprite assim que ele fica pronto
     if (job.key.startsWith('d:')) document.querySelectorAll('.overlay .dic').forEach(el => {
       if (el.dataset.sk !== job.key || !el.querySelector('.dg.ph')) return;
@@ -11677,7 +11694,7 @@ function dragonCard(d) {
   const maxed = d.lvl >= MAX_DLVL;
   const fc = feedCost(d.lvl);
   const vr = vetRank(d);
-  return `<div class="dcard r-${d.rar}${d.asc ? ' asc' : ''}">${dIcon(d.els, d.rar, 'm', '', d.id, d.skin)}
+  return `<div class="dcard r-${d.rar}${d.asc ? ' asc' : ''}"><button class="dic-btn" data-a="ficha" data-id="${d.id}" title="Ver a ficha de ${d.name}" aria-label="Ver a ficha de ${d.name}">${dIcon(d.els, d.rar, 'm', '', d.id, d.skin)}<span class="ficha-tag">Ficha</span></button>
     <div class="info">${d.asc || vr ? `<span class="meta titles">${d.asc ? `<span class="asc-tag">${ASC[d.asc].i} ${ASC[d.asc].n}</span>` : ''}${vr ? `<span class="vet-tag">🎖️ ${VET[vr][1]}</span>` : ''}</span>` : ''}
       <span class="name">${d.name} <span class="muted">Nv ${d.lvl}</span> <button class="ren" data-a="rename" data-id="${d.id}" title="Renomear" aria-label="Renomear ${d.name}">🏷️</button></span>
       <span class="meta"><span class="rar-${d.rar}">${RARITY[d.rar].f}</span> · ${elTags(d.els)}</span>
@@ -11688,6 +11705,47 @@ function dragonCard(d) {
       </div>
     </div></div>`;
 }
+// Ficha individual: personalidade, história de batalha e números de cada abelha
+const TRAITS = [['Corajosa', 'Sempre a primeira a entrar na briga.'], ['Preguiçosa', 'Cochila entre um voo e outro, mas produz direitinho.'], ['Curiosa', 'Vive fuçando as flores novas do Jardim.'], ['Brincalhona', 'Faz piruetas no ar quando ganha uma luta.'], ['Tímida', 'Esconde o rosto atrás das asas quando alguém elogia.'], ['Gulosa', 'Nunca recusa um pote de néctar.'], ['Vaidosa', 'Acha que é a abelha mais bonita da colmeia.'], ['Leal', 'Nunca abandona as companheiras de time.'], ['Sonhadora', 'Passa horas olhando o mar de mel.'], ['Mandona', 'Vive dando ordens para as operárias.'], ['Calma', 'Não perde a paciência nem quando o chefe chega.'], ['Faladeira', 'Zumbe sem parar, até durante as batalhas.']];
+const DREAMS = ['virar Heroína da Tropa', 'provar o mel da Primeira Flor', 'derrotar uma Vespa sozinha', 'ter a colmeia mais bonita da ilha', 'conhecer o Ninho de Papel', 'dormir num girassol gigante', 'ensinar as filhotes a voar', 'ganhar uma coroa de cera'];
+const hashId = (id, k) => Math.abs(Math.sin(id * 12.9898 + k * 78.233) * 43758.5453) % 1;
+function renderFicha() {
+  const d = S.dragons.find(x => x.id === S.ficha);
+  if (!d) { S.ficha = null; overlay(''); return; }
+  const st = beeSt(d), vr = vetRank(d), nx = VET[vr + 1];
+  const tr = TRAITS[Math.floor(hashId(d.id, 1) * TRAITS.length)], cropK = Object.keys(CROPS), fav = CROPS[cropK[Math.floor(hashId(d.id, 2) * cropK.length)]];
+  const dream = DREAMS[Math.floor(hashId(d.id, 3) * DREAMS.length)];
+  const strong = EL_KEYS.filter(k => d.els.some(e => eff(e, [k]) > 1)), weak = EL_KEYS.filter(k => eff(k, d.els) > 1);
+  const crit = Math.round((MOD('crit') + mutOf(d, 'crit') + vetOf(d, 'crit')) * 100);
+  const inTeam = S.team.includes(d.id);
+  const row = (k, v) => `<div class="fx-row"><span>${k}</span><b class="num">${v}</b></div>`;
+  overlay(`<div class="card ficha r-${d.rar}">
+    <button class="x" data-a="fichaClose" aria-label="Fechar">✕</button>
+    <div class="fx-head">${dIcon(d.els, d.rar, 'xl', 'pop', d.id, d.skin)}<div>
+      <span class="cat"><span class="rar-${d.rar}">${RARITY[d.rar].f}</span> · ${elTags(d.els)}</span>
+      <h1>${d.name}</h1>
+      <p class="fx-tags"><span class="pill2">Nível ${d.lvl}</span>${d.asc ? `<span class="pill2 asc-tag">${ASC[d.asc].i} ${ASC[d.asc].n}</span>` : ''}${vr ? `<span class="pill2 vet-tag">🎖️ ${VET[vr][1]}</span>` : ''}${inTeam ? '<span class="pill2">⚔️ No time</span>' : ''}</p>
+      <p class="fx-bio">${tr[0]}. ${tr[1]} Flor favorita: ${fav.i} ${fav.n}. Sonha em ${dream}.</p>
+    </div></div>
+    <div class="fx-grid">
+      <section><h3>Números</h3>${row('🪙 Mel por segundo', gpsOf(d).toFixed(1).replace('.', ','))}${row('❤️ Vida', myHp(d))}${row('🗡️ Ataque', myAtk(d))}${row('🎯 Crítico', crit + '%')}${row('🕐 Chegou na partida aos', fmtTime(d.born || 0))}</section>
+      <section><h3>Batalhas</h3>${row('Lutas', st.b)}${row('Vitórias', st.w)}${row('Nocautes', st.ko)}${row('Dano causado', fmt(st.dmg))}${row('Maior golpe', fmt(st.hit))}</section>
+      <section><h3>Poderes</h3>
+        <p class="hint">${d.move && ATTACKS[d.move] ? `${ATTACKS[d.move].i} <b>${ATTACKS[d.move].n}</b>` : 'Sem ataque especial comprado.'}</p>
+        <p class="hint">${d.mut ? `🧬 <b>${MUTS[d.mut].n}</b>: ${MUTS[d.mut].d}` : '🧬 Sem mutação. O Laboratório dá uma.'}</p>
+        <p class="hint">${d.asc ? `${ASC[d.asc].i} <b>${ASC[d.asc].n}</b>: ${ASC[d.asc].d}` : (d.rar === 'E' || d.rar === 'L') ? '🗼 Pode ascender na Torre da Ascensão.' : '🗼 Só Épicas e Lendárias ascendem.'}</p>
+        <p class="hint">${d.perk ? `🎖️ Traço <b>${VPERK[d.perk].n}</b>: ${VPERK[d.perk].d}` : '🎖️ Ganha um traço de combate ao virar Veterana.'}</p>
+      </section>
+      <section><h3>Tipos</h3>
+        <p class="hint"><b>Forte contra:</b> ${strong.length ? strong.map(k => `${EL[k].i} ${EL[k].n}`).join(', ') : 'nenhum tipo'}</p>
+        <p class="hint"><b>Fraca contra:</b> ${weak.length ? weak.map(k => `${EL[k].i} ${EL[k].n}`).join(', ') : 'nenhum tipo'}</p>
+        <h3>${nx ? `Rumo a ${nx[1]}` : 'Heroína da Tropa'}</h3>
+        ${nx ? `<div class="bar"><i style="width:${pct(st.w - VET[vr][0], nx[0] - VET[vr][0])}%"></i></div><p class="hint">${st.w}/${nx[0]} vitórias. Cada título dá vida e ataque extras.</p>` : '<p class="hint">Título máximo: +15% de vida e ataque.</p>'}
+      </section>
+    </div>
+    <div class="row" style="justify-content:center"><button class="btn ${inTeam ? '' : 'go'}" data-a="fichaTeam">${inTeam ? 'Tirar do time' : 'Pôr no time'}</button><button class="btn primary" data-a="fichaClose">Fechar</button></div>
+  </div>`);
+}
 function viewDragons() {
   const list = [...S.dragons].sort((a, b) => RARITY[b.rar].rv - RARITY[a.rar].rv || b.lvl - a.lvl).map(dragonCard).join('');
   const found = Object.keys(S.dex).length;
@@ -11697,7 +11755,7 @@ function viewDragons() {
   }).join('');
   return `<div class="grid">
     <section class="panel" style="grid-column:1/-1">
-      <div class="panel-head"><h2>Suas abelhas</h2><span class="hint">Alimentar com néctar sobe o nível: mais mel, vida e ataque. Nível 3 libera o cruzamento.</span></div>
+      <div class="panel-head"><h2>Suas abelhas</h2><span class="hint">Alimentar com néctar sobe o nível: mais mel, vida e ataque. Toque na abelha para ver a ficha dela.</span></div>
       <div class="dlist">${list}</div>
     </section>
     <section class="panel" style="grid-column:1/-1">
@@ -12215,6 +12273,7 @@ const ACTIONS = {
   start: el => { landscapeLock(); startGame(el.dataset.k); },
   fullscreen: () => landscapeLock(true),
   fsToggle: () => toggleFs(),
+  ficha: el => { S.ficha = +el.dataset.id; renderFicha(); }, fichaClose: () => { S.ficha = null; overlay(''); }, fichaTeam: () => { toggleTeam(S.ficha); renderFicha(); },
   crisis: () => crisisAct(), pact: el => takePact(el.dataset.k),
   buildFloor: () => buildFloor(), towerSel: el => { S.towerSel = +el.dataset.id; }, ascend: el => ascend(el.dataset.k),
   queen: el => chooseQueen(el.dataset.k),
