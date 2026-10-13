@@ -86,6 +86,11 @@ h2 { font-size: 1.25rem; }
 .timer.hurry { color: var(--bad); animation: pulse 1s infinite; }
 .iconbtn { background: var(--panel); border: 1px solid var(--line); border-radius: 10px; padding: 5px 10px; font-weight: 700; }
 .buffs { display: flex; gap: 6px; flex-wrap: wrap; }
+/* Os efeitos ativos ficam flutuando logo abaixo da barra, fora da linha dela, para nunca empurrar o Encerrar para baixo. */
+.top .wrap { position: relative; }
+@media (min-width: 1100px) { .top .wrap { flex-wrap: nowrap; } .top .wrap > * { flex-shrink: 0; } .top .wrap > .lvl { flex-shrink: 1; min-width: 70px; } }
+@media (min-width: 561px) and (max-width: 1099px) { .top .wrap { justify-content: center; } .top .brand { margin-right: 0; } }
+.top .buffs { position: absolute; left: 50%; transform: translateX(-50%); width: max-content; max-width: 60%; justify-content: center; top: calc(100% + 20px); pointer-events: none; z-index: 6; }
 .buff { font-size: .8rem; font-weight: 800; padding: 3px 9px; border-radius: 999px; background: #3a2a10; color: var(--gold); border: 1px solid #6b4d16; }
 
 /* Abas */
@@ -11092,7 +11097,7 @@ function renderTop() {
     ${isTouch() ? `<button class="iconbtn fsbtn" data-a="fsToggle" title="${isFs() ? 'Sair da tela cheia' : 'Tela cheia'}" aria-label="${isFs() ? 'Sair da tela cheia' : 'Tela cheia'}">${isFs() ? FS_OFF : FS_ON}</button>` : ''}
     <button class="iconbtn" data-a="pause">Pausar</button>
     <button class="iconbtn" data-a="askEnd">Encerrar</button>
-    ${buffs.length ? `<div class="buffs" style="width:100%">${buffs.map(b => `<span class="buff">${b}</span>`).join('')}</div>` : ''}
+    ${buffs.length ? `<div class="buffs">${buffs.map(b => `<span class="buff">${b}</span>`).join('')}</div>` : ''}
   </div>`;
 }
 function renderTabs() {
