@@ -375,3 +375,19 @@ Clique/toque em tudo. Teclas: `1`–`9` abrem os painéis do dock (1 = Ilha), `E
 - Laço de jogo a cada 250ms (`tick`), tempo real com `dt` limitado a 2s.
 - Interface gerada como strings de HTML e aplicada com um "morph" próprio (`morph`/`patchNode`), que só altera os nós e atributos que mudaram. Isso mantém as animações das abelhas rodando sem reiniciar a cada quadro. Ações via atributos `data-a` com um único ouvinte: mouse age no `pointerdown` (para não perder cliques durante a re-renderização), toque age no `pointerup` sem arrasto (para não disparar ao rolar).
 - `window.__game` expõe o estado e as ações para testes automatizados.
+
+## v7.1 (13/10/2026): ajustes da partida de teste do Pedro
+
+- Conquista "Nova amiga" (comprar abelha no mercado) saiu: não existe mais compra direta.
+- Perder a batalha final de um ato encerra a partida sozinho, 2,6 s depois do resultado.
+- Relíquias: cada uma só pode ser pega uma vez (as de prêmio na hora podem repetir). Batalhas (elite, invasão, mistério) dão no máximo 1 relíquia extra por ato; depois disso viram +10 de geleia real ou 2 fichas.
+- Inimigos da Arena e das invasões: x1,2 no Ato II e x1,12 no Ato III (as ligas já sobem), e +8% para cada relíquia de combate do jogador (Ferrão Afiado, Cera Resistente, Mel de Lavanda, Olho Composto, Ferrão Elemental).
+- Chefes: Vespa Rainha 3300 de vida e 84 de ataque (era 2800/76); Imperatriz do Ninho 5200/102 (era 4400/98). Simulação: 3 Lendárias Nv 12 com 3 relíquias vencem o Ato II em ~60%; Nv 15 com 5 relíquias vencem o Ato III em ~50%.
+- Lendárias: vida 195 (era 230), ataque 39 (era 46), mel 12/s (era 15).
+- Dicas iniciais: 6 telas depois da escolha da rainha (mel, néctar e jardim, roleta, geleia e cristais, arena e chefes, missões e conquistas), com "Pular dicas". Cada menu mostra uma dica na primeira vez que abre.
+- Laboratório (no lugar do Jardim do Amor; a aba Cruzar virou Laboratório e o cruzamento saiu da interface):
+  - Cristais 💠: começa com 1; +1 a cada 4 min, +1 ao vencer o chefe no ninho, +2 por ato vencido, 25% de chance nas elites, relíquia Pó de Cristal (+2) e tesouro Cristal Raro (30 de geleia real).
+  - Mutação ao acaso (1 cristal), escolhida entre as 6 comuns (3) ou rara (5): Dourada (+30% de mel, vida e ataque) ou Fúria (+45% de ataque, +10% de crítico). A nova troca a antiga.
+  - Rainha Sortuda agora: mutações custam 1 cristal a menos, colmeias dão 15% menos mel.
+  - Missão de cruzar e as conquistas Casamenteiro/Genética viraram mutações no Laboratório.
+- Chefes com modelo próprio (raridade de exibição 'B'): vespas grandes e malvadas. General Vespa com elmo e ombreiras, Vespa Rainha com coroa de espinhos, Imperatriz com coroa de ouro e gola de espinhos. Na batalha aparecem 50% maiores.
