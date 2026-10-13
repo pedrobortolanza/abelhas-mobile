@@ -11000,7 +11000,7 @@ function render(force) {
   if (tabs !== lastTabs) { morph($('#tabs'), tabs); lastTabs = tabs; }
   const map = viewMap();
   if (map !== lastMap) {
-    morph($('#map'), map); lastMap = map;
+    morph($('#map'), map); lastMap = map; startFlights();
     if (!W3) map3dInit();
     if (!mapCentered) { const w = $('#mapwrap'); w.scrollLeft = (w.scrollWidth - w.clientWidth) / 2; mapCentered = true; }
   }
@@ -11291,6 +11291,45 @@ function habDecor(th, X, Y) {
   }
   return `<path d="M${X - 40},${Y - 2} l3,-9 l3,9 M${X - 32},${Y + 4} l3,-8 l3,8 M${X + 34},${Y - 4} l3,-9 l3,9" stroke="#2f6b2a" stroke-width="2" fill="none"/>`;
 }
+// Abelhas passeando: no máximo 2 saem da colmeia, dão uma volta pela ilha e voltam.
+const FLY_CYCLE = 70, FLY_WIN = [[0, 30], [22, 52]], FLY_DUR = 26;
+const HAB_SPOTS = [[-22, -2], [6, -12], [2, 12]];
+function flyingBees() {
+  if (!S || S.ended) return [];
+  const n = Math.min(S.dragons.length, S.habitats.length * HAB_CAP);
+  if (n < 3) return [];
+  const c = Math.floor(S.t / FLY_CYCLE), ph = S.t - c * FLY_CYCLE, out = [];
+  FLY_WIN.forEach(([a, b], k) => {
+    if (ph < a || ph >= b) return;
+    const j = (c * 2 + k) % n, d = S.dragons[j];
+    if (!d) return;
+    const [X, Y] = iso(...HAB_LOTS[Math.floor(j / HAB_CAP)]), o = HAB_SPOTS[j % HAB_CAP];
+    out.push({ d, k, key: `${d.id}:${c}:${j}`, x: X + o[0] * 1.15, y: Y + o[1] * 1.15 });
+  });
+  return out;
+}
+function flyPathFrom(x, y, k) {
+  const cx = 500, cy = 300, rx = k ? 330 : 390, ry = k ? 170 : 215;
+  let a0 = Math.atan2((y - cy) / ry, (x - cx) / rx);
+  const P = [[x, y], [x, y - 70]];
+  for (let s = 1; s <= 6; s++) { const a = a0 + (k ? -1 : 1) * s * Math.PI / 3.5; P.push([cx + Math.cos(a) * rx, cy - 40 + Math.sin(a) * ry]); }
+  P.push([x, y - 70], [x, y]);
+  let d = `M${x.toFixed(0)},${y.toFixed(0)}`;
+  for (let i = 0; i < P.length - 1; i++) {
+    const p0 = P[Math.max(0, i - 1)], p1 = P[i], p2 = P[i + 1], p3 = P[Math.min(P.length - 1, i + 2)];
+    const f = v => v.toFixed(0);
+    d += ` C${f(p1[0] + (p2[0] - p0[0]) / 6)},${f(p1[1] + (p2[1] - p0[1]) / 6)} ${f(p2[0] - (p3[0] - p1[0]) / 6)},${f(p2[1] - (p3[1] - p1[1]) / 6)} ${f(p2[0])},${f(p2[1])}`;
+  }
+  return d;
+}
+const flyStarted = new WeakMap();
+function startFlights() {
+  document.querySelectorAll('#map animateMotion[data-fly]').forEach(m => {
+    if (flyStarted.get(m) === m.dataset.fly) return;
+    flyStarted.set(m, m.dataset.fly);
+    try { m.beginElement(); } catch (e) { /* sem SMIL: a abelha fica na colmeia */ }
+  });
+}
 function isoHabitat(i) {
   const [cx, cy] = HAB_LOTS[i];
   const [X, Y] = iso(cx, cy);
@@ -11309,8 +11348,8 @@ function isoHabitat(i) {
     out += `<polyline points="${pts([diamond(cx, cy, 1.9, 1.9)[3], diamond(cx, cy, 1.9, 1.9)[0], diamond(cx, cy, 1.9, 1.9)[1]])}" fill="none" stroke="#fff" stroke-width="1.5" opacity=".35"/>`;
     out += habDecor(th, X, Y);
   }
-  const spots = [[-22, -2], [6, -12], [2, 12]];
-  ds.map((d, k) => ({ d, o: spots[k] })).sort((a, b) => a.o[1] - b.o[1]).forEach(({ d, o }) => {
+  const away = new Set(flyingBees().map(f => f.d.id));
+  ds.map((d, k) => ({ d, o: HAB_SPOTS[k] })).filter(({ d }) => !away.has(d.id)).sort((a, b) => a.o[1] - b.o[1]).forEach(({ d, o }) => {
     out += `<g class="roam" style="animation-delay:${-((d.id * 1.7) % 7).toFixed(1)}s">${placeDragon(d, X + o[0] * 1.15, Y + o[1] * 1.15, 70)}</g>`;
   });
   if (h.stored >= 1) out += bubble(X + 34, Y - 52, '🪙', full, fmt(h.stored), `data-a="collect" data-i="${i}"`);
@@ -11705,8 +11744,7 @@ function viewMap() {
   const H = HEX, foam = hexGrow(26), wax = hexGrow(12);
   const face = (a, c, fill) => `<polygon points="${pts([a, c, [c[0], c[1] + 34], [a[0], a[1] + 34]])}" fill="${fill}"/>`;
   const lipBand = (a, c, fill) => `<polygon points="${pts([a, c, [c[0], c[1] + 9], [a[0], a[1] + 9]])}" fill="${fill}"/>`;
-  const fliers = [...S.dragons].sort((a, c) => RARITY[c.rar].rv - RARITY[a.rar].rv || c.lvl - a.lvl).slice(0, Math.min(2, Math.floor(S.dragons.length / 3)));
-  const flyPath = ['M500,40 C860,40 990,250 760,420 C520,580 120,470 90,260 C70,110 260,40 500,40Z', 'M520,560 C200,560 40,380 160,200 C260,60 760,20 900,200 C1000,340 820,560 520,560Z'];
+  const fliers = flyingBees();
   return `<svg class="iso" viewBox="0 0 1000 600" role="img" aria-label="Mapa da ilha">
     ${ISO3D ? '' : `
     <image href="${hiveWall()}" x="0" y="0" width="1000" height="600" pointer-events="none"/>
@@ -11725,7 +11763,7 @@ function viewMap() {
     <image href="${groundImage()}" x="0" y="0" width="1000" height="600" pointer-events="none"/>`}
     ${objs.map(o => o.html).join('')}
     ${topLayer.join('')}
-    ${fliers.map((d, n) => `<g><animateMotion dur="${26 + n * 9}s" repeatCount="indefinite" path="${flyPath[n]}"/><ellipse cx="0" cy="44" rx="22" ry="5" fill="rgba(0,0,0,.18)"/>${placeDragon(d, 0, 0, 84)}</g>`).join('')}
+    <g class="fliers" pointer-events="none">${fliers.map(f => `<g data-k="${f.key}"><animateMotion data-fly="${f.key}" begin="indefinite" dur="${FLY_DUR}s" fill="freeze" path="${flyPathFrom(f.x, f.y, f.k)}"/>${placeDragon(f.d, 0, 0, 70)}</g>`).join('')}</g>
     <g fill="#ffe9a0" opacity=".7" pointer-events="none">
       <g class="cloud">${[[0, 60], [40, 90], [-30, 130], [70, 40]].map(([x, y]) => `<circle cx="${x}" cy="${y}" r="2.6"/>`).join('')}</g>
       <g class="cloud c2">${[[0, 300], [-50, 260], [30, 340], [-20, 220]].map(([x, y]) => `<circle cx="${x}" cy="${y}" r="2.2"/>`).join('')}</g>
