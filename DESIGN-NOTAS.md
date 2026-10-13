@@ -448,3 +448,14 @@ Clique/toque em tudo. Teclas: `1`–`9` abrem os painéis do dock (1 = Ilha), `E
 
 - Loja > Visual tem 5 skins de colmeia (`HIVE_SKINS`): Doce, Abóbora, Noturna, Cristal e Real, de 10 a 22 de geleia real. Cada uma muda as cores do cortiço e põe um enfeite no topo, só na colmeia escolhida (`S.habitats[i].skin`). Não mudam o mel.
 - Roleta tem a aba Upgrade: escolha uma abelha e pague mel (`upgCost` = valor do giro × 3, × 8 ou × 20). A chance é de 50% de Comum para Rara, 30% de Rara para Épica e 15% de Épica para Lendária (`UPG`). Se der certo, ela vira uma abelha sorteada da raridade nova e mantém nível, mutação, visual e histórico. Se der errado, só o mel é gasto.
+
+## v8.0 (13/10/2026): economia mais dura, chefes mais fortes e ajustes na ilha
+
+- As abelhas grandes não saem mais voando da colmeia (`FLY_ON = false`). Ficam só as abelhinhas pequenas do 3D.
+- Balões das construções (Arena, Roleta, Torre, Laboratório) centralizados em cima delas.
+- Barra de cima: os efeitos ativos (Flores x3, Mel x2, invasão...) flutuam logo abaixo dela, fora da linha, e com tela larga (1100 px ou mais) a barra nunca quebra. Entre 561 e 1099 px ela quebra em duas linhas centralizadas.
+- Roleta com colmeias cheias: Épica ou Lendária fica com a vaga da abelha mais fraca de raridade menor que está fora do time (não mexe em quem está no Laboratório). A que sai vira mel pelo valor de venda. Comum e Rara continuam virando mel.
+- Economia: colheitas dão 30% menos néctar (`FOOD_K`, o XP da colheita é o mesmo). Alimentar custa `13 × 1,27^(nível−1)` (Nv 1→20 custa ~4.500 de néctar). Colmeias produzem 10% menos mel (`HIVE_K`). Batalhas do Ato I dão 20% menos mel.
+- Geleia real: lutas de liga dão metade (`ceil(liga/2)`), nível do jogador dá `1 + nível/6`, crises `3 + ato`, conquistas 40% menos, prêmio dos atos 15 e 20.
+- Chefes dos atos: Ato I 2.600 de vida e 58 de ataque (antes 1.300/50, uma Épica Nv 20 sozinha vencia), Ato II 4.600/92, Ato III 7.000/112.
+- Lentidão com o tempo: 8 min de partida acelerada em teste (compras, giros, troca de abelhas) não mostraram vazamento: memória JS estável (~45 MB), DOM estável, malhas, texturas e shaders do 3D estáveis, e `render()` sem ficar mais lento. O suspeito mais provável era o voo das abelhas grandes, que chamava `beginElement()` nas animações SMIL; ele foi desligado nesta versão.
