@@ -8506,7 +8506,7 @@ const M3 = (() => {
     const hex = L.hex.map(G2), grow = d => L.grow(d).map(G2);
 
     // ---- textura do chão, pintada de cima (1 unidade = 1 lote) ----
-    const X0 = -5.5, SPAN = 25, TS = 2048, K = TS / SPAN;
+    const X0 = -6.5, SPAN = 27, TS = 2048, K = TS / SPAN;
     const cv = document.createElement('canvas'); cv.width = cv.height = TS;
     const g = cv.getContext('2d');
     const P = ([x, z]) => [(x - X0) * K, (z - X0) * K];
@@ -8559,7 +8559,7 @@ const M3 = (() => {
     g.lineCap = 'round'; g.lineJoin = 'round';
     const road = (ctx, pp, w, k = 1) => { ctx.beginPath(); ctx.moveTo(pp[0][0] * k, pp[0][1] * k); ctx.quadraticCurveTo(pp[1][0] * k, pp[1][1] * k, pp[2][0] * k, pp[2][1] * k); ctx.lineWidth = w * k; ctx.stroke(); };
     const wid = i => (i < 6 ? 0.42 : 0.34) * K;
-    const COB = [0, 1, 2, 3, 4, 5, 8, 9], riv = [];
+    const COB = [0, 1, 2, 3, 4, 5, 8, 9, 14], riv = [];
     // caminhos de lajotas: sombra, leito de terra batida e pedras irregulares com relevo
     { const FY = L.farmRect[0][1];
       const pts = i => curve(i === 5 ? [L.ways[5][0], FY + 8] : L.ways[i]);
@@ -8788,11 +8788,12 @@ const M3 = (() => {
       });
       WR.render(scene, cam);
     }
-    // o SVG usa viewBox 1000x600 com "meet": a câmera mostra exatamente a mesma área, sem esticar
+    // o SVG usa o viewBox L.vb com "meet": a câmera mostra exatamente a mesma área, sem esticar
     function setSize(w, h) {
       WR.setPixelRatio(Math.min(window.devicePixelRatio || 1, 1.6)); WR.setSize(w, h, false); WR.shadowMap.needsUpdate = true;
-      const sc = Math.min(w / 1000, h / 600), ox = (w - 1000 * sc) / 2, oy = (h - 600 * sc) / 2;
-      const mx0 = -ox / sc, mx1 = (w - ox) / sc, my0 = -oy / sc, my1 = (h - oy) / sc;
+      const [VX, VY, VW, VH] = L.vb || [0, 0, 1000, 600];
+      const sc = Math.min(w / VW, h / VH), ox = (w - VW * sc) / 2, oy = (h - VH * sc) / 2;
+      const mx0 = VX - ox / sc, mx1 = VX + (w - ox) / sc, my0 = VY - oy / sc, my1 = VY + (h - oy) / sc;
       Object.assign(cam, { left: (mx0 - 500) / PX, right: (mx1 - 500) / PX, top: -(my0 - 68) / PX, bottom: -(my1 - 68) / PX });
       cam.updateProjectionMatrix();
       return sc;
@@ -11153,22 +11154,24 @@ function viewHatchery() {
 // ILHA ISOMÉTRICA (SVG 1000x600). Grade de 14x14 lotes em losango, 2:1.
 // ============================================================
 const TW = 64, TH = 32, OX = 500, OY = 68, NG = 14;
+// Área do mapa mostrada na tela (x, y, largura, altura): um pouco mais longe que o 1000x600 original
+const MAP_VB = [-60, -36, 1120, 672];
 const iso = (x, y) => [OX + (x - y) * TW / 2, OY + (x + y) * TH / 2];
 // Pontos em pixels do mapa convertidos para a grade
 const gridAt = (X, Y) => { const a = (X - OX) * 2 / TW, b = (Y - OY) * 2 / TH; return [(a + b) / 2, (b - a) / 2]; };
 // Vila da colmeia: praça com a fonte de mel no meio, construções em arco no fundo,
 // colmeias dos dois lados da praça e o jardim de flores na frente.
 const PLAZA = [500, 300];
-const HAB_LOTS = [[620, 292], [380, 292], [660, 372], [340, 372], [748, 300], [252, 300], [500, 384], [818, 382], [182, 382]].map(p => gridAt(...p));
+const HAB_LOTS = [[620, 292], [380, 292], [660, 372], [340, 372], [750, 320], [250, 320], [500, 384], [818, 382], [182, 382]].map(p => gridAt(...p));
 const FARM_ROWS = [446, 480], FARM_X = [324, 388, 452, 548, 612, 676];
 const FARM_LOTS = FARM_ROWS.flatMap(Y => FARM_X.map(X => gridAt(X, Y)));
 const SPOTS = {
   arena: { at: gridAt(500, 128), n: 'Arena', size: 3, px: [500, 128] },
   chocadeira: { at: gridAt(740, 180), n: 'Roleta do Enxame', px: [740, 180] },
   loja: { at: gridAt(260, 180), n: 'Mercado', px: [260, 180] },
-  cruzar: { at: gridAt(830, 135), n: 'Laboratório', px: [830, 135] },
-  missoes: { at: gridAt(170, 135), n: 'Mural de Missões', px: [170, 135] },
-  torre: { at: gridAt(380, 140), n: 'Torre da Ascensão', px: [380, 140] },
+  cruzar: { at: gridAt(820, 140), n: 'Laboratório', px: [820, 140] },
+  missoes: { at: gridAt(180, 140), n: 'Mural de Missões', px: [180, 140] },
+  torre: { at: gridAt(140, 260), n: 'Torre da Ascensão', px: [140, 260] },
 };
 // Enfeites em grupos, perto das bordas: potes de mel (0), colunas de cera (1) e pólen (2)
 const TREES = [[400, 108, 1], [600, 108, 1], [240, 476, 2], [760, 476, 2], [710, 524, 0], [290, 524, 0], [250, 140, 1], [750, 140, 1], [110, 340, 0], [890, 340, 0]].map(([X, Y, n]) => [...gridAt(X, Y), n]);
@@ -11504,8 +11507,9 @@ function isoTree(x, y, n = 0) {
 }
 // ---------- Chão da ilha ----------
 // A ilha é um hexágono (um favo gigante) que contém a grade em losango dos lotes.
-const HEX = [[28, 292], [258, 48], [742, 48], [972, 292], [742, 536], [258, 536]];
-const hexGrow = d => HEX.map(([x, y]) => [500 + (x - 500) * (1 + d / 472), 292 + (y - 292) * (1 + d / 244)]);
+// Ilha 10% maior que na v7.6 (era 28..972 por 48..536)
+const HEX = [[-19, 292], [247, 24], [753, 24], [1019, 292], [753, 560], [247, 560]];
+const hexGrow = d => HEX.map(([x, y]) => [500 + (x - 500) * (1 + d / 519), 292 + (y - 292) * (1 + d / 268)]);
 function inHex(X, Y, m = 0) {
   // dentro do hexágono (com margem m em pixels)
   if (Y < HEX[1][1] + m || Y > HEX[4][1] - m) return false;
@@ -11647,9 +11651,9 @@ function hiveWall() {
 let ISO3D = false, W3 = null, w3Sig = '', w3Last = 0, w3Box = '';
 // Caminhos nas diagonais da ilha: da praça saem duas avenidas em diagonal para o fundo
 // (Roleta e Laboratório à direita; Mercado, Torre e Mural à esquerda) e um caminho reto até a Arena.
-const WAYS = [[500, 150], [720, 190], [280, 190], [815, 142], [185, 142], [500, 440], [620, 300], [380, 300], [660, 380], [340, 380], [748, 310], [252, 310], [818, 390], [182, 390]];
+const WAYS = [[500, 150], [740, 180], [260, 180], [800, 150], [200, 150], [500, 440], [620, 300], [380, 300], [660, 380], [340, 380], [748, 310], [252, 310], [818, 390], [182, 390], [260, 180, 150, 255]];
 // Poucos enfeites, bem espaçados
-const DECO3D = [[300, 108, 'vela'], [700, 108, 'vela'], [468, 222, 'lanterna'], [532, 222, 'lanterna'], [768, 205, 'potmel'], [110, 330, 'girassol'], [890, 330, 'girassol'], [395, 540, 'flores'], [605, 540, 'flores'], [255, 520, 'potmel'], [745, 520, 'skep']];
+const DECO3D = [[300, 108, 'vela'], [700, 108, 'vela'], [468, 222, 'lanterna'], [532, 222, 'lanterna'], [630, 140, 'potmel'], [860, 250, 'skep'], [830, 282, 'potmel'], [895, 262, 'flores'], [110, 330, 'girassol'], [890, 330, 'girassol'], [395, 540, 'flores'], [605, 540, 'flores'], [255, 520, 'potmel'], [745, 520, 'skep']];
 function w3Lots() {
   const L = Object.entries(SPOTS).map(([k, sp]) => ({ id: 's:' + k + (k === 'torre' ? towerOf().floors : ''), k: k === 'chocadeira' ? 'roleta' : k, a: k === 'torre' ? towerOf().floors : undefined, x: sp.at[0], z: sp.at[1] }));
   S.habitats.forEach((h, i) => { const th = habTheme(habDragons(i)); L.push({ id: `h${i}:${th}`, k: 'habitat', a: th, x: HAB_LOTS[i][0], z: HAB_LOTS[i][1] }); });
@@ -11694,7 +11698,7 @@ function map3dInit() {
   cv.id = 'map3d'; wrap.prepend(cv);
   const fx0 = FARM_X[0] - 44, fx1 = FARM_X[FARM_X.length - 1] + 44, fy0 = FARM_ROWS[0] - 56, fy1 = FARM_ROWS[1] + 24;
   let w = null;
-  try { w = M3.world(cv, { hex: HEX, grow: hexGrow, plaza: PLAZA, ways: WAYS, farmRect: [[fx0, fy0], [fx1, fy0], [fx1, fy1], [fx0, fy1]], look: glook() }); } catch (e) { console.warn('[ilha 3D]', e); w = null; }
+  try { w = M3.world(cv, { vb: MAP_VB, hex: HEX, grow: hexGrow, plaza: PLAZA, ways: WAYS, farmRect: [[fx0, fy0], [fx1, fy0], [fx1, fy1], [fx0, fy1]], look: glook() }); } catch (e) { console.warn('[ilha 3D]', e); w = null; }
   if (!w) { cv.remove(); window.__no3d = true; return; }
   W3 = w; ISO3D = true; w3Sig = ''; w3Box = '';
   wrap.style.background = `#e9c477 url(${goldHaze()}) center / cover no-repeat`;
@@ -11748,7 +11752,7 @@ function viewMap() {
   const face = (a, c, fill) => `<polygon points="${pts([a, c, [c[0], c[1] + 34], [a[0], a[1] + 34]])}" fill="${fill}"/>`;
   const lipBand = (a, c, fill) => `<polygon points="${pts([a, c, [c[0], c[1] + 9], [a[0], a[1] + 9]])}" fill="${fill}"/>`;
   const fliers = flyingBees();
-  return `<svg class="iso" viewBox="0 0 1000 600" role="img" aria-label="Mapa da ilha">
+  return `<svg class="iso" viewBox="${MAP_VB.join(' ')}" role="img" aria-label="Mapa da ilha">
     ${ISO3D ? '' : `
     <image href="${hiveWall()}" x="0" y="0" width="1000" height="600" pointer-events="none"/>
     <polygon points="${pts(hexGrow(60))}" fill="url(#g-sea)" transform="translate(0 22)"/>
