@@ -8554,7 +8554,8 @@ const M3 = (() => {
         for (let d = 0; d < len; d += 0.45) { const t = d / len, q = [A[0] + (B2[0] - A[0]) * t, A[1] + (B2[1] - A[1]) * t]; if (nearFarm(q)) continue;
           const [x, y] = P(q); g.fillStyle = fc[Math.floor(rnd() * 5)]; g.beginPath(); g.arc(x + (rnd() - 0.5) * 0.7 * K, y + (rnd() - 0.5) * 0.7 * K, 0.07 * K, 0, Math.PI * 2); g.fill(); } } }
     // rios de mel brilhante saindo da praça
-    const curve = ([X, Y]) => { const [PXp, PYp] = L.plaza, mx = (PXp + X) / 2, my = (PYp + Y) / 2, bend = (X - PXp) * 0.12; return [PP(L.plaza), PP([mx - bend * 0.3, my - Math.abs(bend)]), PP([X, Y])]; };
+    // caminho reto: da praça até [X, Y], ou de [X0, Y0] até [X1, Y1]
+    const curve = w => { const A = w.length === 4 ? [w[0], w[1]] : L.plaza, B = w.length === 4 ? [w[2], w[3]] : w; return [PP(A), PP([(A[0] + B[0]) / 2, (A[1] + B[1]) / 2]), PP(B)]; };
     g.lineCap = 'round'; g.lineJoin = 'round';
     const road = (ctx, pp, w, k = 1) => { ctx.beginPath(); ctx.moveTo(pp[0][0] * k, pp[0][1] * k); ctx.quadraticCurveTo(pp[1][0] * k, pp[1][1] * k, pp[2][0] * k, pp[2][1] * k); ctx.lineWidth = w * k; ctx.stroke(); };
     const wid = i => (i < 6 ? 0.42 : 0.34) * K;
@@ -11163,11 +11164,11 @@ const FARM_ROWS = [446, 480], FARM_X = [324, 388, 452, 548, 612, 676];
 const FARM_LOTS = FARM_ROWS.flatMap(Y => FARM_X.map(X => gridAt(X, Y)));
 const SPOTS = {
   arena: { at: gridAt(500, 128), n: 'Arena', size: 3, px: [500, 128] },
-  chocadeira: { at: gridAt(676, 178), n: 'Roleta do Enxame', px: [676, 178] },
-  loja: { at: gridAt(324, 178), n: 'Mercado', px: [324, 178] },
-  cruzar: { at: gridAt(842, 262), n: 'Laboratório', px: [842, 262] },
-  missoes: { at: gridAt(158, 262), n: 'Mural de Missões', px: [158, 262] },
-  torre: { at: gridAt(222, 176), n: 'Torre da Ascensão', px: [222, 176] },
+  chocadeira: { at: gridAt(740, 180), n: 'Roleta do Enxame', px: [740, 180] },
+  loja: { at: gridAt(260, 180), n: 'Mercado', px: [260, 180] },
+  cruzar: { at: gridAt(830, 135), n: 'Laboratório', px: [830, 135] },
+  missoes: { at: gridAt(170, 135), n: 'Mural de Missões', px: [170, 135] },
+  torre: { at: gridAt(380, 140), n: 'Torre da Ascensão', px: [380, 140] },
 };
 // Enfeites em grupos, perto das bordas: potes de mel (0), colunas de cera (1) e pólen (2)
 const TREES = [[400, 108, 1], [600, 108, 1], [240, 476, 2], [760, 476, 2], [710, 524, 0], [290, 524, 0], [250, 140, 1], [750, 140, 1], [110, 340, 0], [890, 340, 0]].map(([X, Y, n]) => [...gridAt(X, Y), n]);
@@ -11406,15 +11407,15 @@ function isoSpecial(k) {
     else if (k === 'missoes') { const claim = S.missions.filter(m => missionProg(m) >= m.target).length; if (claim) bubble(X + 30, Y - 68, '📜', true, String(claim), 'data-a="tab" data-k="missoes"'); }
     else if (k === 'chocadeira') { const n = (S.t >= S.freeAt ? 1 : 0) + S.tickets; if (n) bubble(X + 46, Y - 112, '🎯', true, String(n), 'data-a="tab" data-k="chocadeira"'); }
     else if (k === 'torre') { const T = towerOf(), P = TOWER_PARTS[T.floors]; if ((P && T.items.includes(P.k)) || T.used < T.floors) bubble(X + 40, Y - 88, '🗼', true, '!', 'data-a="tab" data-k="torre"'); }
-    return out + pill(X, Y + (big ? 52 : 40), sp.n) + '</g>';
+    return out + pill(X, Y + (big ? 52 : 26), sp.n) + '</g>';
   }
   if (k === 'chocadeira') {
     const im = isoImg('roleta', X, Y), n = (S.t >= S.freeAt ? 1 : 0) + S.tickets;
-    if (!im) return out + `<polygon class="lot hit" points="${pts(diamond(cx, cy, size, size))}" fill="transparent"/><rect class="hit" x="${X - 50}" y="${Y - 110}" width="100" height="110" fill="transparent"/>` + isoWheel(cx, cy, X, Y) + pill(X, Y + 40, sp.n) + '</g>';
+    if (!im) return out + `<polygon class="lot hit" points="${pts(diamond(cx, cy, size, size))}" fill="transparent"/><rect class="hit" x="${X - 50}" y="${Y - 110}" width="100" height="110" fill="transparent"/>` + isoWheel(cx, cy, X, Y) + pill(X, Y + 26, sp.n) + '</g>';
     out += `<ellipse cx="${X}" cy="${Y + 14}" rx="74" ry="26" fill="url(#g-shadow)" opacity=".45"/><polygon class="lot hit" points="${pts(diamond(cx, cy, size, size))}" fill="transparent"/><rect class="hit" x="${X - 50}" y="${Y - 120}" width="100" height="120" fill="transparent"/>` + im;
     if (S.wheel && S.wheel.until > performance.now()) out += `<g class="mspark" pointer-events="none"><circle cx="${X + 14}" cy="${Y - 70}" r="34" fill="#ffd23f" opacity=".22"/></g>`;
     if (n) bubble(X + 46, Y - 112, '🎯', true, String(n), 'data-a="tab" data-k="chocadeira"');
-    return out + pill(X, Y + 40, sp.n) + '</g>';
+    return out + pill(X, Y + 26, sp.n) + '</g>';
   }
   const img = isoImg(k, X, Y);
   if (img) {
@@ -11547,8 +11548,8 @@ function groundImage() {
   // favo gravado bem de leve só na borda
   g += `<polygon points="${P2(hexGrow(-14))}" fill="none" stroke="${L.dash}" stroke-width="2" stroke-dasharray="10 6" opacity=".45"/>`;
   // caminhos curvos que saem da praça
-  const ways = [[500, 150], [676, 200], [324, 200], [842, 282], [158, 282], [500, 440], [620, 300], [380, 300], [660, 380], [340, 380], [748, 310], [252, 310], [818, 390], [182, 390]];
-  const curve = ([X, Y]) => { const mx = (PX + X) / 2, my = (PY + Y) / 2, bend = (X - PX) * 0.12; return `M${PX},${PY} Q${(mx - bend * .3).toFixed(1)},${(my - Math.abs(bend)).toFixed(1)} ${X},${Y}`; };
+  const ways = WAYS;
+  const curve = w => w.length === 4 ? `M${w[0]},${w[1]} L${w[2]},${w[3]}` : `M${PX},${PY} L${w[0]},${w[1]}`;
   ways.forEach((w, i) => { const wd = i < 6 ? 30 : 18; g += `<path d="${curve(w)}" stroke="${L.edge}" stroke-width="${wd + 6}" fill="none" stroke-linecap="round"/><path d="${curve(w)}" stroke="url(#cb)" stroke-width="${wd}" fill="none" stroke-linecap="round"/>`; });
   // praça: anel de cera clara com borda
   g += `<ellipse cx="${PX}" cy="${PY + 3}" rx="96" ry="50" fill="${L.edge}"/><ellipse cx="${PX}" cy="${PY}" rx="94" ry="48" fill="url(#pz)" stroke="${L.pzEdge}" stroke-width="2"/><ellipse cx="${PX}" cy="${PY}" rx="70" ry="35" fill="none" stroke="${L.pzDash}" stroke-width="2" stroke-dasharray="8 6"/>`;
@@ -11644,7 +11645,9 @@ function hiveWall() {
 }
 // ---------- Ilha 3D: uma tela WebGL atrás do SVG (o SVG fica só com cliques, balões, nomes e abelhas) ----------
 let ISO3D = false, W3 = null, w3Sig = '', w3Last = 0, w3Box = '';
-const WAYS = [[500, 150], [676, 200], [324, 200], [842, 282], [158, 282], [500, 440], [620, 300], [380, 300], [660, 380], [340, 380], [748, 310], [252, 310], [818, 390], [182, 390]];
+// Caminhos nas diagonais da ilha: da praça saem duas avenidas em diagonal para o fundo
+// (Roleta e Laboratório à direita; Mercado, Torre e Mural à esquerda) e um caminho reto até a Arena.
+const WAYS = [[500, 150], [720, 190], [280, 190], [815, 142], [185, 142], [500, 440], [620, 300], [380, 300], [660, 380], [340, 380], [748, 310], [252, 310], [818, 390], [182, 390]];
 // Poucos enfeites, bem espaçados
 const DECO3D = [[300, 108, 'vela'], [700, 108, 'vela'], [468, 222, 'lanterna'], [532, 222, 'lanterna'], [768, 205, 'potmel'], [110, 330, 'girassol'], [890, 330, 'girassol'], [395, 540, 'flores'], [605, 540, 'flores'], [255, 520, 'potmel'], [745, 520, 'skep']];
 function w3Lots() {
