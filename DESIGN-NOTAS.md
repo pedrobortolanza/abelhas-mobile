@@ -397,3 +397,24 @@ Clique/toque em tudo. Teclas: `1`–`9` abrem os painéis do dock (1 = Ilha), `E
 - Seleção de texto, menu do botão direito, lupa de toque longo e arrastar imagens travados (CSS user-select/touch-callout e preventDefault em contextmenu, selectstart, dragstart).
 - Botão de tela cheia na barra de cima, só em telas de toque: entra e sai da tela cheia (com trava na horizontal). No iPhone, que não tem tela cheia no Safari, o botão explica como "Adicionar à Tela de Início".
 - manifest.webmanifest (display fullscreen, horizontal) e ícones icon-192.png, icon-512.png, apple-touch-icon.png: aberto pelo ícone da tela inicial, o jogo fica sem as barras do navegador.
+
+## v7.3 (13/10/2026): fim de jogo com coisas novas
+
+- **Torre da Ascensão** (ponto `torre` no canto de cima à esquerda, aba escondida `torre`). Começa em ruínas e o modelo 3D `B.torre(andares)` cresce um andar por peça. Peças: 🎖️ Insígnia do General (chefe do Ato I), 👑 Coroa de Espinhos (chefe do Ato II), 🏆 Troféu dos Campeões (última liga da Arena, Ato III). Cada andar custa a peça + mel (2.500 / 9.000 / 20.000) e libera 1 ascensão para abelha Épica ou Lendária:
+  - Guardiã: +40% de vida; uma vez por batalha aguenta o golpe fatal com 1 de vida.
+  - Carrasca: +25% de ataque; dano dobrado em inimigos abaixo de 35% de vida.
+  - Sábia: especial 40% mais forte, recarga de 2 turnos e cura 10% da equipe a cada especial.
+  - Torre completa: ascendidas +15% de vida e ataque. Dicas no tutorial, na aba, na Arena e na chegada de cada chefe.
+- **Crises** (`CRISES`, só no modo atos), do meio do Ato II (t = 1080 s) até o fim, uma a cada 110 a 160 s, nunca a menos de 45 s do chefe. Pausam durante batalhas e relíquias. Resolver dá 4 + 2×ato de geleia real, XP e 20% de chance de cristal.
+  - 🔥 Incêndio: 6 toques em 20 s, senão perde as flores dos canteiros.
+  - 🦹 Ladras de mel: 8 toques em 15 s, senão perde 12% do mel.
+  - 🤒 Rainha doente: néctar (15 + 6×nível) em 40 s, senão mel −40% por 90 s.
+  - 🧱 Favo rachado: mel (45 s de produção) em 40 s, senão mel −50% por 120 s.
+- **Abelha Necromante**: uma vez, 150 s antes do fim do Ato II, para o relógio e oferece 3 de 5 pactos. Recusar não custa nada, mas ela não volta.
+  - Pacto de Sangue: +35% de ataque e −25% de vida.
+  - Ouro Maldito: 300 s de mel agora (mínimo 5.000) e −25% de mel até o fim.
+  - Sacrifício: a abelha mais forte vai embora e as outras ganham +30% de ataque.
+  - Visão do Fim: Imperatriz com −25% de vida; perde toda a geleia real e os cristais.
+  - Troca de Almas: 2 abelhas fora do time somem e chega 1 Lendária no nível médio.
+- **Veteranas**: cada abelha guarda `st` (lutas, vitórias, nocautes, dano, maior golpe). 5 vitórias = Experiente (+5%), 12 = Veterana (+10% e traço fixo Implacável +8% crítico, Sobrevivente +15% vida ou Feroz +12% ataque), 25 = Heroína da Tropa (+15%).
+- **Ficha da abelha**: tocar no ícone na aba Abelhas abre a ficha. Mostra personalidade, flor favorita e sonho (fixos pelo id), números, batalhas, poderes, forças e fraquezas de tipo e a barra até o próximo título.
