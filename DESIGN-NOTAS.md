@@ -443,3 +443,8 @@ Clique/toque em tudo. Teclas: `1`–`9` abrem os painéis do dock (1 = Ilha), `E
 - Ilha 10% maior (`HEX`) e câmera mais longe: o mapa mostra `MAP_VB = [-60, -36, 1120, 672]` em vez de 1000x600 (SVG e câmera 3D usam o mesmo). Colmeias 5 e 6 desceram um pouco para os nomes não baterem nos balões. Enfeites 3D novos no lado direito.
 - Laboratório fechado até o nível 9 (`LAB_OPEN`), depois abre pagando 6.000 de mel. Cristais continuam chegando e ficam guardados. Missões de mutação só aparecem com ele aberto.
 - v7.8: o Mural de Missões saiu da ilha (Missões fica só na barra de baixo). O Laboratório foi para o lado direito, com um ramal saindo da Roleta, espelhando a Torre. As colmeias de baixo subiram um pouco e as fazendas desceram (`FARM_ROWS = [462, 496]`), então nada fica em cima do gramado.
+
+## v7.9 (13/10/2026): skins de colmeia e Upgrade na Roleta
+
+- Loja > Visual tem 5 skins de colmeia (`HIVE_SKINS`): Doce, Abóbora, Noturna, Cristal e Real, de 10 a 22 de geleia real. Cada uma muda as cores do cortiço e põe um enfeite no topo, só na colmeia escolhida (`S.habitats[i].skin`). Não mudam o mel.
+- Roleta tem a aba Upgrade: escolha uma abelha e pague mel (`upgCost` = valor do giro × 3, × 8 ou × 20). A chance é de 50% de Comum para Rara, 30% de Rara para Épica e 15% de Épica para Lendária (`UPG`). Se der certo, ela vira uma abelha sorteada da raridade nova e mantém nível, mutação, visual e histórico. Se der errado, só o mel é gasto.
