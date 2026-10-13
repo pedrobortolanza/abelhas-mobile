@@ -8049,7 +8049,10 @@ const M3 = (() => {
   // Habitats com tema do elemento
   const HTOP = { fogo: '#5b4038', agua: '#8fd7a0', planta: '#7fd35a', terra: '#c79a63', eletrico: '#8a8fa8', gelo: '#e9f6ff', metal: '#a7b0bf', trevas: '#4a3a66', luz: '#fff0bf', none: '#e3a64e' };
   const HSIDE = { fogo: '#3a2522', agua: '#5b7d5a', planta: '#5b8a3a', terra: '#8a6a3f', eletrico: '#555a70', gelo: '#9cc8e6', metal: '#6c7480', trevas: '#2b2140', luz: '#c9a650', none: '#a8641a' };
-  B.habitat = th => {
+  // visual das skins de colmeia: cores do cortiço e enfeite no topo
+  const HSK = { real: ['#ffd23a', '#d99a10', 'coroa'], doce: ['#ffa8cf', '#fff1f6', 'coracao'], cristal: ['#a8ecff', '#5fb8e6', 'gema'], noite: ['#7a5fc0', '#3e2c70', 'lua'], abobora: ['#ff8a2a', '#c85a10', 'folha'] };
+  B.habitat = th0 => {
+    const [th, sk] = String(th0).split('/'), HS = HSK[sk];
     const g = new T.Group();
     platform(g, 1.9, HTOP[th], HSIDE[th], 0.28);
     // borda de pedras
@@ -8061,11 +8064,20 @@ const M3 = (() => {
     }
     // colmeia de palha (cortiço) no fundo do lote
     const skep = new T.Group(); skep.position.set(-0.55, 0, -0.55); g.add(skep);
-    const straw = mat('#e0a84a', { roughness: 0.85 }), strawD = mat('#c48a32', { roughness: 0.9 });
+    const glow = sk === 'cristal' ? { emissive: col('#3aa8e0'), emissiveIntensity: 0.35, roughness: 0.25 } : sk === 'real' ? { metalness: 0.4, roughness: 0.35 } : { roughness: 0.85 };
+    const straw = mat(HS ? HS[0] : '#e0a84a', glow), strawD = mat(HS ? HS[1] : '#c48a32', HS ? glow : { roughness: 0.9 });
     [[0.42, 0.1], [0.4, 0.26], [0.36, 0.42], [0.3, 0.56], [0.2, 0.68], [0.09, 0.76]].forEach(([r, y], k) => mesh(new T.TorusGeometry(r, 0.085, 8, 24), k % 2 ? strawD : straw, skep, [0, y, 0], [1, 1, 1], [Math.PI / 2, 0, 0], k < 3));
     mesh(SPH, straw, skep, [0, 0.42, 0], [0.4, 0.4, 0.4], [0, 0, 0], false);
     mesh(new T.CylinderGeometry(0.11, 0.11, 0.06, 18, 1, false, 0, Math.PI), mat('#3a2412'), skep, [0.28, 0.14, 0.28], [1, 1.2, 1], [Math.PI / 2, 0, -Math.PI / 4 - Math.PI / 2], false);
     mesh(SPH_LO, mat('#ffb000', { emissive: col('#a05a00'), emissiveIntensity: 0.4, roughness: 0.2 }), skep, [0.33, 0.04, 0.33], [0.1, 0.04, 0.1], [0, 0, 0], false);
+    if (HS) {
+      const top = new T.Group(); top.position.set(0, 0.86, 0); skep.add(top);
+      if (HS[2] === 'coroa') { const gd = mat('#ffd23a', { metalness: 0.5, roughness: 0.3 }); mesh(new T.CylinderGeometry(0.14, 0.16, 0.08, 10), gd, top, [0, 0.02, 0]); for (let i = 0; i < 5; i++) { const a = i / 5 * Math.PI * 2; mesh(CONE, gd, top, [Math.cos(a) * 0.12, 0.1, Math.sin(a) * 0.12], [0.04, 0.1, 0.04]); } mesh(SPH_LO, mat('#e0302a', { roughness: 0.2 }), top, [0, 0.08, 0.15], [0.04, 0.04, 0.04], [0, 0, 0], false); }
+      else if (HS[2] === 'coracao') { const rd = mat('#ff4f8a', { roughness: 0.35 }); mesh(SPH, rd, top, [-0.06, 0.1, 0], [0.09, 0.09, 0.09]); mesh(SPH, rd, top, [0.06, 0.1, 0], [0.09, 0.09, 0.09]); mesh(CONE, rd, top, [0, 0.02, 0], [0.13, -0.14, 0.09]); }
+      else if (HS[2] === 'gema') mesh(OCTA, mat('#c8f4ff', { emissive: col('#5fc8ff'), emissiveIntensity: 0.8, roughness: 0.1, flatShading: true }), top, [0, 0.14, 0], [0.12, 0.18, 0.12]);
+      else if (HS[2] === 'lua') { mesh(new T.CylinderGeometry(0.02, 0.02, 0.2, 6), mat('#3a2a4a'), top, [0, 0.08, 0]); mesh(SPH, mat('#fff3b0', { emissive: col('#ffd860'), emissiveIntensity: 1 }), top, [0, 0.22, 0], [0.08, 0.08, 0.08]); }
+      else if (HS[2] === 'folha') { mesh(new T.CylinderGeometry(0.03, 0.04, 0.14, 6), mat('#5a3a1a'), top, [0, 0.05, 0]); mesh(SPH, mat('#5cb84a', { roughness: 0.7 }), top, [0.09, 0.1, 0], [0.12, 0.03, 0.07], [0, 0, 0.4]); }
+    }
     const lava = () => mat('#ff8a1f', { emissive: col('#ff5a00'), emissiveIntensity: 0.9, roughness: 0.4 });
     if (th === 'fogo') {
       mesh(new T.CylinderGeometry(0.42, 0.42, 0.04, 28), lava(), g, [-0.4, 0.04, 0.35], [1, 1, 0.8]);
@@ -8301,7 +8313,7 @@ const M3 = (() => {
     const g = PB.habitat(th);
     if (!glbReady) return g;
 
-    if (th === 'agua' && G.lily) { glb('lily', g, [-0.25, 0.04, 0.25], 0.5); }
+    if (String(th).split('/')[0] === 'agua' && G.lily) { glb('lily', g, [-0.25, 0.04, 0.25], 0.5); }
 
     return g;
   };
@@ -9132,6 +9144,14 @@ const SKINS = {
   fada:      { t: 'wing', n: 'Asas de fada',     i: '✨', gems: 12 },
   ouro:      { t: 'wing', n: 'Asas de ouro',     i: '🌟', gems: 18 },
 };
+// Skins de colmeia (Loja > Visual): mudam só o cortiço da colmeia na ilha
+const HIVE_SKINS = {
+  doce:    { n: 'Colmeia Doce',     i: '💞', d: 'Rosa com um coração no topo',    gems: 10 },
+  abobora: { n: 'Colmeia Abóbora',  i: '🌿', d: 'Laranja com folhinha',           gems: 10 },
+  noite:   { n: 'Colmeia Noturna',  i: '🌙', d: 'Roxa com uma luz acesa',         gems: 14 },
+  cristal: { n: 'Colmeia de Cristal', i: '💠', d: 'Azul brilhante com uma gema', gems: 18 },
+  real:    { n: 'Colmeia Real',     i: '👑', d: 'Dourada com coroa',              gems: 22 },
+};
 // (DATA-END)
 
 // ============================================================
@@ -9467,6 +9487,13 @@ function applySkin(id) {
   if (!spendGems(K.gems)) return;
   d.skin = { ...(d.skin || {}), [K.t]: k };
   S.skinPick = null; sfx('comprar'); toast(`${d.name} ganhou ${K.n}!`, 'O visual aparece em todo o jogo.');
+}
+function applyHiveSkin(i) {
+  const k = S.hskinPick, K = HIVE_SKINS[k], h = S.habitats[i];
+  if (!K || !h) return;
+  if (h.skin === k) { toast('Já está usando', `A colmeia ${i + 1} já é ${K.n}.`, 'bad'); return; }
+  if (!spendGems(K.gems)) return;
+  h.skin = k; S.hskinPick = null; sfx('comprar'); toast(`Colmeia ${i + 1} virou ${K.n}!`, 'Veja na ilha.');
 }
 function removeSkin(id, t) { const d = S.dragons.find(x => x.id === id); if (d && d.skin) { d.skin = { ...d.skin, [t]: null }; sfx('clique'); } }
 function renameBee(id) {
@@ -11666,7 +11693,7 @@ const WAYS = [[500, 150], [740, 180], [260, 180], [800, 150], [200, 150], [500, 
 const DECO3D = [[300, 108, 'vela'], [700, 108, 'vela'], [468, 222, 'lanterna'], [532, 222, 'lanterna'], [630, 140, 'potmel'], [190, 150, 'skep'], [218, 172, 'flores'], [810, 150, 'potmel'], [782, 172, 'flores'], [110, 330, 'girassol'], [890, 330, 'girassol'], [215, 470, 'flores'], [785, 470, 'flores'], [255, 520, 'potmel'], [745, 520, 'skep']];
 function w3Lots() {
   const L = Object.entries(SPOTS).map(([k, sp]) => ({ id: 's:' + k + (k === 'torre' ? towerOf().floors : ''), k: k === 'chocadeira' ? 'roleta' : k, a: k === 'torre' ? towerOf().floors : undefined, x: sp.at[0], z: sp.at[1] }));
-  S.habitats.forEach((h, i) => { const th = habTheme(habDragons(i)); L.push({ id: `h${i}:${th}`, k: 'habitat', a: th, x: HAB_LOTS[i][0], z: HAB_LOTS[i][1] }); });
+  S.habitats.forEach((h, i) => { const th = habTheme(habDragons(i)) + (h.skin ? '/' + h.skin : ''); L.push({ id: `h${i}:${th}`, k: 'habitat', a: th, x: HAB_LOTS[i][0], z: HAB_LOTS[i][1] }); });
   S.farms.forEach((f, i) => L.push({ id: 'f' + i, k: 'farm', x: FARM_LOTS[i][0], z: FARM_LOTS[i][1] }));
   const [px, pz] = gridAt(...PLAZA); L.push({ id: 'fonte', k: 'deco', a: 'fonte', x: px, z: pz });
   DECO3D.forEach(([X, Y, k], i) => { const [x, z] = gridAt(X, Y); L.push({ id: 'd' + i + k, k: 'deco', a: k, x, z }); });
@@ -12129,7 +12156,13 @@ function viewSkins() {
   const pickBees = K ? `<div class="panel-head"><h2>Quem vai usar ${K.n}?</h2><span class="hint">Troca o ${K.t === 'hat' ? 'chapéu' : 'par de asas'} que a abelha já usava.</span></div><div class="chips">${S.dragons.map(d => `<button class="chip" data-a="skin" data-id="${d.id}">${dIcon(d.els, d.rar, 's', '', d.id, d.skin)}${d.name}</button>`).join('')}</div>` : '';
   const dressed = S.dragons.filter(d => d.skin && (d.skin.hat || d.skin.wing));
   const wearing = dressed.length ? `<div class="panel-head"><h2>Usando agora</h2></div><div class="chips">${dressed.map(d => ['hat', 'wing'].filter(t => d.skin[t]).map(t => `<button class="chip" data-a="unskin" data-id="${d.id}" data-k="${t}" title="Tirar">${dIcon(d.els, d.rar, 's', '', d.id, d.skin)}${d.name} · tirar ${SKINS[d.skin[t]].n}</button>`).join('')).join('')}</div>` : '';
-  return `<p class="hint deal-hint">👑 Deixe suas abelhas com a sua cara. O visual não muda os atributos.</p><div class="sgrid">${cards}</div>${pickBees}${wearing}`;
+  const hcards = Object.entries(HIVE_SKINS).map(([k, H]) => `<div class="sitem build ${S.hskinPick === k ? 'picked' : ''}"><span class="bigic">${H.i}</span><b class="sname">${H.n}</b><span class="hint">${H.d}</span>
+    <button class="btn gemb" data-a="hskinPick" data-k="${k}" aria-pressed="${S.hskinPick === k}">${S.hskinPick === k ? 'Escolha a colmeia abaixo' : `💎 ${H.gems}`}</button></div>`).join('');
+  const H = HIVE_SKINS[S.hskinPick];
+  const pickHives = H ? `<div class="panel-head"><h2>Qual colmeia vira ${H.n}?</h2></div><div class="chips">${S.habitats.map((h, i) => `<button class="chip" data-a="hskin" data-i="${i}">🏠 Colmeia ${i + 1}${h.skin ? ` · ${HIVE_SKINS[h.skin].n}` : ''}</button>`).join('')}</div>` : '';
+  const hwear = S.habitats.some(h => h.skin) ? `<div class="chips">${S.habitats.map((h, i) => h.skin ? `<button class="chip" data-a="unhskin" data-i="${i}" title="Tirar">${HIVE_SKINS[h.skin].i} Colmeia ${i + 1} · tirar ${HIVE_SKINS[h.skin].n}</button>` : '').join('')}</div>` : '';
+  return `<p class="hint deal-hint">👑 Deixe suas abelhas com a sua cara. O visual não muda os atributos.</p><div class="sgrid">${cards}</div>${pickBees}${wearing}
+    <div class="panel-head"><h2>Skins de colmeia</h2><span class="hint">Mudam o cortiço da colmeia na ilha. Não mudam o mel.</span></div><div class="sgrid">${hcards}</div>${pickHives}${hwear}`;
 }
 function viewWheel() {
   const n = SPIN_PRIZES.length, seg = 360 / n;
@@ -12349,6 +12382,8 @@ const ACTIONS = {
   skinPick: el => { S.skinPick = S.skinPick === el.dataset.k ? null : el.dataset.k; },
   skin: el => applySkin(+el.dataset.id),
   unskin: el => removeSkin(+el.dataset.id, el.dataset.k),
+  hskinPick: el => { S.hskinPick = S.hskinPick === el.dataset.k ? null : el.dataset.k; },
+  hskin: el => applyHiveSkin(+el.dataset.i), unhskin: el => { const h = S.habitats[+el.dataset.i]; if (h) { h.skin = null; sfx('clique'); } },
   selCrop: el => { if (unlockedCrop(el.dataset.k)) S.selCrop = el.dataset.k; },
   harvestAll: () => harvestAll(),
   buyHab: () => buyHabitat(), buyFarm: () => buyFarm(), buyHatch: () => buyHatch(),
