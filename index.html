@@ -8728,7 +8728,6 @@ const MISSION_TPL = [
 const ACH = [
   { cat: 'Primeiros passos', id: 'col1',   i: '🪙', n: 'Primeira coleta',     d: 'Colete mel de uma colmeia.',              g: 1, c: s => s.collects >= 1 },
   { cat: 'Primeiros passos', id: 'harv1',  i: '🌾', n: 'Mãos nas pétalas',       d: 'Colha sua primeira flor.',             g: 1, c: s => s.cropsHarvested >= 1 },
-  { cat: 'Primeiros passos', id: 'buy1',   i: '🛒', n: 'Nova amiga',          d: 'Compre uma abelha no mercado.',               g: 1, c: s => s.dragonsBought >= 1 },
   { cat: 'Primeiros passos', id: 'feed1',  i: '🍖', n: 'Hora do lanche',      d: 'Alimente uma abelha.',                     g: 1, c: s => s.feeds >= 1 },
   { cat: 'Primeiros passos', id: 'breed1', i: '💞', n: 'Casamenteiro',        d: 'Cruze duas abelhas.',                     g: 2, c: s => s.breeds >= 1 },
   { cat: 'Primeiros passos', id: 'hatch1', i: '🎯', n: 'Primeiro giro',       d: 'Gire a Roleta do Enxame.',                g: 2, c: s => s.swarmSpins >= 1 },
@@ -11525,7 +11524,7 @@ function statRows() {
       ['Néctar gasto', fmt(st.foodSpent)], ['Canteiros', S.farms.length],
     ]],
     ['Abelhas', [
-      ['Abelhas na colmeia', S.dragons.length], ['Comprados', st.dragonsBought], ['Vendidos', st.dragonsSold],
+      ['Abelhas na colmeia', S.dragons.length], ['Vendidos', st.dragonsSold],
       ['Espécies descobertas', `${Object.keys(S.dex).length}/${ALL_SPECIES.length}`], ['Maior nível', st.maxDragonLvl], ['Alimentações', st.feeds],
       ['Obtidos: Comum / Raro', `${st.byRarity.C} / ${st.byRarity.R}`], ['Obtidos: Épico / Lendário', `${st.byRarity.E} / ${st.byRarity.L}`],
       ['Poder total do time', fmt(S.dragons.reduce((a, d) => a + powerOf(d), 0))],
