@@ -9924,6 +9924,7 @@ function bossTeam(final) {
     if (!final) { hp = Math.round(hp * 0.8); atk = Math.round(atk * 0.8); }
     else if (S.weakened) hp = Math.round(hp * 0.7);
     if (final && S.necroBoss && S.act === 2) hp = Math.round(hp * S.necroBoss);
+    const pk = powerK(0.7); hp = Math.round(hp * pk); atk = Math.round(atk * pk);
     return [{ name: final ? A.boss : A.boss + ' no ninho', els: [], disp: A.disp, rar: 'L', lvl: 99, hpMax: hp, hp, atk, cd: 0, boss: true }];
   }
   const b = MODES[S.mode].boss, k = S.mode === 'infinito' ? Math.pow(1.35, S.wave) : 1;
@@ -10089,7 +10090,12 @@ function battleRelic() {
 const ACT_FOE = [1, 1.2, 1.12];
 function foeK() {
   const combat = S.relics.filter(k => ['ferrao', 'cera', 'lavanda', 'mira', 'elemental'].includes(k)).length;
-  return (isActs() ? ACT_FOE[Math.min(S.act || 0, 2)] : 1) * (1 + 0.08 * combat);
+  return (isActs() ? ACT_FOE[Math.min(S.act || 0, 2)] : 1) * (1 + 0.08 * combat) * powerK(1);
+}
+// Laboratório e Torre também deixam os inimigos mais fortes: +5% por mutação rara e +8% por ascensão (chefes sentem 70% disso)
+function powerK(w) {
+  const rare = S.dragons.filter(d => d.mut && MUTS[d.mut] && MUTS[d.mut].lab).length, asc = S.dragons.filter(d => d.asc).length;
+  return 1 + w * (0.05 * rare + 0.08 * asc);
 }
 function surrender() { if (S.battle && !S.battle.over) { logB('Você desistiu.'); endBattle(false); } }
 function endBattle(win) {
