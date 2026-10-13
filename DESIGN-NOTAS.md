@@ -391,3 +391,9 @@ Clique/toque em tudo. Teclas: `1`–`9` abrem os painéis do dock (1 = Ilha), `E
   - Rainha Sortuda agora: mutações custam 1 cristal a menos, colmeias dão 15% menos mel.
   - Missão de cruzar e as conquistas Casamenteiro/Genética viraram mutações no Laboratório.
 - Chefes com modelo próprio (raridade de exibição 'B'): vespas grandes e malvadas. General Vespa com elmo e ombreiras, Vespa Rainha com coroa de espinhos, Imperatriz com coroa de ouro e gola de espinhos. Na batalha aparecem 50% maiores.
+
+## v7.2 (13/10/2026)
+
+- Seleção de texto, menu do botão direito, lupa de toque longo e arrastar imagens travados (CSS user-select/touch-callout e preventDefault em contextmenu, selectstart, dragstart).
+- Botão de tela cheia na barra de cima, só em telas de toque: entra e sai da tela cheia (com trava na horizontal). No iPhone, que não tem tela cheia no Safari, o botão explica como "Adicionar à Tela de Início".
+- manifest.webmanifest (display fullscreen, horizontal) e ícones icon-192.png, icon-512.png, apple-touch-icon.png: aberto pelo ícone da tela inicial, o jogo fica sem as barras do navegador.
