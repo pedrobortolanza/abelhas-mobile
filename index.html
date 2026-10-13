@@ -762,7 +762,7 @@ svg.gi { width: 1.2em; height: 1.2em; vertical-align: -.25em; display: inline-bl
 .card.necro h1 { color: #d9b8ff; }
 .card.necro .choice { background: linear-gradient(180deg, #3a2160, #1d0f33) !important; border-color: #7a4ad0 !important; color: #f2e8ff; }
 .card.necro .choice .pro { color: #9ef0a0; } .card.necro .choice .con { color: #ff9a9a; display: block; font-size: .85rem; }
-.card.necro .dic { filter: grayscale(1) brightness(.7) sepia(.4) hue-rotate(215deg) saturate(2.4) contrast(1.15) drop-shadow(0 0 18px #b47dff); }
+.card.necro .dic { width: 150px; height: 130px; display: block; margin: 0 auto; filter: grayscale(1) brightness(.7) sepia(.4) hue-rotate(215deg) saturate(2.4) contrast(1.15) drop-shadow(0 0 18px #b47dff); }
 .dic-btn { position: relative; background: none; border: 0; padding: 0; cursor: pointer; flex: none; }
 .dic-btn .ficha-tag { position: absolute; left: 50%; bottom: -4px; transform: translateX(-50%); font-size: .62rem; font-weight: 800; padding: 1px 6px; border-radius: 8px; background: #2a1608; color: #ffd968; border: 1px solid #ffcc33; white-space: nowrap; }
 .dcard.asc { box-shadow: inset 0 0 0 2px #ffcc33, 0 0 12px rgba(255, 204, 51, .35); }
@@ -10262,7 +10262,7 @@ function necroCheck() {
 }
 function renderNecro() {
   overlay(`<div class="card pick necro">
-    <div class="hero">${dIcon(['trevas'], 'L', 'xl', 'pop', 666)}<span class="cat">Uma visita das sombras</span><h1>A Abelha Necromante</h1>
+    <div class="hero">${dIcon(['trevas'], 'L', 'xl', 'necro-bee', 666)}<span class="cat">Uma visita das sombras</span><h1>A Abelha Necromante</h1>
       <p>“Sinto o cheiro da Imperatriz chegando… Posso ajudar você. Mas tudo tem um preço.” Escolha um pacto ou recuse. Ela não volta.</p></div>
     <div class="choices">${S.necroOffer.map(k => { const P = PACTS[k]; return `<button class="choice relic" data-a="pact" data-k="${k}"><span class="ric">${P.i}</span><b>${P.n}</b><span class="pro">${pv(P.g)}</span><span class="con">${pv(P.c)}</span></button>`; }).join('')}</div>
     <div class="row" style="justify-content:center"><button class="btn" data-a="pact" data-k="nao">Recusar e mandá-la embora</button></div>
