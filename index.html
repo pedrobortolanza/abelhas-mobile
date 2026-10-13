@@ -763,8 +763,10 @@ svg.gi { width: 1.2em; height: 1.2em; vertical-align: -.25em; display: inline-bl
 .card.necro .choice { background: linear-gradient(180deg, #3a2160, #1d0f33) !important; border-color: #7a4ad0 !important; color: #f2e8ff; }
 .card.necro .choice .pro { color: #9ef0a0; } .card.necro .choice .con { color: #ff9a9a; display: block; font-size: .85rem; }
 .card.necro .dic { filter: grayscale(1) brightness(.7) sepia(.4) hue-rotate(215deg) saturate(2.4) contrast(1.15) drop-shadow(0 0 18px #b47dff); }
-.tw-parts { display: grid; gap: 8px; }
-.tw-part { display: grid; grid-template-columns: auto 1fr; gap: 6px 12px; align-items: center; padding: 10px 12px; border-radius: 14px; background: rgba(0,0,0,.18); opacity: .78; }
+.dcard.asc { box-shadow: inset 0 0 0 2px #ffcc33, 0 0 12px rgba(255, 204, 51, .35); }
+.meta.titles { display: flex; gap: 6px; flex-wrap: wrap; }
+.asc-tag { color: #ffd968; font-weight: 800; } .vet-tag { color: #9ef0ff; font-weight: 800; }
+@media (max-width: 600px), (max-height: 520px) { .tw-part { display: grid; grid-template-columns: auto 1fr; gap: 6px 12px; align-items: center; padding: 10px 12px; border-radius: 14px; background: rgba(0,0,0,.18); opacity: .78; }
 .tw-part.have { opacity: 1; box-shadow: inset 0 0 0 2px #ffcc33; }
 .tw-part.built { opacity: 1; background: linear-gradient(90deg, rgba(255,204,51,.28), rgba(0,0,0,.12)); }
 .tw-part > .btn { grid-column: 1 / -1; justify-self: start; }
@@ -9184,6 +9186,12 @@ const ASC = {
   sabia: { n: 'Sábia', i: '🔮', d: 'Especial 40% mais forte, recarrega em 2 turnos e cura 10% da vida da equipe a cada uso.' },
 };
 const ASC_ELIG = d => d && (d.rar === 'E' || d.rar === 'L') && !d.asc;
+// Abelhas veteranas: vitórias em batalha dão título e bônus; na Veterana ganha um traço de combate fixo
+const VET = [[0, '', 1], [5, 'Experiente', 1.05], [12, 'Veterana', 1.1], [25, 'Heroína da Tropa', 1.15]];
+const VPERK = { implacavel: { n: 'Implacável', d: '+8% de chance de crítico', crit: 0.08 }, sobrevivente: { n: 'Sobrevivente', d: '+15% de vida', hp: 1.15 }, feroz: { n: 'Feroz', d: '+12% de ataque', atk: 1.12 } };
+const vetRank = d => { const w = (d && d.st && d.st.w) || 0; let r = 0; VET.forEach((v, i) => { if (w >= v[0]) r = i; }); return r; };
+const vetOf = (d, k) => { if (!d) return k === 'crit' ? 0 : 1; const P = d.perk && VPERK[d.perk]; if (k === 'crit') return (P && P.crit) || 0; return VET[vetRank(d)][2] * ((P && P[k]) || 1); };
+const beeSt = d => d.st || (d.st = { b: 0, w: 0, ko: 0, dmg: 0, hit: 0 });
 const towerOf = () => (S && S.tower) || { items: [], floors: 0, used: 0 };
 // bônus da ascensão; o 3º andar dá +15% em vida e ataque para todas as ascendidas
 const ascOf = (d, k) => !d || !d.asc || !ASC[d.asc] ? 1 : (ASC[d.asc][k] || 1) * (towerOf().floors >= 3 ? 1.15 : 1);
@@ -9191,8 +9199,8 @@ const seasonOf = d => (S && S.season && d && d.els && d.els.includes(SEASONS[S.s
 const gpsOf = d => RARITY[d.rar].gps * (1 + 0.4 * (d.lvl - 1)) * MOD('gold') * (isNative(d) ? MEADOW_GOLD : 1) * (d.key === BETMEL.key ? 2 : 1) * mutOf(d, 'gold');
 const hpOf = d => Math.round(RARITY[d.rar].hp * (1 + 0.2 * (d.lvl - 1)));
 const atkOf = d => Math.round(RARITY[d.rar].atk * (1 + 0.16 * (d.lvl - 1)));
-const myHp = d => Math.round(hpOf(d) * MOD('hp') * mutOf(d, 'hp') * seasonOf(d) * ascOf(d, 'hp'));
-const myAtk = d => Math.round(atkOf(d) * MOD('atk') * (1 + (d.atkUp || 0)) * mutOf(d, 'atk') * seasonOf(d) * ascOf(d, 'atk'));
+const myHp = d => Math.round(hpOf(d) * MOD('hp') * mutOf(d, 'hp') * seasonOf(d) * ascOf(d, 'hp') * vetOf(d, 'hp'));
+const myAtk = d => Math.round(atkOf(d) * MOD('atk') * (1 + (d.atkUp || 0)) * mutOf(d, 'atk') * seasonOf(d) * ascOf(d, 'atk') * vetOf(d, 'atk'));
 const powerOf = d => Math.round(hpOf(d) / 4 + atkOf(d) * 2);
 const feedCost = lvl => Math.round(10 * Math.pow(1.5, lvl - 1) * MOD('feed'));
 const sellValue = d => Math.round(25 * RARITY[d.rar].rv * d.lvl);
@@ -9803,7 +9811,7 @@ function speedEgg(id) {
 // ARENA
 // ============================================================
 function fighterFromDragon(d) {
-  return { name: d.name, els: d.els, rar: d.rar, lvl: d.lvl, hpMax: hpOf(d), hp: hpOf(d), atk: atkOf(d), cd: 0, xcd: 0, move: d.move || null, did: d.id, skin: d.skin, critB: mutOf(d, 'crit'), asc: d.asc || null };
+  return { name: d.name, els: d.els, rar: d.rar, lvl: d.lvl, hpMax: hpOf(d), hp: hpOf(d), atk: atkOf(d), cd: 0, xcd: 0, move: d.move || null, did: d.id, skin: d.skin, critB: mutOf(d, 'crit') + vetOf(d, 'crit'), asc: d.asc || null };
 }
 function randomSpeciesOfRarity(r) {
   return pick(ALL_SPECIES.filter(s => s.rar === r));
@@ -9966,6 +9974,8 @@ function doAttack(a, d, kind, isPlayer) {
   if (m > 1) logB('É super eficaz!', 'se'); else if (m < 1) logB('Não foi muito eficaz…', 'ne');
   fxQueue.push({ from: isPlayer ? 'me' : 'foe', to: isPlayer ? 'foe' : 'me', el, dmg, crit, m, kind, boss: !!a.boss, ko: d.hp <= 0 });
   if (isPlayer) {
+    const me = a.did && S.dragons.find(x => x.id === a.did);
+    if (me) { const st = beeSt(me); st.dmg += dmg; st.hit = Math.max(st.hit, dmg); if (d.hp <= 0) st.ko++; }
     S.stats.damageDealt += dmg; S.stats.bestHit = Math.max(S.stats.bestHit, dmg);
     if (crit) S.stats.crits++;
     if (m > 1) S.stats.superEffective++;
@@ -10132,6 +10142,16 @@ function endBattle(win) {
     // perdeu para o chefe: a partida acaba sozinha, sem dar para voltar à ilha
     if (!win) { const me = S; setTimeout(() => { if (S === me && !S.ended) endGame(); }, 2600); }
   }
+  B.team.forEach(f => {
+    const d = S.dragons.find(x => x.id === f.did); if (!d) return;
+    const st = beeSt(d), r0 = vetRank(d); st.b++; if (win) st.w++;
+    const r1 = vetRank(d);
+    if (r1 > r0) {
+      if (r1 >= 2 && !d.perk) d.perk = pick(Object.keys(VPERK));
+      S.stats.veterans = Math.max(S.stats.veterans || 0, r1);
+      setTimeout(() => toast(`🎖️ ${d.name} agora é ${VET[r1][1]}!`, `${st.w} vitórias juntas. +${Math.round((VET[r1][2] - 1) * 100)}% de vida e ataque${r1 === 2 ? ` e o traço ${VPERK[d.perk].n} (${VPERK[d.perk].d})` : ''}.`, 'ach'), 1200);
+    }
+  });
   S.lastResult = r;
   setTimeout(() => sfx(win ? 'vitoria' : 'derrota'), 750);
 }
@@ -11656,8 +11676,9 @@ function viewHud() {
 function dragonCard(d) {
   const maxed = d.lvl >= MAX_DLVL;
   const fc = feedCost(d.lvl);
-  return `<div class="dcard r-${d.rar}">${dIcon(d.els, d.rar, 'm', '', d.id, d.skin)}
-    <div class="info">
+  const vr = vetRank(d);
+  return `<div class="dcard r-${d.rar}${d.asc ? ' asc' : ''}">${dIcon(d.els, d.rar, 'm', '', d.id, d.skin)}
+    <div class="info">${d.asc || vr ? `<span class="meta titles">${d.asc ? `<span class="asc-tag">${ASC[d.asc].i} ${ASC[d.asc].n}</span>` : ''}${vr ? `<span class="vet-tag">🎖️ ${VET[vr][1]}</span>` : ''}</span>` : ''}
       <span class="name">${d.name} <span class="muted">Nv ${d.lvl}</span> <button class="ren" data-a="rename" data-id="${d.id}" title="Renomear" aria-label="Renomear ${d.name}">🏷️</button></span>
       <span class="meta"><span class="rar-${d.rar}">${RARITY[d.rar].f}</span> · ${elTags(d.els)}</span>
       <span class="meta num">🪙 ${gpsOf(d).toFixed(1).replace('.', ',')}/s${isNative(d) ? ' 🌻' : ''} · ❤️ ${myHp(d)} · 🗡️ ${myAtk(d)}</span>${d.move && ATTACKS[d.move] ? `<span class="meta">${ATTACKS[d.move].i} ${ATTACKS[d.move].n}</span>` : ''}${d.mut ? `<span class="meta mut-tag" title="${MUTS[d.mut].d}">🧬 ${MUTS[d.mut].n} · ${MUTS[d.mut].d}</span>` : ''}${seasonOf(d) > 1 ? `<span class="meta">${SEASONS[S.season].i} Forte no ${SEASONS[S.season].n}: +20% vida e ataque</span>` : ''}
