@@ -659,6 +659,12 @@ body { padding-bottom: calc(76px + env(safe-area-inset-bottom, 0px)); }
 .shop-sign small { font-weight: 800; text-shadow: 0 2px 0 var(--ink); }
 .shop-wallet { display: flex; gap: 8px; }
 .shop-wallet .cost { padding: 6px 14px; border-radius: 999px; border: 2px solid var(--ink); background: rgba(20, 14, 7, .85); font-family: var(--font-display); font-weight: 400; font-size: 1.1rem; box-shadow: 0 3px 0 var(--ink); }
+.up-box { display: grid; gap: 10px; justify-items: start; margin-bottom: 12px; }
+.up-pair { display: flex; gap: 12px; align-items: center; } .up-pair b { font-family: var(--font-display); font-size: 1.2em; display: block; }
+.up-bar { position: relative; width: min(100%, 520px); height: 26px; border: 3px solid var(--ink); border-radius: 13px; background: linear-gradient(180deg, #a03030, #6a1a1a); overflow: hidden; }
+.up-win { position: absolute; inset: 0 auto 0 0; background: linear-gradient(180deg, #5fe08a, #1f8a46); }
+.up-mark { position: absolute; top: -2px; bottom: -2px; width: 6px; margin-left: -3px; background: #fff; box-shadow: 0 0 0 2px var(--ink); border-radius: 3px; left: var(--to); animation: upmark 1.7s cubic-bezier(.15, .7, .25, 1); }
+@keyframes upmark { 0% { left: 0; } 25% { left: 100%; } 50% { left: 10%; } 100% { left: var(--to); } }
 .stabs { display: flex; gap: 8px; margin-bottom: -3px; padding-left: 10px; position: relative; z-index: 1; flex-wrap: wrap; }
 .stab { position: relative; border: 3px solid var(--ink); border-bottom: none; border-radius: 14px 14px 0 0; padding: 8px 16px; font-family: var(--font-display); color: #fff; text-shadow: 0 2px 0 var(--ink);
   background: linear-gradient(180deg, #a97a4b, #7a5530); box-shadow: inset 0 2px 0 rgba(255, 255, 255, .25); }
@@ -11093,7 +11099,7 @@ function renderTabs() {
 }
 function renderView() {
   switch (S.tab) {
-    case 'chocadeira': return viewSwarm();
+    case 'chocadeira': return swTabs() + (S.swTab === 'up' ? viewUpgrade() : viewSwarm());
     case 'dragoes': return viewDragons();
     case 'cruzar': return viewLab();
     case 'torre': return viewTower();
@@ -11121,6 +11127,54 @@ function eggSVG(sp, id, ready) {
     <g class="eg"><path d="M60,12 C86,12 92,56 90,68 C88,86 75,92 60,92 C45,92 32,86 30,68 C28,56 34,12 60,12Z" fill="url(#eg${id})" stroke="${ring}" stroke-width="3"/>${spots}
     <path d="M60,92 C45,92 32,86 30,68 C40,82 80,82 90,68 C88,86 75,92 60,92Z" fill="#000" opacity=".18"/><ellipse cx="48" cy="28" rx="7" ry="10" fill="#fff" opacity=".55" transform="rotate(-20 48 28)"/></g>
     ${nestFront}${bling}</svg>`;
+}
+// Upgrade (aba da Roleta): paga mel e tenta subir a abelha para a próxima raridade.
+// Deu certo: vira uma abelha da raridade nova, mantendo nível, mutação, visual e histórico. Deu errado: só perde o mel.
+const UPG = { C: { to: 'R', p: 0.5, k: 3 }, R: { to: 'E', p: 0.3, k: 8 }, E: { to: 'L', p: 0.15, k: 20 } };
+const upgCost = d => Math.round(spinCost() * UPG[d.rar].k / 5) * 5;
+function swTabs() {
+  return `<div class="stabs"><button class="stab" aria-pressed="${S.swTab !== 'up'}" data-a="swTab" data-k="roleta">🎯 Roleta</button><button class="stab" aria-pressed="${S.swTab === 'up'}" data-a="swTab" data-k="up">⬆️ Upgrade</button></div>`;
+}
+function tryUpgrade(id) {
+  const d = S.dragons.find(x => x.id === id), U = d && UPG[d.rar];
+  if (!U || (S.upRoll && S.upRoll.until > performance.now())) return;
+  const pool = swarmPool().filter(sp => sp.rar === U.to);
+  if (!pool.length) { toast('Ainda não dá', `Nenhuma abelha ${RARITY[U.to].n} liberada para o seu nível.`, 'bad'); return; }
+  if (!spendGold(upgCost(d))) return;
+  const ok = Math.random() < U.p, pos = ok ? Math.random() * U.p : U.p + Math.random() * (1 - U.p);
+  S.stats.upTries = (S.stats.upTries || 0) + 1;
+  const from = { name: d.name, rar: d.rar };
+  if (ok) {
+    const sp = pick(pool), old = ALL_SPECIES.find(x => x.key === d.key);
+    if (!old || d.name === old.name) d.name = sp.name;
+    Object.assign(d, { key: sp.key, els: sp.els.slice(), rar: sp.rar });
+    d.lvl = Math.min(d.lvl, MAX_DLVL);
+    if (!S.dex[sp.key]) S.dex[sp.key] = S.t || 0.01;
+    S.stats.upWins = (S.stats.upWins || 0) + 1;
+    if (sp.rar === 'L' && S.stats.firstLegendT === null) S.stats.firstLegendT = S.t;
+  }
+  S.upRoll = { id, ok, pos, p: U.p, from, to: U.to, until: performance.now() + 1700, n: (S.upRoll ? S.upRoll.n : 0) + 1 };
+  sfx('tique');
+  setTimeout(() => { if (ok) { sfx('revelacao', { raridade: RAR_SOM[U.to] }); toast(`⬆️ Deu certo! ${d.name}`, `Agora é ${RARITY[U.to].n}.`, 'ach'); } else { sfx('erro'); toast('Não foi dessa vez', `${from.name} continua ${RARITY[from.rar].n}.`, 'bad'); } render(); }, 1700);
+}
+function viewUpgrade() {
+  const d = S.dragons.find(x => x.id === S.upSel && UPG[x.rar]);
+  const bees = S.dragons.filter(x => UPG[x.rar]).sort((a, b) => RARITY[b.rar].rv - RARITY[a.rar].rv || b.lvl - a.lvl);
+  const chips = bees.length ? bees.map(x => `<button class="chip" aria-pressed="${d && x.id === d.id}" data-a="upSel" data-id="${x.id}">${dIcon(x.els, x.rar, 's', '', x.id, x.skin)}${x.name} · <span class="rar-${x.rar}">${RARITY[x.rar].n}</span> · Nv ${x.lvl}</button>`).join('') : '<p class="hint">Todas as suas abelhas já são Lendárias.</p>';
+  const R = S.upRoll, rolling = R && R.until > performance.now();
+  let box = '<p class="hint">Escolha uma abelha abaixo.</p>';
+  if (d) {
+    const U = UPG[d.rar], c = upgCost(d), ok = S.gold >= c;
+    const bar = R && R.id === d.id ? R : null;
+    box = `<div class="up-box">
+      <div class="up-pair">${dIcon(d.els, d.rar, 'l', '', d.id, d.skin)}<div><b>${d.name}</b><span class="hint"><span class="rar-${d.rar}">${RARITY[d.rar].n}</span> ➜ <span class="rar-${U.to}">${RARITY[U.to].n}</span></span></div></div>
+      <div class="up-bar"><div class="up-win" style="width:${U.p * 100}%"></div>${bar ? `<div class="up-mark" style="--to:${(bar.pos * 100).toFixed(1)}%" data-n="${bar.n}"></div>` : ''}</div>
+      <p class="hint">Chance: <b class="num">${Math.round(U.p * 100)}%</b>. Se der certo, ela vira uma abelha ${RARITY[U.to].n} sorteada e mantém nível, mutação, visual e histórico. Se der errado, só o mel é gasto.</p>
+      <button class="btn go big" data-a="upTry" data-id="${d.id}" ${ok && !rolling ? '' : 'disabled'}>${rolling ? 'Sorteando…' : `Tentar upgrade ${costTag(c)}`}</button>
+    </div>`;
+  }
+  return `<div class="grid"><section class="panel" style="grid-column:1/-1"><div class="panel-head"><h2>Upgrade de abelha</h2><span class="hint">Comum ➜ Rara 50% · Rara ➜ Épica 30% · Épica ➜ Lendária 15%</span></div>
+    ${box}<div class="chips">${chips}</div></section></div>`;
 }
 function viewSwarm() {
   const W = S.wheel, spinning = W && W.until > performance.now();
@@ -12382,6 +12436,7 @@ const ACTIONS = {
   skinPick: el => { S.skinPick = S.skinPick === el.dataset.k ? null : el.dataset.k; },
   skin: el => applySkin(+el.dataset.id),
   unskin: el => removeSkin(+el.dataset.id, el.dataset.k),
+  swTab: el => { S.swTab = el.dataset.k; }, upSel: el => { S.upSel = +el.dataset.id; }, upTry: el => tryUpgrade(+el.dataset.id),
   hskinPick: el => { S.hskinPick = S.hskinPick === el.dataset.k ? null : el.dataset.k; },
   hskin: el => applyHiveSkin(+el.dataset.i), unhskin: el => { const h = S.habitats[+el.dataset.i]; if (h) { h.skin = null; sfx('clique'); } },
   selCrop: el => { if (unlockedCrop(el.dataset.k)) S.selCrop = el.dataset.k; },
