@@ -758,6 +758,11 @@ svg.gi { width: 1.2em; height: 1.2em; vertical-align: -.25em; display: inline-bl
 .crisis-box .btn { white-space: nowrap; }
 @keyframes crisisPulse { 50% { box-shadow: 0 0 0 4px rgba(255, 120, 60, .35); } }
 @media (orientation: landscape) and (max-height: 520px) { .hud .crisis-box { max-width: 440px; padding: 4px 8px; } .crisis-box .cr-txt span { display: none; } }
+.card.necro { background: radial-gradient(circle at 50% 0%, #4a2a7a, #160a26 70%) !important; border-color: #9a6cff !important; color: #f2e8ff; }
+.card.necro h1 { color: #d9b8ff; }
+.card.necro .choice { background: linear-gradient(180deg, #3a2160, #1d0f33) !important; border-color: #7a4ad0 !important; color: #f2e8ff; }
+.card.necro .choice .pro { color: #9ef0a0; } .card.necro .choice .con { color: #ff9a9a; display: block; font-size: .85rem; }
+.card.necro .dic { filter: grayscale(1) brightness(.7) sepia(.4) hue-rotate(215deg) saturate(2.4) contrast(1.15) drop-shadow(0 0 18px #b47dff); }
 .tw-parts { display: grid; gap: 8px; }
 .tw-part { display: grid; grid-template-columns: auto 1fr; gap: 6px 12px; align-items: center; padding: 10px 12px; border-radius: 14px; background: rgba(0,0,0,.18); opacity: .78; }
 .tw-part.have { opacity: 1; box-shadow: inset 0 0 0 2px #ffcc33; }
@@ -9891,6 +9896,7 @@ function bossTeam(final) {
     let hp = A.hp, atk = A.atk;
     if (!final) { hp = Math.round(hp * 0.8); atk = Math.round(atk * 0.8); }
     else if (S.weakened) hp = Math.round(hp * 0.7);
+    if (final && S.necroBoss && S.act === 2) hp = Math.round(hp * S.necroBoss);
     return [{ name: final ? A.boss : A.boss + ' no ninho', els: [], disp: A.disp, rar: 'L', lvl: 99, hpMax: hp, hp, atk, cd: 0, boss: true }];
   }
   const b = MODES[S.mode].boss, k = S.mode === 'infinito' ? Math.pow(1.35, S.wave) : 1;
@@ -10200,6 +10206,44 @@ function crisisBox() {
   const label = K.taps ? `${K.btn} (${C.taps}/${K.taps})` : `${K.btn} ${costTag(C.amt, K.pay === 'food' ? 'f' : undefined)}`;
   return `<div class="box crisis-box"><span class="cr-ic">${K.i}</span><div class="cr-txt"><b>${K.n}</b><span>${K.d}</span><div class="bar"><i style="width:${pct(left, C.dur)}%"></i></div></div><button class="btn danger" data-a="crisis">${label}</button></div>`;
 }
+// Abelha Necromante: aparece uma vez, 2,5 min antes do fim do Ato II, com 3 pactos de troca. Recusar não custa nada, mas ela não volta.
+const NECRO_AT = () => actEndAt(1) - 150;
+const strongest = () => [...S.dragons].sort((a, b) => powerOf(b) - powerOf(a))[0];
+const outsideTeam = () => S.dragons.filter(d => !S.team.includes(d.id));
+const PACTS = {
+  sangue: { i: '🩸', n: 'Pacto de Sangue', g: '+35% de ataque para todas as abelhas', c: 'Todas perdem 25% de vida', can: () => true },
+  ouro: { i: '💰', n: 'Ouro Maldito', g: () => `+${fmt(Math.max(5000, Math.round(totalGps() * 300)))} de mel agora`, c: 'As colmeias produzem 25% menos mel até o fim', can: () => true },
+  sacrificio: { i: '⚰️', n: 'Sacrifício', g: 'As outras abelhas ganham +30% de ataque para sempre', c: () => `${strongest().name}, sua abelha mais forte, vai embora com ela`, can: () => S.dragons.length >= 3 },
+  visao: { i: '👁️', n: 'Visão do Fim', g: 'A Imperatriz do Ninho chega com 25% menos vida', c: () => `Você perde toda a geleia real (${S.gems}) e todos os cristais (${S.crystals || 0})`, can: () => S.gems + (S.crystals || 0) >= 10 },
+  almas: { i: '👻', n: 'Troca de Almas', g: 'Uma abelha Lendária nova, no nível das suas', c: '2 abelhas que estão fora do time somem', can: () => outsideTeam().length >= 2 },
+};
+const pv = v => typeof v === 'function' ? v() : v;
+function necroCheck() {
+  if (!isActs() || S.necroDone || S.act !== 1 || S.t < NECRO_AT() || S.battle || S.relicOffer || S.raid || S.crisis || S.finalPhase) return;
+  S.necroDone = true;
+  S.necroOffer = Object.keys(PACTS).filter(k => PACTS[k].can()).sort(() => Math.random() - 0.5).slice(0, 3);
+  S.choosing = true; sfx('despertar'); renderNecro();
+}
+function renderNecro() {
+  overlay(`<div class="card pick necro">
+    <div class="hero">${dIcon(['trevas'], 'L', 'xl', 'pop', 666)}<span class="cat">Uma visita das sombras</span><h1>A Abelha Necromante</h1>
+      <p>“Sinto o cheiro da Imperatriz chegando… Posso ajudar você. Mas tudo tem um preço.” Escolha um pacto ou recuse. Ela não volta.</p></div>
+    <div class="choices">${S.necroOffer.map(k => { const P = PACTS[k]; return `<button class="choice relic" data-a="pact" data-k="${k}"><span class="ric">${P.i}</span><b>${P.n}</b><span class="pro">${pv(P.g)}</span><span class="con">${pv(P.c)}</span></button>`; }).join('')}</div>
+    <div class="row" style="justify-content:center"><button class="btn" data-a="pact" data-k="nao">Recusar e mandá-la embora</button></div>
+  </div>`);
+}
+function takePact(k) {
+  if (!S || !S.necroOffer || (k !== 'nao' && !S.necroOffer.includes(k))) return;
+  S.necroOffer = null; S.choosing = false; overlay(''); last = performance.now();
+  if (k === 'nao') { toast('A Necromante foi embora', '“Que pena… a Imperatriz não será tão gentil.”'); return; }
+  S.pact = k; S.stats.pacts = (S.stats.pacts || 0) + 1;
+  if (k === 'sangue') applyMods({ atk: 1.35, hp: 0.75 });
+  if (k === 'ouro') { addGold(Math.max(5000, Math.round(totalGps() * 300))); applyMods({ gold: 0.75 }); }
+  if (k === 'sacrificio') { const d = strongest(); S.dragons = S.dragons.filter(x => x !== d); S.team = S.team.filter(t => t !== d.id); S.dragons.forEach(x => { x.atkUp = (x.atkUp || 0) + 0.3; }); }
+  if (k === 'visao') { S.gems = 0; S.crystals = 0; S.necroBoss = 0.75; }
+  if (k === 'almas') { const out = outsideTeam().sort(() => Math.random() - 0.5).slice(0, 2); S.dragons = S.dragons.filter(x => !out.includes(x)); const lv = Math.max(1, Math.round(S.dragons.reduce((a, x) => a + x.lvl, 0) / S.dragons.length)); const d = addDragon(randomSpeciesOfRarity('L'), lv); toast(`👻 ${d.name} chegou`, `Uma Lendária nível ${lv} saiu das sombras.`, 'ach'); }
+  sfx('lendaria'); toast(`${PACTS[k].i} ${PACTS[k].n}`, `${pv(PACTS[k].g)}. O preço foi pago.`, 'ach');
+}
 function towerPart(k) {
   const T = S.tower, P = TOWER_PARTS.find(p => p.k === k);
   if (!T || !P || T.items.includes(k)) return;
@@ -10373,7 +10417,7 @@ function tick() {
   }
   if (S.raid && S.t > S.raid.until && !(S.battle && S.battle.kind === 'raid')) { overlay(''); raidPenalty(); }
   if ((S.t >= S.nextRelic || S.bonusRelic) && !S.battle && !S.relicOffer && !S.raid) offerRelics();
-  crisisTick(dt);
+  crisisTick(dt); necroCheck();
   if (S.t >= S.nextCrystal) { S.nextCrystal += CRYSTAL_EVERY; addCrystals(1, 'Um cristal brotou no Laboratório.'); }
   if (S.lostEgg && S.t > S.lostEgg.until) S.lostEgg = null;
   if (S.battle && !S.battle.over && S.autoBattle && S.tab === 'arena') {
@@ -10783,7 +10827,7 @@ function pumpSprites() {
   cv.toBlob(b => {
     if (b) { const u = URL.createObjectURL(b); SPR.set(job.key, u); if (r.w) ISO[job.key] = { u, w: r.w, h: r.h, ax: r.ax, ay: r.ay }; }
     if (!S && job.key.startsWith('d:') && document.querySelector('.overlay .dg.ph') && !document.querySelector('.loading')) renderStart();
-    if (S && S.choosing && !S.relicOffer && job.key.startsWith('d:') && document.querySelector('.overlay .dg.ph')) renderQueens();
+    if (S && S.choosing && !S.relicOffer && job.key.startsWith('d:') && document.querySelector('.overlay .dg.ph')) { if (S.necroOffer) renderNecro(); else if (!S.queen) renderQueens(); }
     // telas de revelação (ovo chocado, roleta): troca o brilho pelo sprite assim que ele fica pronto
     if (job.key.startsWith('d:')) document.querySelectorAll('.overlay .dic').forEach(el => {
       if (el.dataset.sk !== job.key || !el.querySelector('.dg.ph')) return;
@@ -12150,7 +12194,7 @@ const ACTIONS = {
   start: el => { landscapeLock(); startGame(el.dataset.k); },
   fullscreen: () => landscapeLock(true),
   fsToggle: () => toggleFs(),
-  crisis: () => crisisAct(),
+  crisis: () => crisisAct(), pact: el => takePact(el.dataset.k),
   buildFloor: () => buildFloor(), towerSel: el => { S.towerSel = +el.dataset.id; }, ascend: el => ascend(el.dataset.k),
   queen: el => chooseQueen(el.dataset.k),
   tutorNext: () => tutorNext(false), tutorSkip: () => tutorNext(true),
