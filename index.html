@@ -1149,7 +1149,7 @@ body { background: #7a420c; }
 
    O áudio só começa depois do primeiro clique ou tecla (regra dos
    navegadores). Pedidos de música feitos antes disso ficam guardados
-   e começam sozinhos no primeiro gesto. Nada é salvo em localStorage.
+   e começam sozinhos no primeiro gesto. O áudio não salva nada em localStorage.
    ===================================================================== */
 (function () {
   'use strict';
@@ -10474,6 +10474,7 @@ function tick() {
   checkAchievements();
   render();
   runFx();
+  saveRun();
 }
 let autoAcc = 0;
 // Peso do modo na pontuação: 1 = 20 min. No Infinito, cresce com o tempo jogado.
@@ -10502,7 +10503,7 @@ function startFinal() {
 
 function startGame(mode) {
   tension(0); music('ilha');
-  S = newState(mode);
+  S = newState(mode); clearSave();
   addDragon(speciesFromEls([pick(S.meadow)]));
   S.missions = initialMissions();
   S.team = [S.dragons[0].id];
@@ -10614,12 +10615,48 @@ function chooseRelic(k) {
 }
 function endGame() {
   if (!S || S.ended) return;
-  S.ended = true; S.running = false;
+  S.ended = true; S.running = false; clearSave();
   checkAchievements();
   const won = S.finalResult ? S.finalResult.win : ((S.mode === 'infinito' || isActs()) && S.stats.finalWins > 0);
   sfx(won ? 'finalVitoria' : 'finalDerrota'); tension(0);
   const fim = S.finalResult ? (S.finalResult.win ? 'vitoria' : 'derrota') : (S.mode === 'infinito' || isActs()) && S.stats.finalWins > 0 ? 'vitoria' : 'semDefesa';
   cena(fim, { modo: S.mode }).then(() => { setTimeout(() => music('placar'), 1200); renderEnd(); });
+}
+// Salvamento de segurança: guarda a partida no navegador por 10 minutos, só para não perder tudo se a aba fechar sem querer
+const SAVE_KEY = 'honeyTroop.save', SAVE_TTL = 10 * 60 * 1000;
+let saveAt = 0;
+function saveRun(force) {
+  if (!S || window.__noSave) return;
+  const now = Date.now();
+  if (!force && now - saveAt < 5000) return;
+  saveAt = now;
+  try {
+    if (S.ended) { localStorage.removeItem(SAVE_KEY); return; }
+    localStorage.setItem(SAVE_KEY, JSON.stringify({ at: now, v: 1, s: S }));
+  } catch (e) { /* armazenamento bloqueado ou cheio: segue sem salvar */ }
+}
+function loadSave() {
+  try {
+    const raw = localStorage.getItem(SAVE_KEY); if (!raw) return null;
+    const o = JSON.parse(raw);
+    if (!o || !o.s || Date.now() - o.at > SAVE_TTL || o.s.ended) { localStorage.removeItem(SAVE_KEY); return null; }
+    return o;
+  } catch (e) { return null; }
+}
+function clearSave() { try { localStorage.removeItem(SAVE_KEY); } catch (e) {} }
+function resumeRun() {
+  const o = loadSave(); if (!o) { renderStart(); return; }
+  S = o.s;
+  // estados passageiros não voltam: giro da roleta, batalha no meio, cutscene
+  S.wheel = null; S.spin = null; S.idleReel = null; S.swRes = null; S.tutor = null; S.ficha = null; S.battle = null;
+  S.running = true; S.paused = false;
+  lastTop = lastTabs = lastView = lastMap = lastHud = ''; mapCentered = false; last = performance.now();
+  landscapeLock(); music(S.finalPhase ? 'invasao' : 'ilha');
+  render(true);
+  if (S.relicOffer) { S.choosing = true; renderRelics(); }
+  else if (S.necroOffer) { S.choosing = true; renderNecro(); }
+  else if (!S.queen) { S.choosing = true; renderQueens(); }
+  else { S.choosing = false; S.paused = true; overlay(`<div class="card hero"><h1>Partida recuperada</h1><p>Voltamos de onde você parou${isActs() ? `, no ${curAct().n}` : ''}, com ${fmtTime(S.t)} de jogo. O relógio está parado.</p><button class="btn primary" data-a="pause">Continuar</button></div>`); }
 }
 function togglePause() {
   if (!S || S.ended || S.choosing) return;
@@ -10628,7 +10665,9 @@ function togglePause() {
   if (S.paused) overlay(`<div class="card hero"><h1>Pausado</h1><p>O relógio está parado. A colmeia espera por você.</p><button class="btn primary" data-a="pause">Continuar</button></div>`);
   else { overlay(''); last = performance.now(); }
 }
+window.addEventListener('pagehide', () => saveRun(true));
 document.addEventListener('visibilitychange', () => {
+  if (document.hidden) saveRun(true);
   if (document.hidden && S && S.running && !S.paused && !S.ended) togglePause();
 });
 
@@ -12197,6 +12236,7 @@ function renderStart() {
       <h1>Honey Troop</h1>
       <p>O enxame da Vespa Rainha está a caminho da Ilha Favo. A partida tem três atos, e cada um termina com um chefe: o General Vespa, a Vespa Rainha e a Imperatriz do Ninho. Crie, cruze, alimente e treine um enxame de abelhas para vencer os três. Se elas defenderem a colmeia, viram uma nova Tropa do Mel. Cada partida sorteia a estação, o inimigo que invade a colmeia, o prado, a rainha, as relíquias e os caminhos da Arena. Ao fechar a aba, a partida se perde.</p>
     </div>
+    ${(() => { const o = loadSave(); if (!o) return ''; const m = Math.max(1, Math.ceil((SAVE_TTL - (Date.now() - o.at)) / 60000)); return `<div class="row" style="justify-content:center"><button class="btn go big" data-a="resume">▶ Continuar partida (${o.s.mode === 'atos' ? ACTS[Math.min(o.s.act || 0, 2)].n + ' · ' : ''}${fmtTime(o.s.t)})</button></div><p class="hint" style="margin:0 0 6px;text-align:center">A partida fechada fica guardada por mais ${m} min. Jogar de novo apaga ela.</p>`; })()}
     <div class="row" style="justify-content:center"><button class="btn primary big play-btn" data-a="start" data-k="atos">Jogar</button></div>
     <p class="hint" style="margin:0;text-align:center">Dica: colete mel das colmeias, plante flores para ter néctar, alimente abelhas até o nível 3 e cruze para descobrir as ${ALL_SPECIES.length} espécies.</p>
   </div>`);
@@ -12279,6 +12319,7 @@ const ACTIONS = {
   merchant: () => buyMerchant(), shopTab: el => { S.shopTab = el.dataset.k; }, boost: el => buyBoost(el.dataset.k), treasure: el => buyTreasure(el.dataset.k), gemGold: () => gemsToGold(), mystery: () => mysteryEgg(),
   egg: () => catchEgg(),
   pause: () => togglePause(),
+  resume: () => resumeRun(),
   askEnd: () => overlay(`<div class="card hero"><h1>Encerrar a partida?</h1><p>${S && S.finalPhase ? 'Desistir agora conta como colmeia não defendida.' : 'Você sai antes da Vespa Rainha chegar, e a colmeia fica sem defesa.'} Não dá para voltar.</p><div class="row"><button class="btn primary" data-a="end">Encerrar agora</button><button class="btn" data-a="cancelEnd">Continuar jogando</button></div></div>`),
   cancelEnd: () => overlay(''),
   end: () => endGame(),
