@@ -11389,10 +11389,12 @@ function habDecor(th, X, Y) {
   return `<path d="M${X - 40},${Y - 2} l3,-9 l3,9 M${X - 32},${Y + 4} l3,-8 l3,8 M${X + 34},${Y - 4} l3,-9 l3,9" stroke="#2f6b2a" stroke-width="2" fill="none"/>`;
 }
 // Abelhas passeando: no máximo 2 saem da colmeia, dão uma volta pela ilha e voltam.
+// v8.0: Pedro pediu as abelhas grandes paradas na colmeia (ficam só as pequenas da ilha 3D)
+const FLY_ON = false;
 const FLY_CYCLE = 70, FLY_WIN = [[0, 30], [22, 52]], FLY_DUR = 26;
 const HAB_SPOTS = [[-22, -2], [6, -12], [2, 12]];
 function flyingBees() {
-  if (!S || S.ended) return [];
+  if (!FLY_ON || !S || S.ended) return [];
   const n = Math.min(S.dragons.length, S.habitats.length * HAB_CAP);
   if (n < 3) return [];
   const c = Math.floor(S.t / FLY_CYCLE), ph = S.t - c * FLY_CYCLE, out = [];
