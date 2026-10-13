@@ -9402,6 +9402,15 @@ function upgradeFarm(i) {
   f.lvl = (f.lvl || 1) + 1; sfx('comprar'); addXp(6 + f.lvl * 2);
   toast(`Canteiro ${i + 1} no nível ${f.lvl}`, `Dá ${Math.round((farmYield(f) - 1) * 100)}% mais néctar e cresce ${Math.round((farmSpeed(f) - 1) * 100)}% mais rápido.`);
 }
+// Laboratório fechado até o nível 9; depois abre pagando mel. Cristais ganhos antes ficam guardados.
+const LAB_OPEN = { lvl: 9, cost: 6000 };
+const labLocked = () => !S.labOpen;
+function openLab() {
+  if (S.labOpen || S.level < LAB_OPEN.lvl) return;
+  if (!spendGold(LAB_OPEN.cost)) return;
+  S.labOpen = true; sfx('conquista'); addXp(20);
+  toast('🧪 Laboratório aberto!', 'Escolha uma abelha e gaste cristais para dar uma mutação a ela.');
+}
 function hireGardener() {
   if (S.gardener || S.level < GARDENER.lvl) return;
   if (!spendGold(Math.round(GARDENER.cost * MOD('shop')))) return;
@@ -10323,7 +10332,7 @@ function toggleTeam(id) {
 // MISSÕES, EVENTOS E CONQUISTAS
 // ============================================================
 function newMission(exclude = []) {
-  const tpl = pick(MISSION_TPL.filter(t => !exclude.includes(t.k)));
+  const tpl = pick(MISSION_TPL.filter(t => !exclude.includes(t.k) && (t.k !== 'breed' || S.labOpen)));
   const target = tpl.tgt(S.level);
   return { k: tpl.k, target, base: S.stats[tpl.stat], gold: round5(80 * Math.pow(1.45, S.level - 1)), gems: 1 + (S.level >= 6 ? 1 : 0) + (S.level >= 12 ? 1 : 0), xp: 20 + 8 * S.level };
 }
@@ -10546,7 +10555,7 @@ const TUTOR = [
   ['🪙', 'Mel', 'O mel é o dinheiro do jogo. As colmeias produzem sozinhas: toque nelas na ilha para coletar. Com mel você gira a Roleta, compra colmeias, canteiros e coisas na Loja.'],
   ['🍖', 'Néctar e Jardim', 'Abra o <b>Jardim</b> (botão verde no canto) para plantar flores nos canteiros. Quando ficam prontas, colha: o néctar alimenta as abelhas, e cada lanche sobe o nível delas.'],
   ['🎯', 'Abelhas novas', 'Toda abelha nova vem da <b>Roleta do Enxame</b>. Há um giro grátis de tempos em tempos, e as fichas também giram. Abelha repetida sobe de nível.'],
-  ['💎', 'Geleia real e cristais', 'Geleia real vem das batalhas, missões e conquistas e compra tesouros na <b>Loja</b>. Os cristais são raros e servem para dar mutações no <b>Laboratório</b>.'],
+  ['💎', 'Geleia real e cristais', 'Geleia real vem das batalhas, missões e conquistas e compra tesouros na <b>Loja</b>. Os cristais são raros e servem para dar mutações no <b>Laboratório</b>, que abre no nível 9 pagando mel. Até lá os cristais ficam guardados.'],
   ['⚔️', 'Arena e chefes', 'Na <b>Arena</b> você escolhe até 3 abelhas e luta para subir de liga. Elites e invasões podem dar relíquias. No fim de cada ato chega um chefe: <b>se perder para ele, a partida acaba</b>.'],
   ['🗼', 'Torre da Ascensão', 'No canto da ilha há uma torre em ruínas. Vença o <b>chefe do Ato I</b>, o <b>chefe do Ato II</b> e a <b>liga dos Campeões</b> da Arena para ganhar as 3 peças dela. Cada andar erguido deixa uma abelha Épica ou Lendária <b>ascender</b> e ganhar um poder novo.'],
   ['🎖️', 'Abelhas com história', 'Toque numa abelha na aba <b>Abelhas</b> para ver a <b>ficha</b> dela: personalidade, números e batalhas. Cada vitória conta: com 5, 12 e 25 vitórias ela vira <b>Experiente</b>, <b>Veterana</b> e <b>Heroína da Tropa</b>, ganhando bônus.'],
@@ -10566,7 +10575,7 @@ function tutorNext(skip) {
 // Dica curta na primeira vez que cada menu abre
 const TAB_TIPS = {
   dragoes: 'Aqui ficam suas abelhas. Alimente com néctar para subir o nível e venda as que não usa. Toque no ícone de uma abelha para ver a ficha dela, com o título de veterana e as batalhas.',
-  cruzar: 'Escolha uma abelha e gaste cristais para dar uma mutação a ela. Os cristais são raros: chegam com o tempo, dos chefes e de algumas elites.',
+  cruzar: 'O Laboratório abre no nível 9, pagando mel. Depois, escolha uma abelha e gaste cristais para dar uma mutação a ela. Os cristais são raros: chegam com o tempo, dos chefes e de algumas elites.',
   chocadeira: 'Gire a roleta para ganhar abelhas. Raras, Épicas e Lendárias saem menos, mas a chance garantida vai subindo.',
   arena: 'Cada vitória conta para o título de veterana das abelhas do time. Escolha o caminho e lute. Vencer as 3 lutas de uma liga abre a próxima. O chefe do ato aparece quando o tempo acaba.',
   missoes: 'Cumpra as missões para ganhar prêmios. Quando uma termina, outra entra no lugar.',
@@ -11399,6 +11408,7 @@ function isoWheel(cx, cy, X, Y) {
   if (n) o += bubble(X + 44, Y - 104, '🎯', true, String(n), 'data-a="tab" data-k="chocadeira"');
   return o;
 }
+const spotName = k => k === 'cruzar' && labLocked() ? `🔒 ${SPOTS[k].n} · Nv ${LAB_OPEN.lvl}` : SPOTS[k].n;
 function isoSpecial(k) {
   const sp = SPOTS[k], [cx, cy] = sp.at, size = sp.size || 2;
   const [X, Y] = iso(cx, cy);
@@ -11410,7 +11420,8 @@ function isoSpecial(k) {
     else if (k === 'missoes') { const claim = S.missions.filter(m => missionProg(m) >= m.target).length; if (claim) bubble(X + 30, Y - 68, '📜', true, String(claim), 'data-a="tab" data-k="missoes"'); }
     else if (k === 'chocadeira') { const n = (S.t >= S.freeAt ? 1 : 0) + S.tickets; if (n) bubble(X + 46, Y - 112, '🎯', true, String(n), 'data-a="tab" data-k="chocadeira"'); }
     else if (k === 'torre') { const T = towerOf(), P = TOWER_PARTS[T.floors]; if ((P && T.items.includes(P.k)) || T.used < T.floors) bubble(X + 40, Y - 88, '🗼', true, '!', 'data-a="tab" data-k="torre"'); }
-    return out + pill(X, Y + (big ? 52 : 26), sp.n) + '</g>';
+    else if (k === 'cruzar' && labLocked() && S.level >= LAB_OPEN.lvl) bubble(X + 40, Y - 88, '🧪', true, '!', 'data-a="tab" data-k="cruzar"');
+    return out + pill(X, Y + (big ? 52 : 26), spotName(k)) + '</g>';
   }
   if (k === 'chocadeira') {
     const im = isoImg('roleta', X, Y), n = (S.t >= S.freeAt ? 1 : 0) + S.tickets;
@@ -11861,7 +11872,14 @@ function viewDragons() {
     </section>
   </div>`;
 }
+function viewLabLocked() {
+  const lv = S.level >= LAB_OPEN.lvl, c = LAB_OPEN.cost, ok = lv && S.gold >= c;
+  return `<div class="grid"><section class="panel"><h2>Laboratório fechado</h2>
+    <div class="gard"><span class="bigic">🔒</span><div><b>Abre no nível ${LAB_OPEN.lvl}, pagando ${fmt(c)} de mel</b><span class="hint">Aqui você gasta cristais para dar mutações às abelhas. Os cristais que chegarem até lá ficam guardados (você tem ${S.crystals || 0}).</span></div>
+    ${lv ? `<button class="btn ${ok ? 'go' : ''}" data-a="labOpen" ${ok ? '' : 'disabled'}>Abrir ${costTag(c)}</button>` : `<span class="hint">Você está no nível ${S.level}.</span>`}</div></section></div>`;
+}
 function viewLab() {
+  if (labLocked()) return viewLabLocked();
   const d = S.dragons.find(x => x.id === S.labSel);
   const next = Math.max(0, Math.ceil(S.nextCrystal - S.t)), cr = S.crystals || 0;
   const chips = S.dragons.map(x => `<button class="chip" aria-pressed="${x.id === S.labSel}" data-a="labSel" data-id="${x.id}">${dIcon(x.els, x.rar, 's', '', x.id, x.skin)}${x.name} · Nv ${x.lvl}${x.mut ? ' · 🧬' : ''}</button>`).join('');
@@ -12324,7 +12342,7 @@ const ACTIONS = {
   plantOne: (el, ev) => harvest(+el.dataset.i, ev),
   farmCrop: el => setFarmCrop(el.dataset.i === 'all' ? 'all' : +el.dataset.i, el.dataset.k),
   farmUp: el => upgradeFarm(+el.dataset.i),
-  gardener: () => hireGardener(),
+  gardener: () => hireGardener(), labOpen: () => openLab(),
   spin: el => spinWheel(el.dataset.k),
   atkPick: el => { S.atkPick = S.atkPick === el.dataset.k ? null : el.dataset.k; },
   learn: el => learnAttack(+el.dataset.id),
