@@ -748,6 +748,9 @@ svg.gi { width: 1.2em; height: 1.2em; vertical-align: -.25em; display: inline-bl
 .card.tutor .tutor-ic { font-size: 3.4rem; line-height: 1; filter: drop-shadow(0 4px 0 rgba(0,0,0,.35)); }
 .card.tutor .tutor-ic .gi { width: 64px; height: 64px; }
 .card.tutor p { font-size: 1.02rem; line-height: 1.45; }
+.card.tutor.melina .mel-face { width: 96px; height: 96px; border-radius: 50%; overflow: hidden; border: 4px solid #7ff0d0; background: #1e5a52; box-shadow: 0 6px 0 rgba(0,0,0,.3); }
+.card.tutor.melina .mel-face svg { width: 100%; height: 100%; display: block; }
+.card.tutor.melina p { text-align: left; margin: 4px 0; }
 .tutor-dots { display: flex; gap: 6px; justify-content: center; }
 .tutor-dots i { width: 9px; height: 9px; border-radius: 50%; background: rgba(255,220,140,.3); }
 .tutor-dots i.on { background: #ffd968; }
@@ -1948,21 +1951,19 @@ body { background: #7a420c; }
         { palco: 'zumbido', quem: 'melina', tremor: 0.25, som: ['tremor', { intensidade: 0.5 }],
           texto: 'Ouviu esse zumbido? O enxame dela está vindo. A velha Tropa se foi, e minhas asas já não voam como antes.' },
         { palco: 'ovo', quem: 'melina',
-          texto: 'Esta é a velha Roleta do Enxame da Tropa. Gire para chamar abelhas, cruze os tipos, plante flores e faça mel.' },
-        { palco: 'ilha', quem: 'melina', exceto: 'infinito', nao: 'atos',
-          texto: 'A Vespa Rainha chega em {tempo}. Só três abelhas poderão enfrentá-la. Quem defender bem o lar entra para a Tropa do Mel.' },
-        { palco: 'ilha', quem: 'melina', so: 'atos',
-          texto: 'O enxame vem em três ondas. Primeiro o General Vespa, em {tempo}. Depois a própria Vespa Rainha. E, por último, quem manda nela: a Imperatriz do Ninho.' },
-        { palco: 'ilha', quem: 'melina', so: 'infinito',
-          texto: 'Ela vai atacar a cada quinze minutos, com um enxame maior a cada vez. Aguente o quanto puder.' },
+          texto: 'Esta é a Roleta do Enxame. Cada abelha da velha Tropa saiu dela, e ela nunca parou de girar, esperando uma nova colmeia.' },
+        { palco: 'ilha', quem: 'melina',
+          texto: 'A Rainha não vem sozinha. Na frente vem o General Vespa, e atrás de todas vive quem manda nelas: a Imperatriz do Ninho.' },
+        { palco: 'ilha', quem: 'melina',
+          texto: 'A Ilha Favo já foi o lar dos maiores heróis. Se você defender este lar, ele volta a ser da Tropa do Mel.' },
         { palco: 'titulo', titulo: 'Honey Troop', sub: 'A Tropa do Mel', dur: 3.2 },
       ],
     },
     sonho: {
       cenas: [
         { palco: 'ninho', quem: 'melina',
-          texto: 'Só os campeões da Arena entram no Ninho de Papel. Lá dentro a Vespa Rainha ainda hiberna, e pode ser ferida.' },
-        { palco: 'ninho', quem: 'melina', texto: 'Uma ferroada dada agora continua doendo quando ela acordar. Mire bem.' },
+          texto: 'No fundo do Ninho de Papel, a Vespa Rainha ainda hiberna. Dizem que só os campeões chegam vivos até lá.' },
+        { palco: 'ninho', quem: 'melina', texto: 'Uma ferroada dada durante o sono nunca sara. Ela vai acordar lembrando de você.' },
       ],
     },
     despertar: {
@@ -1973,7 +1974,7 @@ body { background: #7a420c; }
         { palco: 'olhos', quem: 'narrador', som: ['despertar'], texto: 'No horizonte, dois olhos de mil facetas se acendem.' },
         { palco: 'vespa', quem: 'vespa', tremor: 0.5, flash: true,
           texto: 'TANTO TEMPO LONGE DO MEU MEL. A Tropa do Mel acabou, e esta colmeia agora é minha.' },
-        { palco: 'vespa', quem: 'melina', texto: 'Agora! Escolha três abelhas. Tudo o que você construiu decide este momento.' },
+        { palco: 'vespa', quem: 'melina', texto: 'É agora, Tropa! Cada favo que você ergueu vai ser posto à prova.' },
       ],
     },
     despertarOnda: {
@@ -1983,29 +1984,29 @@ body { background: #7a420c; }
           texto: 'Ataque {onda}. O enxame volta pelo mar de mel.' },
         { palco: 'vespa', quem: 'vespa', tremor: 0.5, flash: true, som: ['despertar'],
           texto: 'Você me expulsou. Eu voltei com mais ferrões, e com mais fome.' },
-        { palco: 'vespa', quem: 'melina', texto: 'Três abelhas, de novo. Ela está mais forte, e nós também.' },
+        { palco: 'vespa', quem: 'melina', texto: 'Ela voltou mais forte. Mas esta colmeia também cresceu.' },
       ],
     },
     atoChefe: {
       musica: 'invasao',
       cenas: [
         { palco: 'zumbido', quem: 'narrador', tremor: 0.9, rachas: 1, som: ['tremor', { intensidade: 1 }],
-          texto: 'Fim do {ato}. O céu escurece de novo, e um zumbido diferente cobre a ilha.' },
+          texto: 'O céu escurece de novo, e um zumbido diferente cobre a Ilha Favo.' },
         { palco: 'vespa', quem: 'vespa', tremor: 0.5, flash: true, som: ['despertar'],
           texto: 'Aqui fala {chefe}. Esta colmeia vai ser do meu enxame.' },
-        { palco: 'vespa', quem: 'melina', texto: 'Três abelhas. Tudo o que você construiu até aqui decide este momento.' },
+        { palco: 'vespa', quem: 'melina', texto: 'Os heróis de antes também tremeram diante delas. E venceram mesmo assim.' },
       ],
     },
     atoVencido: {
       cenas: [
         { palco: 'vitoria', quem: 'narrador', texto: '{chefe} recua para além do mar de mel. Mas o zumbido continua no horizonte.' },
-        { palco: 'ilha', quem: 'melina', texto: 'Começa o {ato}. A colmeia pode crescer mais agora, com novos lotes e ligas. Próximo chefe: {proximo}.' },
+        { palco: 'ilha', quem: 'melina', texto: 'Isso foi só uma parte do enxame. Além do mar de mel, {proximo} já está a caminho.' },
       ],
     },
     ondaVencida: {
       cenas: [
         { palco: 'vitoria', quem: 'narrador', texto: 'A Vespa Rainha recua para além do mar de mel, mas o zumbido não some de vez.' },
-        { palco: 'ilha', quem: 'melina', texto: 'Ela volta em quinze minutos. Colete néctar, cruze, treine. Não pare agora.' },
+        { palco: 'ilha', quem: 'melina', texto: 'Ela vai voltar. Uma vespa nunca esquece o mel que perdeu.' },
       ],
     },
     vitoria: {
@@ -3216,6 +3217,7 @@ body { background: #7a420c; }
     palcos: PALCOS,
     vespa, // desenho da vespa, também usado nos chefes da batalha
     personagens: QUEM,
+    retratos: RETRATO, // desenhos dos rostos (a Vovó também aparece nas dicas do jogo)
     ids: () => Object.keys(ROTEIROS),
   };
 })(typeof window !== 'undefined' ? window : this);
@@ -11093,7 +11095,7 @@ function chooseQueen(k) {
   last = performance.now();
   sfx('conquista');
   toast(`${q.n} assumiu a colmeia!`, 'Toque na colmeia para coletar mel e plante margaridas nos canteiros.');
-  if (!window.__noCutscenes) { S.choosing = true; S.tutor = 0; renderTutor(); }
+  if (!window.__noCutscenes) { S.choosing = true; S.tutor = -1; renderTutor(); }
 }
 // ---------- Dicas iniciais: um passo a passo curto com o relógio parado ----------
 const TUTOR = [
@@ -11106,7 +11108,17 @@ const TUTOR = [
   ['🎖️', 'Abelhas com história', 'Toque numa abelha na aba <b>Abelhas</b> para ver a <b>ficha</b> dela: personalidade, números e batalhas. Cada vitória conta: com 5, 12 e 25 vitórias ela vira <b>Experiente</b>, <b>Veterana</b> e <b>Heroína da Tropa</b>, ganhando bônus.'],
   ['📜', 'Missões e conquistas', 'As <b>Missões</b> e as <b>Conquistas</b> dão mel e geleia real. Em <b>Estatísticas</b> você vê tudo o que fez na partida.'],
 ];
+// v8.5: logo depois de escolher o prado, a Vovó Melina dá as duas dicas que saíram das cutscenes (as cenas ficaram só com lore)
+function renderMelina() {
+  const face = (window.Cutscene && Cutscene.retratos && Cutscene.retratos.melina) || '';
+  const tempo = isActs() ? `<b>3 atos de ${Math.round(ACTS[0].dur / 60) || 12} minutos</b>. No fim de cada um chega um chefe: o <b>General Vespa</b>, a <b>Vespa Rainha</b> e a <b>Imperatriz do Ninho</b>` : 'a Vespa Rainha chega quando o relógio zerar';
+  overlay(`<div class="card hero tutor melina"><span class="cat">Vovó Melina</span><div class="mel-face">${face}</div>
+    <p>🎯 <b>Gire a Roleta do Enxame</b> para chamar suas primeiras abelhas. Ela tem um giro grátis de tempos em tempos.</p>
+    <p>⚔️ A partida tem ${tempo}.</p>
+    <div class="tutor-btns"><button class="btn small" data-a="tutorSkip">Pular dicas</button><button class="btn primary" data-a="tutorNext">Entendi, Vovó!</button></div></div>`);
+}
 function renderTutor() {
+  if (S.tutor === -1) return renderMelina();
   const i = S.tutor, [ic, t, d] = TUTOR[i], last = i === TUTOR.length - 1;
   overlay(`<div class="card hero tutor"><span class="cat">Dica ${i + 1} de ${TUTOR.length}</span><div class="tutor-ic">${ic}</div><h1>${t}</h1><p>${d}</p>
     <div class="tutor-dots">${TUTOR.map((_, k) => `<i class="${k === i ? 'on' : ''}"></i>`).join('')}</div>
