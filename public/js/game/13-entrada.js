@@ -78,6 +78,7 @@ const ACTIONS = {
 // No celular: tela cheia e orientação travada na horizontal (só funciona depois de um toque do jogador)
 const isPhone = () => matchMedia('(pointer: coarse)').matches && Math.min(screen.width, screen.height) <= 600;
 function landscapeLock(force) {
+  if (nativeApp()) return; // no app a tela cheia e a horizontal já vêm do sistema; pedir de novo mostra o aviso do iOS
   if (!force && !isPhone()) return;
   const el = document.documentElement;
   const go = () => { try { const p = screen.orientation && screen.orientation.lock && screen.orientation.lock('landscape'); if (p && p.catch) p.catch(() => {}); } catch (e) { /* sem suporte */ } };
@@ -89,7 +90,7 @@ function landscapeLock(force) {
 }
 // Botão de tela cheia da barra de cima: some com as barras do navegador no celular
 const isTouch = () => matchMedia('(pointer: coarse)').matches;
-const inApp = () => matchMedia('(display-mode: fullscreen), (display-mode: standalone)').matches || navigator.standalone === true;
+const inApp = () => nativeApp() || matchMedia('(display-mode: fullscreen), (display-mode: standalone)').matches || navigator.standalone === true;
 const isFs = () => !!(document.fullscreenElement || document.webkitFullscreenElement) || inApp();
 const fsApi = () => !!(document.fullscreenEnabled || document.webkitFullscreenEnabled);
 const FS_ON = '<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M4 9V4h5M15 4h5v5M20 15v5h-5M9 20H4v-5"/></svg>';
