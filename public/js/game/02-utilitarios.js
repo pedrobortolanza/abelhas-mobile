@@ -34,3 +34,5 @@ function fmtTime(sec) {
 const pct = (a, b) => b ? Math.round((a / b) * 100) : 0;
 
 // ============================================================
+// Rodando dentro do app (Capacitor no Android ou iPhone): já é tela cheia e travado deitado
+const nativeApp = () => !!(window.Capacitor && window.Capacitor.isNativePlatform && window.Capacitor.isNativePlatform());

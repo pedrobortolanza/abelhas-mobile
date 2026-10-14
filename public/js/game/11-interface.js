@@ -390,7 +390,7 @@ function renderTop() {
     <div class="res crys" title="Cristais do Laboratório" data-a="tab" data-k="cruzar"><span>💠</span><b class="num">${S.crystals || 0}</b></div>
     <div class="lvl" title="Nível do jogador"><span>Nível ${S.level} <span class="muted num">${S.level >= MAX_PLVL ? 'máx.' : `${fmt(S.xp)}/${fmt(xpNeed(S.level))} XP`}</span></span><div class="bar"><i style="width:${S.level >= MAX_PLVL ? 100 : pct(S.xp, xpNeed(S.level))}%"></i></div></div>
     <div class="timer num ${hurry ? 'hurry' : ''}" title="${bossName()} ataca quando o tempo acabar">☠️ ${S.finalPhase ? 'ATAQUE!' : fmtTime(left)}${S.mode === 'infinito' ? ` · onda ${S.wave + 1}` : isActs() ? ` · ${curAct().n}` : ''}</div>
-    ${isTouch() ? `<button class="iconbtn fsbtn" data-a="fsToggle" title="${isFs() ? 'Sair da tela cheia' : 'Tela cheia'}" aria-label="${isFs() ? 'Sair da tela cheia' : 'Tela cheia'}">${isFs() ? FS_OFF : FS_ON}</button>` : ''}
+    ${isTouch() && !nativeApp() ? `<button class="iconbtn fsbtn" data-a="fsToggle" title="${isFs() ? 'Sair da tela cheia' : 'Tela cheia'}" aria-label="${isFs() ? 'Sair da tela cheia' : 'Tela cheia'}">${isFs() ? FS_OFF : FS_ON}</button>` : ''}
     <button class="iconbtn" data-a="pause">Pausar</button>
     <button class="iconbtn" data-a="askEnd">Encerrar</button>
     ${buffs.length ? `<div class="buffs">${buffs.map(b => `<span class="buff">${b}</span>`).join('')}</div>` : ''}

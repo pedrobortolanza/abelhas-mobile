@@ -1,0 +1,8 @@
+{
+  "appId": "com.pedrobortolanza.abelhas",
+  "appName": "Honey Troop",
+  "webDir": "dist",
+  "backgroundColor": "#4a2a10",
+  "ios": { "contentInset": "never" },
+  "android": { "backgroundColor": "#4a2a10" }
+}

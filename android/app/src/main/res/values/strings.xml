@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">Honey Troop</string>
+    <string name="title_activity_main">Honey Troop</string>
+    <string name="package_name">com.pedrobortolanza.abelhas</string>
+    <string name="custom_url_scheme">com.pedrobortolanza.abelhas</string>
+</resources>

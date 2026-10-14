@@ -9,6 +9,8 @@ No celular o jogo roda deitado, e um botão abre a tela cheia na horizontal.
 
 Para rodar no computador: `npm install` e depois `npm run dev`. O build do site (`npm run build`) sai em `dist/`, que é o que a Vercel publica.
 
+Para instalar como app no Android ou no iPhone, veja [docs/app/INSTALAR.md](docs/app/INSTALAR.md).
+
 Onde fica cada parte:
 
 - `index.html`: marcação da página e ícones.
@@ -16,6 +18,7 @@ Onde fica cada parte:
 - `public/js/game/`: o jogo, um arquivo por seção (dados, estado, roleta, arena, interface, ilha...), carregados na ordem do número.
 - `public/js/models.js` e `public/models/*.glb`: modelos 3D; `public/vendor/three-r147.js`: three.js.
 - `public/js/audio.js` e `public/js/cutscene.js`: sons e cutscenes.
+- `android/` e `ios/`: projetos do app (Capacitor), configurados só para paisagem e tela cheia.
 
 - Um botão **Jogar**: a partida tem 3 atos de 12 minutos, cada um com um chefe (General Vespa, Vespa Rainha e Imperatriz do Ninho). Vencendo, você segue para o próximo ato.
 - **Roleta do Enxame**: toda abelha vem da roleta (giro grátis a cada 3 min, fichas, mel ou geleia real, com garantia de Épica e Lendária). Repetidas fazem sua abelha subir de nível. Na Arena todo passo é uma batalha. A roleta abre como caixa, em carrossel, e a loja tem tesouros novos.
