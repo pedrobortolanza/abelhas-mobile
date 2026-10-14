@@ -5,7 +5,17 @@
 Jogo de navegador sobre abelhas, feito para caber numa sessão. Você cria, cruza, alimenta e treina um enxame até a Vespa Rainha atacar a colmeia. As abelhas que defenderem bem o seu lar viram uma nova Tropa do Mel. Não há salvamento: se fechar a aba, a partida acaba.
 
 ## Como jogar
-Abra `index.html` no navegador. No celular o jogo roda deitado, e um botão abre a tela cheia na horizontal.
+No celular o jogo roda deitado, e um botão abre a tela cheia na horizontal.
+
+Para rodar no computador: `npm install` e depois `npm run dev`. O build do site (`npm run build`) sai em `dist/`, que é o que a Vercel publica.
+
+Onde fica cada parte:
+
+- `index.html`: marcação da página e ícones.
+- `src/styles/`: CSS (`base.css` e `ui.css`).
+- `public/js/game/`: o jogo, um arquivo por seção (dados, estado, roleta, arena, interface, ilha...), carregados na ordem do número.
+- `public/js/models.js` e `public/models/*.glb`: modelos 3D; `public/vendor/three-r147.js`: three.js.
+- `public/js/audio.js` e `public/js/cutscene.js`: sons e cutscenes.
 
 - Um botão **Jogar**: a partida tem 3 atos de 12 minutos, cada um com um chefe (General Vespa, Vespa Rainha e Imperatriz do Ninho). Vencendo, você segue para o próximo ato.
 - **Roleta do Enxame**: toda abelha vem da roleta (giro grátis a cada 3 min, fichas, mel ou geleia real, com garantia de Épica e Lendária). Repetidas fazem sua abelha subir de nível. Na Arena todo passo é uma batalha. A roleta abre como caixa, em carrossel, e a loja tem tesouros novos.
