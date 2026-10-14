@@ -987,7 +987,36 @@ svg.gi { width: 1.2em; height: 1.2em; vertical-align: -.25em; display: inline-bl
 .dex .cell { border-radius: 16px; border-color: #3a1d06; box-shadow: inset 0 0 0 2px rgba(255,210,104,.35), inset 0 2px 0 rgba(255,220,140,.3), 0 3px 0 rgba(40,18,2,.65); }
 .mission .ic, .ach .ic { background: radial-gradient(circle at 35% 30%, #fff8, transparent 55%), #ffc53a; clip-path: polygon(25% 3%, 75% 3%, 100% 50%, 75% 97%, 25% 97%, 0 50%); border-radius: 0; border: 0; }
 .hud .box, .somctl { background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='42' height='72' viewBox='0 0 42 72'%3E%3Cpath d='M21 2 L39 12 L39 34 L21 44 L3 34 L3 12 Z M21 44 L21 72 M0 0 L3 12 M42 0 L39 12' fill='none' stroke='%23ffd27a' stroke-opacity='.10' stroke-width='2'/%3E%3C/svg%3E"), linear-gradient(180deg, rgba(242,178,58,.95), rgba(176,96,10,.95)); background-size: 42px 72px, auto; box-shadow: inset 0 2px 0 rgba(255,255,255,.35), 0 0 0 2px #ffe08a, 0 4px 0 var(--ink); color: #fff; text-shadow: 0 1px 0 var(--ink); }
-.toast { background: linear-gradient(180deg, #f2b23a, #b8680a); border-left-color: #fff3c4; text-shadow: 0 1px 0 var(--ink); }
+/* v8.7: avisos legíveis com cara de jogo */
+.toasts { pointer-events: none; }
+.toast { pointer-events: auto; cursor: pointer; position: relative; overflow: hidden; display: flex; align-items: center; gap: 12px; min-width: 240px; max-width: 380px; padding: 10px 16px 13px 10px; border: 3px solid var(--ink); border-radius: 16px; color: #fff; text-shadow: none;
+  background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='28' height='48' viewBox='0 0 28 48'%3E%3Cpath d='M14 1 L27 8.5 L27 23.5 L14 31 L1 23.5 L1 8.5 Z M14 31 L14 48' fill='none' stroke='%23ffd27a' stroke-opacity='.08' stroke-width='1.5'/%3E%3C/svg%3E"), linear-gradient(180deg, #6e4222, #3e2210);
+  box-shadow: inset 0 0 0 2px rgba(255, 200, 110, .35), inset 0 2px 0 rgba(255, 255, 255, .16), 0 5px 0 var(--ink), 0 12px 26px rgba(0, 0, 0, .5);
+  animation: tin .45s cubic-bezier(.2, 1.4, .4, 1) both; }
+.toast.out { animation: tout .26s ease-in both; }
+@keyframes tin { from { transform: translateX(60px) scale(.85); opacity: 0; } }
+@keyframes tout { to { transform: translateX(40px) scale(.9); opacity: 0; } }
+.toast .t-ic { flex: none; width: 48px; height: 48px; display: grid; place-items: center; clip-path: polygon(25% 3%, 75% 3%, 100% 50%, 75% 97%, 25% 97%, 0 50%);
+  background: radial-gradient(circle at 50% 40%, #a8682a 0, #6a3a14 52%, transparent 54%), linear-gradient(180deg, #ffe08a, #c87a10); }
+.toast .t-ic .gi { width: 28px; height: 28px; filter: drop-shadow(0 2px 0 rgba(0,0,0,.45)); }
+.toast .t-ic b { font-family: "Lilita One", "Trebuchet MS", sans-serif; font-size: 1.7rem; color: #fff; text-shadow: 0 2px 0 #5a0a0a; }
+.toast .t-tx { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+.toast .t-tt { font-family: "Lilita One", "Trebuchet MS", sans-serif; font-weight: 400; font-size: 1.06rem; line-height: 1.15; color: #ffe08a; letter-spacing: .2px; text-shadow: 0 2px 0 rgba(0, 0, 0, .55); }
+.toast small { display: block; color: #fff4dc; font-weight: 700; font-size: .9rem; line-height: 1.3; text-shadow: 0 1px 0 rgba(0, 0, 0, .5); }
+.toast .t-bar { position: absolute; left: 0; bottom: 0; height: 4px; width: 100%; background: linear-gradient(90deg, #ffd25c, #ff9a2e); transform-origin: left; animation: tbar var(--dur, 4s) linear both; }
+@keyframes tbar { to { transform: scaleX(0); } }
+.toast.ach { background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='28' height='48' viewBox='0 0 28 48'%3E%3Cpath d='M14 1 L27 8.5 L27 23.5 L14 31 L1 23.5 L1 8.5 Z M14 31 L14 48' fill='none' stroke='%23fff0a0' stroke-opacity='.12' stroke-width='1.5'/%3E%3C/svg%3E"), linear-gradient(180deg, #8a5a10, #4a2c06);
+  box-shadow: inset 0 0 0 2px rgba(255, 224, 120, .6), 0 5px 0 var(--ink), 0 0 26px rgba(255, 200, 60, .55), 0 12px 26px rgba(0, 0, 0, .5); }
+.toast.ach .t-ic { background: radial-gradient(circle at 50% 45%, #7a4a08 0 52%, transparent 54%), linear-gradient(180deg, #fff6c0, #ffb12e); animation: tach 1.2s ease-in-out 2; }
+@keyframes tach { 50% { transform: scale(1.12) rotate(-6deg); } }
+.toast.ach .t-tt { color: #fff3b0; }
+.toast.bad { background: linear-gradient(180deg, #6a1a16, #3a0a0a); box-shadow: inset 0 0 0 2px rgba(255, 110, 90, .45), 0 5px 0 var(--ink), 0 12px 26px rgba(0, 0, 0, .5); animation: tin .45s cubic-bezier(.2, 1.4, .4, 1) both, tshake .35s .1s; }
+.toast.bad .t-ic { background: radial-gradient(circle at 35% 28%, #ffb0a0, transparent 55%), linear-gradient(180deg, #ff5a4a, #a8181a); }
+.toast.bad .t-tt { color: #ffcfc4; }
+.toast.bad .t-bar { background: #ff6a5a; }
+@keyframes tshake { 25% { transform: translateX(-5px); } 75% { transform: translateX(5px); } }
+@media (max-width: 560px), (max-height: 500px) { .toast { min-width: 0; max-width: 300px; padding: 7px 12px 10px 7px; gap: 9px; } .toast .t-ic { width: 36px; height: 36px; } .toast .t-ic .gi { width: 20px; height: 20px; } .toast .t-tt { font-size: .92rem; } .toast small { font-size: .8rem; } }
+@media (prefers-reduced-motion: reduce) { .toast, .toast.out, .toast .t-ic { animation: none; } }
 .btn .cost, .btn .cost.g, .btn .cost.f, .btn .cost.m { color: #fff; text-shadow: 0 2px 0 #6a3606; }
 body { background: #7a420c; }
 .overlay { background: radial-gradient(ellipse at 50% 40%, rgba(255,214,110,.55), rgba(150,80,10,.85) 75%), var(--haze, none) center / cover, #b8680a !important; }
@@ -11402,17 +11431,30 @@ function patchNode(a, b) {
   patchChildren(a, b);
 }
 function overlay(html) { html = iconize(html); $('#overlay').innerHTML = html ? `<div class="overlay">${html}</div>` : ''; }
+// v8.7: aviso com cara de jogo: selo hexagonal com ícone do assunto, título forte, texto claro e barrinha de tempo.
+// Toque no aviso para fechar.
+const TOAST_IC = [
+  [/conquista/i, 'trophy'], [/rainha|coroa|assumiu/i, 'crown'], [/roleta|giro|ficha/i, 'target'], [/néctar|colh|flor|jardim|plant|canteiro/i, 'sprout'],
+  [/geleia/i, 'gem'], [/cristal|muta|laborat/i, 'flask'], [/ato|chefe|batalha|vit[oó]ria|arena|liga|invas|ataque|elite/i, 'crossed-swords'],
+  [/n[ií]vel|veterana|heroína|experiente/i, 'star'], [/relíquia|tesouro/i, 'chest'], [/missão|missões/i, 'scroll'], [/ascen|torre/i, 'castle'],
+  [/estação|inverno|verão|primavera|outono/i, 'leaf'], [/vend|loja|compr/i, 'shop'], [/mel|colmeia/i, 'coin'],
+];
 function toast(title, sub = '', cls = '') {
   const box = $('#toasts');
   if (cls === 'bad') sfx('erro');
   if ([...box.children].some(c => c.dataset.title === title)) return;
+  const plain = String(title).replace(/<[^>]+>/g, '');
+  const ic = cls === 'bad' ? null : cls === 'ach' ? 'trophy' : ((TOAST_IC.find(([re]) => re.test(plain)) || [0, 'sparkles'])[1]);
   const el = document.createElement('div');
   el.className = 'toast ' + cls;
   el.dataset.title = title;
-  el.innerHTML = `${title}${sub ? `<small>${sub}</small>` : ''}`;
+  el.innerHTML = `<span class="t-ic">${ic ? `<svg class="gi" aria-hidden="true"><use href="#gi-${ic}"></use></svg>` : '<b>!</b>'}</span><span class="t-tx"><b class="t-tt">${title}</b>${sub ? `<small>${sub}</small>` : ''}</span><i class="t-bar"></i>`;
+  const tira = () => { if (!el.isConnected || el.classList.contains('out')) return; el.classList.add('out'); setTimeout(() => el.remove(), 260); };
+  el.addEventListener('click', tira);
   box.appendChild(el);
   while (box.children.length > (innerWidth < 560 ? 3 : 5)) box.firstChild.remove();
-  setTimeout(() => el.remove(), 3800);
+  setTimeout(tira, sub ? 4600 : 3400);
+  el.style.setProperty('--dur', (sub ? 4.6 : 3.4) + 's');
 }
 // ---------- Efeitos: gotas de mel voando até o pote, estrelinhas, brilho de nível ----------
 let fxPtr = { x: innerWidth / 2, y: innerHeight / 2 };
