@@ -9411,7 +9411,9 @@ function harvest(i, ev, silent) {
 // Néctar de uma colheita: rainha, relíquias e a flor nativa do prado
 // v8.0: colheitas dão 30% menos néctar (o XP da colheita continua o mesmo)
 const FOOD_K = 0.7;
-const cropFood = k => Math.round(CROPS[k].food * FOOD_K * MOD('food') * (S && k === S.nativeFlower ? NATIVE_FLOWER : 1));
+// v8.1: do Ato II em diante as flores rendem ainda menos (75% no Ato II, 60% no Ato III)
+const actFood = () => isActs() ? [1, 0.75, 0.6][Math.min(S.act || 0, 2)] : 1;
+const cropFood = k => Math.round(CROPS[k].food * FOOD_K * actFood() * MOD('food') * (S && k === S.nativeFlower ? NATIVE_FLOWER : 1));
 function harvestAll() {
   let did = false;
   S.farms.forEach((f, i) => {
