@@ -10467,7 +10467,14 @@ function score() {
     'Missões': st.missionsDone * 100,
     'Invasões repelidas': st.raidsWon * 1500,
   };
-  return { parts, total: Object.values(parts).reduce((a, b) => a + b, 0) };
+  // o que gerou cada linha de pontos (o resumo mostra "19 → 3.800 pts", não só os pontos)
+  const what = {
+    'Mel produzido': fmt(st.goldEarned) + ' de mel', 'Abelhas': S.dragons.length + ' abelha(s)', 'Espécies descobertas': Object.keys(S.dex).length + ' espécie(s)',
+    'Conquistas': Object.keys(S.ach).length + ' conquista(s)', 'Arena': `liga ${LEAGUES[Math.min(S.league, 8) - 1]} · ${st.battlesWon} vitória(s)`, 'Vespa Rainha adormecida': st.bossDefeated ? 'vencida no ninho' : 'não',
+    'Ataque final': isActs() ? `${S.act + (S.finalResult && S.finalResult.win ? 1 : 0)} de ${ACTS.length} atos` : S.finalResult ? (S.finalResult.win ? 'vencido' : 'perdido') : '-',
+    'Nível do jogador': 'nível ' + S.level, 'Missões': st.missionsDone + ' missão(ões)', 'Invasões repelidas': st.raidsWon + ' invasão(ões)',
+  };
+  return { parts, what, total: Object.values(parts).reduce((a, b) => a + b, 0) };
 }
 function rankFor(total) {
   const f = modeFactor();
@@ -12427,7 +12434,7 @@ function renderEnd() {
     <div class="hero"><span class="muted" style="font-weight:800">FIM DA PARTIDA · ${fmtTime(S.t)}</span>
       <div class="rank">${r}</div><h1 class="num">${fmt(sc.total)} pontos</h1>
       <p>${isActs() ? `${S.finalResult && S.finalResult.win ? '🛡️ Você venceu os três atos! Sua colmeia agora é da Tropa do Mel.' : S.finalResult ? `☠️ ${curAct().boss} venceu no ${curAct().n}, mas levou ${Math.round(S.finalResult.dmgPct * 100)}% de dano.` : `Você saiu no ${curAct().n}.`} Atos vencidos: ${S.act + (S.finalResult && S.finalResult.win ? 1 : 0)} de ${ACTS.length}.` : S.mode === 'infinito' ? `Você repeliu ${S.stats.finalWins} ataque(s) da Vespa Rainha em ${fmtTime(S.t)}.${S.finalResult && !S.finalResult.win ? ` No último, ela levou ${Math.round(S.finalResult.dmgPct * 100)}% de dano.` : ''}` : !S.finalResult ? 'Você deixou a ilha antes do ataque. A Vespa Rainha encontrou as colmeias vazias.' : S.finalResult.win ? '🛡️ A colmeia resistiu! Sua colmeia agora é da Tropa do Mel.' : `☠️ A Vespa Rainha tomou a ilha, mas leva uma ferroada de ${Math.round(S.finalResult.dmgPct * 100)}%. A próxima colmeia vai saber onde mirar.`}</p>${S.queen ? `<p class="muted">${SEASONS[S.season].n} · ${RIVALS[S.rival].n}: ${S.stats.raidsWon} invasão(ões) repelida(s) · ${S.stats.mutants} mutante(s) · ${QUEENS.find(q => q.k === S.queen).n} · prado de ${S.meadow.map(e => EL[e].n).join(', ')} · ${S.relics.length} relíquia(s)</p>` : ''}</div>
-    <table class="stats">${Object.entries(sc.parts).map(([k, v]) => `<tr><td>${k}</td><td>${fmt(v)}</td></tr>`).join('')}</table>
+    <table class="stats"><tr><td class="muted">De onde vieram os pontos</td><td class="muted">pontos</td></tr>${Object.entries(sc.parts).map(([k, v]) => `<tr><td>${k} <span class="muted">· ${sc.what[k]}</span></td><td>${fmt(v)}</td></tr>`).join('')}</table>
     <div class="kpis">
       <div class="kpi"><span>🪙 mel produzido</span><b class="num">${fmt(S.stats.goldEarned)}</b></div>
       <div class="kpi"><span>🐉 abelhas</span><b class="num">${S.dragons.length}</b></div>
