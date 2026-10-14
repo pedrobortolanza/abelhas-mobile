@@ -508,3 +508,9 @@ Clique/toque em tudo. Teclas: `1`–`9` abrem os painéis do dock (1 = Ilha), `E
 - `toast()` ganhou visual próprio: painel chocolate com textura de favo, selo hexagonal com o ícone do assunto (`TOAST_IC` escolhe pelo texto: conquista, rainha, roleta, néctar, geleia, cristal, batalha, nível, relíquia, missão, torre, estação, loja, mel), título em Lilita One amarelo e texto creme bem contrastado.
 - Conquistas brilham em dourado e o selo pula; erros ficam vermelhos com "!" e tremem.
 - Barrinha embaixo mostra o tempo que falta; avisos com texto ficam 4,6 s (sem texto, 3,4 s). Tocar no aviso fecha.
+
+## v8.8 (14/10/2026): música das cutscenes
+
+- Nova faixa `lenda` no módulo de som (80 bpm, feita na hora pelo Web Audio, sem arquivos). A cutscene chama `Som.cena(palco)` a cada quadro e a faixa troca de clima no próximo tempo, sem parar a música:
+  - marDeMel: harpa lenta e calma; florada: arpejo subindo e sinos (a Primeira Flor); tropa: trompas e marcha (lembrança heroica); sombra/derrota/vazio: grave com tambor distante; zumbido/olhos/vespa: coração, cordas tremendo e o zumbido do enxame; ovo (Roleta): caixinha de música; ilha: tema da ilha cheio; titulo: acorde grande com trompas; ninho: mistério com sinos soltos; vitoria/amanhecer: fanfarra.
+- Abertura, sonho, atoVencido e ondaVencida tocam `lenda` e voltam para `ilha` no fim; vitória, derrota e semDefesa tocam `lenda` e o jogo passa para `placar`. As cenas de chefe continuam com `invasao`.
