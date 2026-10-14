@@ -2247,6 +2247,8 @@ body { background: #7a420c; }
   }
   // Largura da ilha na tela: limitada pela largura e pela altura (no celular deitado sobra pouca altura)
   const larg = (w, h, f, max) => Math.min(w * f, max, h * 1.3);
+  // Ilha inteira acima da caixa de fala (que cobre o terço de baixo da tela)
+  const ilhaLugar = (w, h) => { const lw = larg(w, h, 0.5, 560); return [lw, h * 0.64 - lw / 2 * 0.4]; };
   // Hexágono de "pontas para os lados" com raio r
   function hexPath(c, x, y, r, achat) {
     achat = achat || 1; c.moveTo(x + r, y);
@@ -2286,94 +2288,261 @@ body { background: #7a420c; }
     if (o.ruina) { c.strokeStyle = 'rgba(0,0,0,.45)'; c.lineWidth = 2; c.beginPath(); c.moveTo(-10, -30); c.lineTo(-2, -20); c.lineTo(-8, -10); c.stroke(); }
     c.restore();
   }
-  // A Ilha Favo vista de lado: um hexágono grosso, de cera, com prado no topo, flores e colmeias.
-  // o: { vazia, ruina, perigo 0..1 (brilho vermelho), apagada }
+  // Fundo de dentro da colmeia gigante (como o fundo do jogo): luz de mel, favos enormes e desfocados e bolhas de luz.
+  // tom: 'dia' (dourado), 'tarde' (âmbar com rosa), 'perigo' (âmbar escurecendo)
+  const TONS_MEL = {
+    dia: ['#6a3a12', '#c8801e', '#f6c860', '#ffe6a8'],
+    tarde: ['#3a1a20', '#8a3e2a', '#e08a3a', '#ffd08a'],
+    perigo: ['#2a1010', '#6a2a18', '#b0582a', '#e8a060'],
+  };
+  function fundoMel(c, w, h, t, tom) {
+    const T = TONS_MEL[tom] || TONS_MEL.dia;
+    ceu(c, w, h, T);
+    // favos gigantes da parede da colmeia, bem apagados
+    c.save(); c.lineWidth = Math.max(3, h * 0.012);
+    const r = Math.max(60, h * 0.16), sx = (t * 4) % (r * 3);
+    favos(c, -r * 2 - sx, -r, w + r * 2, h * 0.8, r, 'rgba(255,236,190,.07)', (cl, rw) => (hash(cl, rw) < 0.22 ? 'rgba(255,220,150,.05)' : null));
+    c.restore();
+    // luz vindo do alto
+    brilho(c, w * 0.5, -h * 0.1, Math.max(w, h) * 0.75, 'rgba(255,240,200,.55)');
+    for (let i = 0; i < 7; i++) {
+      c.save(); c.translate(w * (0.2 + i * 0.1), -h * 0.05); c.rotate((i - 3) * 0.12 + Math.sin(t * 0.3 + i) * 0.02);
+      const g = c.createLinearGradient(0, 0, 0, h * 0.9); g.addColorStop(0, 'rgba(255,246,214,.16)'); g.addColorStop(1, 'rgba(255,246,214,0)');
+      c.fillStyle = g; c.beginPath(); c.moveTo(-w * 0.015, 0); c.lineTo(w * 0.015, 0); c.lineTo(w * 0.06, h * 0.9); c.lineTo(-w * 0.06, h * 0.9); c.closePath(); c.fill(); c.restore();
+    }
+    // bolhas de luz (bokeh) subindo devagar
+    for (let i = 0; i < 18; i++) {
+      const rr = (0.02 + hash(i, 41) * 0.05) * Math.max(w, h), x = hash(i, 42) * w + Math.sin(t * 0.4 + i) * 20;
+      let y = (hash(i, 43) * h * 1.2 - t * (6 + hash(i, 44) * 10)) % (h * 1.2); if (y < -rr) y += h * 1.2;
+      brilho(c, x, y, rr, 'rgba(255,236,180,.28)', 0.5 + 0.3 * Math.sin(t + i));
+    }
+  }
+  // A Ilha Favo como ela é no jogo: hexágono com borda de cera dourada pingando mel, chão de favos marrom,
+  // caminhos de pedra creme saindo da praça dourada, gramado da fazenda com rio de mel, construções, velas e moitas.
+  // o: { vazia (sem construções), ruina (apagada e rachada), perigo 0..1 (brilho vermelho) }
   function ilhaFavo(c, cx, base, lw, t, o) {
     o = o || {};
-    const R = lw / 2, k = 0.3, esp = lw * 0.13, top = base - esp;
+    const R = lw / 2, k = 0.4, esp = lw * 0.085, top = base - esp, sc = lw / 700, ru = !!o.ruina;
+    const PT = (u, v) => [cx + u * R, top + v * R * k];
     const V = []; for (let i = 0; i < 6; i++) { const a = i / 6 * TAU; V.push([cx + Math.cos(a) * R, top + Math.sin(a) * R * k]); }
+    const C = ru ? { cera: ['#c09a5a', '#8a6a3a', '#5a4428'], borda: '#b8945a', bordaHi: '#e0c48a', chao: '#3a2a1e', chaoHi: '#4a3626', traco: '#22180e', pedra: '#b8ab90', pedraLo: '#7a6e58', grama: ['#6a7a4a', '#4e5c36'], moita: ['#5a6a3a', '#3a4626'], mel: '#9a6a2a' }
+      : { cera: ['#ffd25a', '#e8a228', '#a8640e'], borda: '#f6b830', bordaHi: '#ffe48a', chao: '#5a3216', chaoHi: '#6e3e1c', traco: '#34190a', pedra: '#eadcb4', pedraLo: '#b8a47a', grama: ['#7ed05a', '#4aa03a'], moita: ['#5cc04a', '#2e8a34'], mel: '#f0a020' };
     c.save();
-    // faces da frente (vértices 0→1→2→3 ficam do lado de baixo da tela)
-    const cerasF = o.ruina ? ['#8a6a48', '#6a4e34', '#544030'] : ['#d6a052', '#b98238', '#9a6a2a'];
-    [[0, 1], [1, 2], [2, 3]].forEach(([a, b], f) => {
+    // sombra no mar
+    c.fillStyle = 'rgba(20,8,0,.35)'; c.beginPath(); c.ellipse(cx, base + esp * 0.6, R * 1.05, R * k * 0.7, 0, 0, TAU); c.fill();
+    // paredes da frente: cera dourada com favos
+    [[3, 2], [2, 1], [1, 0]].forEach(([a, b], f) => {
       c.save(); c.beginPath(); c.moveTo(V[a][0], V[a][1]); c.lineTo(V[b][0], V[b][1]); c.lineTo(V[b][0], V[b][1] + esp); c.lineTo(V[a][0], V[a][1] + esp); c.closePath();
-      c.fillStyle = cerasF[f]; c.fill(); c.clip();
-      c.lineWidth = 1.5; favos(c, Math.min(V[a][0], V[b][0]) - 10, Math.min(V[a][1], V[b][1]) - 10, Math.max(V[a][0], V[b][0]) + 10, Math.max(V[a][1], V[b][1]) + esp + 10,
-        lw * 0.018, 'rgba(60,30,8,.35)', (cl, rw) => (hash(cl * 7 + f, rw) < (o.ruina ? 0.12 : 0.28) ? (o.ruina ? 'rgba(40,24,12,.6)' : 'rgba(150,72,14,.55)') : null));
-      const sh = c.createLinearGradient(0, top, 0, top + esp + R * k); sh.addColorStop(0, 'rgba(255,240,200,.12)'); sh.addColorStop(1, 'rgba(0,0,0,.35)');
-      c.fillStyle = sh; c.fillRect(cx - R - 20, top - R, lw + 40, esp + R * 2);
+      const g = c.createLinearGradient(0, top, 0, top + R * k + esp); g.addColorStop(0, C.cera[0]); g.addColorStop(0.5, C.cera[1]); g.addColorStop(1, C.cera[2]);
+      c.fillStyle = g; c.fill(); c.clip();
+      c.lineWidth = Math.max(1, 1.4 * sc); favos(c, Math.min(V[a][0], V[b][0]) - 10, Math.min(V[a][1], V[b][1]) - 10, Math.max(V[a][0], V[b][0]) + 10, Math.max(V[a][1], V[b][1]) + esp + 10, lw * 0.016, 'rgba(120,60,6,.45)',
+        (cl, rw) => (hash(cl * 7 + f, rw) < 0.25 ? (ru ? 'rgba(50,30,14,.5)' : 'rgba(255,190,60,.55)') : null));
+      c.fillStyle = f === 1 ? 'rgba(255,250,220,.08)' : 'rgba(40,16,0,.18)'; c.fillRect(cx - R - 20, top - R, lw + 40, R * 2 + esp);
       c.restore();
     });
-    // mel escorrendo pelas bordas
-    if (!o.ruina) {
-      c.fillStyle = '#c87418';
-      for (let i = 0; i < 7; i++) {
-        const f = i % 3, p = hash(i, 21), a = [[0, 1], [1, 2], [2, 3]][f], x = lerp(V[a[0]][0], V[a[1]][0], 0.15 + p * 0.7), y = lerp(V[a[0]][1], V[a[1]][1], 0.15 + p * 0.7);
-        const len = esp * (0.25 + 0.4 * hash(i, 22)) * (0.9 + 0.1 * Math.sin(t + i));
-        c.beginPath(); c.moveTo(x - 5, y); c.lineTo(x + 5, y); c.lineTo(x + 3, y + len); c.arc(x, y + len, 3, 0, Math.PI); c.closePath(); c.fill();
-      }
+    // mel pingando por baixo da cera
+    c.fillStyle = C.mel;
+    for (let i = 0; i < 16; i++) {
+      const f = i % 3, p = hash(i, 21), [a, b] = [[3, 2], [2, 1], [1, 0]][f], x = lerp(V[a][0], V[b][0], 0.06 + p * 0.88), y = lerp(V[a][1], V[b][1], 0.06 + p * 0.88) + esp - 2;
+      const len = esp * (0.25 + 0.7 * hash(i, 22)) * (ru ? 0.4 : 1) * (0.92 + 0.08 * Math.sin(t * 1.3 + i)), ww = (3 + hash(i, 23) * 4) * sc + 1.5;
+      c.beginPath(); c.moveTo(x - ww, y); c.lineTo(x + ww, y); c.quadraticCurveTo(x + ww * 0.6, y + len * 0.6, x + ww * 0.55, y + len); c.arc(x, y + len, ww * 0.55, 0, Math.PI); c.quadraticCurveTo(x - ww * 0.6, y + len * 0.6, x - ww, y); c.fill();
+      c.fillStyle = 'rgba(255,240,190,.5)'; c.beginPath(); c.arc(x - ww * 0.2, y + len - ww * 0.1, ww * 0.18, 0, TAU); c.fill(); c.fillStyle = C.mel;
     }
-    // topo: prado
-    c.beginPath(); V.forEach(([x, y], i) => (i ? c.lineTo(x, y) : c.moveTo(x, y))); c.closePath();
-    const gg = c.createLinearGradient(0, top - R * k, 0, top + R * k);
-    if (o.ruina) { gg.addColorStop(0, '#7a8a5a'); gg.addColorStop(1, '#4a5a34'); } else { gg.addColorStop(0, '#8fd85e'); gg.addColorStop(1, '#3e8d3a'); }
-    c.fillStyle = gg; c.fill();
-    c.strokeStyle = o.ruina ? '#5a4632' : '#a8742a'; c.lineWidth = Math.max(2, lw * 0.008); c.stroke();
-    c.save(); c.clip();
-    // favo central (a colmeia)
-    c.save(); c.beginPath(); hexPath(c, cx, top, R * 0.34, k); c.clip();
-    c.fillStyle = o.ruina ? '#6a5a44' : '#e2b468'; c.fillRect(cx - R, top - R, lw, lw);
-    c.lineWidth = 1.2; favos(c, cx - R * 0.4, top - R * 0.2, cx + R * 0.4, top + R * 0.2, lw * 0.016, 'rgba(90,50,10,.55)',
-      (cl, rw) => (hash(cl, rw + 3) < (o.ruina ? 0.5 : 0.35) ? (o.ruina ? 'rgba(30,20,10,.7)' : 'rgba(196,110,20,.75)') : null));
+    // borda dourada do topo
+    const hexV = (f) => { c.beginPath(); V.forEach(([x, y], i) => { const X = cx + (x - cx) * f, Y = top + (y - top) * f; i ? c.lineTo(X, Y) : c.moveTo(X, Y); }); c.closePath(); };
+    hexV(1); c.fillStyle = C.borda; c.fill(); c.strokeStyle = C.cera[2]; c.lineWidth = Math.max(1.5, 2 * sc); c.stroke();
+    hexV(0.985); c.strokeStyle = C.bordaHi; c.lineWidth = Math.max(1, 1.6 * sc); c.stroke();
+    // chão de favos (desenhado "deitado": escala vertical k)
+    c.save(); hexV(0.9); c.clip();
+    c.translate(cx, top); c.scale(1, k);
+    c.fillStyle = C.chao; c.fillRect(-R, -R, lw, lw);
+    c.lineWidth = Math.max(1.2, 2.2 * sc);
+    favos(c, -R, -R, R, R, R * 0.05, C.traco, (cl, rw) => (hash(cl, rw + 9) < 0.3 ? C.chaoHi : null));
+    // sombra interna da borda
+    const gs = c.createRadialGradient(0, 0, R * 0.55, 0, 0, R * 0.95); gs.addColorStop(0, 'rgba(0,0,0,0)'); gs.addColorStop(1, 'rgba(20,6,0,.45)'); c.fillStyle = gs; c.fillRect(-R, -R, lw, lw);
+    // gramado da fazenda com rio de mel (na frente)
+    const fx0 = -R * 0.36, fx1 = R * 0.36, fy0 = R * 0.34, fy1 = R * 0.8;
+    c.fillStyle = C.cera[1]; c.fillRect(fx0 - 4 * sc, fy0 - 4 * sc, fx1 - fx0 + 8 * sc, fy1 - fy0 + 8 * sc);
+    c.fillStyle = C.grama[1]; c.fillRect(fx0, fy0, fx1 - fx0, fy1 - fy0);
+    c.fillStyle = C.grama[0]; for (let i = 0; i < 8; i += 2) c.fillRect(fx0 + (fx1 - fx0) * i / 8, fy0, (fx1 - fx0) / 8, fy1 - fy0);
+    c.fillStyle = C.mel; c.beginPath(); c.moveTo(fx0, fy0 + R * 0.05);
+    for (let x = fx0; x <= fx1; x += 6) c.lineTo(x, fy0 + R * 0.05 + Math.sin(x / 18 + t) * 2);
+    for (let x = fx1; x >= fx0; x -= 6) c.lineTo(x, fy0 + R * 0.11 + Math.sin(x / 18 + t) * 2);
+    c.fill();
+    c.fillStyle = 'rgba(255,240,180,.55)'; for (let i = 0; i < 6; i++) { const x = fx0 + ((i / 6 + t * 0.05) % 1) * (fx1 - fx0); c.fillRect(x, fy0 + R * 0.075, 10 * sc, 2 * sc); }
+    if (!o.vazia) { // canteiros
+      c.fillStyle = ru ? '#4a3a26' : '#6a3e18'; c.strokeStyle = ru ? '#3a2a18' : '#a8742a'; c.lineWidth = 2 * sc;
+      [-0.26, -0.12].forEach((u) => { c.beginPath(); c.rect(u * R, fy0 + R * 0.18, R * 0.12, R * 0.18); c.fill(); c.stroke(); });
+    }
+    // caminhos de pedra saindo da praça
+    const cam = [[-90, 0.78], [-148, 0.78], [-32, 0.78], [168, 0.72], [12, 0.72], [90, 0.34]];
+    cam.forEach(([ang, len]) => {
+      const a = ang / 180 * Math.PI, ca = Math.cos(a), sa = Math.sin(a), wd = R * 0.085;
+      c.save(); c.rotate(a);
+      c.fillStyle = C.pedraLo; c.beginPath(); c.roundRect ? c.roundRect(R * 0.12, -wd / 2, R * (len - 0.12), wd, wd / 2) : c.rect(R * 0.12, -wd / 2, R * (len - 0.12), wd); c.fill();
+      c.fillStyle = C.pedra;
+      const st = wd * 0.42;
+      for (let d = R * 0.14; d < R * len - st * 0.5; d += st * 1.05) for (const off of [-0.24, 0.24]) {
+        const j = hash(d | 0, off > 0 ? 1 : 2);
+        c.beginPath(); c.ellipse(d + (off > 0 ? st * 0.5 : 0) + j * 2, off * wd, st * 0.48, st * 0.46 + j, 0, 0, TAU); c.fill();
+      }
+      c.restore();
+    });
+    // praça dourada no centro
+    c.fillStyle = ru ? '#8a6a3a' : '#e88a28'; c.beginPath(); c.arc(0, 0, R * 0.17, 0, TAU); c.fill();
+    c.fillStyle = ru ? '#a8885a' : '#f6c050'; c.beginPath(); c.arc(0, 0, R * 0.14, 0, TAU); c.fill();
+    c.strokeStyle = ru ? '#6a5030' : '#ffe08a'; c.lineWidth = 3 * sc; c.beginPath(); c.arc(0, 0, R * 0.105, 0, TAU); c.stroke();
     c.restore();
-    c.restore();
+    // o que fica em pé na ilha, desenhado de trás para frente
+    const itens = [];
+    const per = (n, f) => { for (let i = 0; i < n; i++) { const p = i / n * 6, e = Math.floor(p), q = p - e, A = V[e], B = V[(e + 1) % 6]; f(cx + (lerp(A[0], B[0], q) - cx) * 0.95, top + (lerp(A[1], B[1], q) - top) * 0.95, i); } };
+    per(30, (x, y, i) => { const tp = i % 5; if (ru && i % 2) return; itens.push({ y, d: () => (tp === 1 || tp === 4 ? vela(c, x, y, sc, t, i, ru) : moita(c, x, y, sc * (0.8 + hash(i, 5) * 0.5), C.moita, i)) }); });
     if (!o.vazia) {
-      // flores do prado
-      const r = rnd(5), sc = lw / 700;
-      for (let i = 0; i < 26; i++) {
-        const a = r() * TAU, d = 0.45 + r() * 0.48, x = cx + Math.cos(a) * R * d * 0.86, y = top + Math.sin(a) * R * k * d * 0.86;
-        if (o.ruina && i % 3) continue;
-        flor(c, x, y, (5 + r() * 4) * sc * (0.7 + 0.5 * (y - top + R * k) / (2 * R * k)), o.ruina ? '#9a8a7a' : NOVE[i % 9], t, i);
-      }
-      // colmeias
-      [[-0.55, 0.15], [0.5, 0.05], [-0.15, 0.55], [0.3, 0.55]].forEach(([dx, dy], i) => colmeia(c, cx + dx * R, top + dy * R * k, lw / 640 * (0.9 + 0.15 * (i % 2)), o));
+      const pos = (u, v) => PT(u, v);
+      itens.push({ y: pos(0, -0.62)[1], d: () => torre(c, ...pos(0, -0.62), sc, t, ru) });
+      itens.push({ y: pos(-0.5, -0.36)[1], d: () => barraca(c, ...pos(-0.5, -0.36), sc, ru) });
+      itens.push({ y: pos(0.52, -0.38)[1], d: () => roleta(c, ...pos(0.52, -0.38), sc, t, ru) });
+      itens.push({ y: pos(0.66, 0.08)[1], d: () => lab(c, ...pos(0.66, 0.08), sc, t, ru) });
+      itens.push({ y: pos(-0.66, 0.06)[1], d: () => torreAsc(c, ...pos(-0.66, 0.06), sc, t, ru) });
+      itens.push({ y: pos(0, 0)[1] + 1, d: () => estatua(c, ...pos(0, 0), sc, t, ru) });
+      [[0.28, 0.02], [-0.3, 0.12], [0.44, 0.42], [-0.5, 0.44], [0.16, -0.3]].forEach(([u, v], i) => itens.push({ y: pos(u, v)[1], d: () => colmeia(c, ...pos(u, v), sc * 0.9, o) }));
     }
+    itens.sort((a, b) => a.y - b.y).forEach((it) => it.d());
     if (o.perigo) {
-      // tinge só a silhueta da ilha (topo + faces da frente)
       c.beginPath(); c.moveTo(V[3][0], V[3][1]); c.lineTo(V[4][0], V[4][1]); c.lineTo(V[5][0], V[5][1]); c.lineTo(V[0][0], V[0][1]);
       [0, 1, 2, 3].forEach((i) => c.lineTo(V[i][0], V[i][1] + esp)); c.closePath();
-      c.fillStyle = `rgba(200,30,20,${0.3 * o.perigo})`; c.fill();
+      c.fillStyle = `rgba(200,30,20,${0.32 * o.perigo})`; c.fill();
     }
     c.restore();
     return top;
   }
-  // Abelha de perfil. s=1 ≈ 64 px. o: { cor (listras do tipo), dir (1 ou -1), asa (fase), sepia }
+  // ---- peças da ilha (s = escala; o desenho fica em pé no ponto x, y) ----
+  function moita(c, x, y, s, cor, i) {
+    c.save(); c.translate(x, y); c.scale(s, s);
+    [[-7, -6, 8], [7, -6, 8], [0, -12, 9], [0, -4, 8]].forEach(([dx, dy, r], q) => {
+      const g = c.createRadialGradient(dx - 3, dy - 4, 1, dx, dy, r); g.addColorStop(0, q === 2 ? '#a8f080' : cor[0]); g.addColorStop(1, cor[1]);
+      c.fillStyle = g; c.beginPath(); c.arc(dx, dy, r, 0, TAU); c.fill();
+    });
+    if (i % 3 === 0) { c.fillStyle = ['#ff8ab0', '#fff0a0', '#c0a0ff'][i % 9 / 3 | 0]; [[-6, -10], [5, -13], [2, -5]].forEach(([dx, dy]) => { c.beginPath(); c.arc(dx, dy, 1.8, 0, TAU); c.fill(); }); }
+    c.restore();
+  }
+  function vela(c, x, y, s, t, i, ru) {
+    c.save(); c.translate(x, y); c.scale(s, s);
+    const hh = 18 + hash(i, 7) * 10;
+    c.fillStyle = ru ? '#b0a68a' : '#fff0c0'; c.fillRect(-3.5, -hh, 7, hh);
+    c.fillStyle = 'rgba(160,110,40,.35)'; c.fillRect(1.5, -hh, 2, hh);
+    c.fillStyle = ru ? '#b0a68a' : '#fff0c0'; c.beginPath(); c.ellipse(0, -hh, 3.5, 1.5, 0, 0, TAU); c.fill();
+    if (!ru) { const fl = 1 + Math.sin(t * 9 + i) * 0.15; brilho(c, 0, -hh - 5, 14, 'rgba(255,200,90,.6)'); c.fillStyle = '#ffd040'; c.beginPath(); c.ellipse(0, -hh - 5, 2.4, 5 * fl, 0, 0, TAU); c.fill(); c.fillStyle = '#fff8d0'; c.beginPath(); c.ellipse(0, -hh - 4, 1, 2.2, 0, 0, TAU); c.fill(); }
+    c.restore();
+  }
+  function torre(c, x, y, s, t, ru) { // a Arena: torre de pedra com telhados dourados
+    c.save(); c.translate(x, y); c.scale(s, s);
+    c.fillStyle = ru ? '#7a7466' : '#9aa0aa';
+    [[-46, -18, 22, 26], [26, -16, 20, 22]].forEach(([dx, dy, w, h]) => { c.beginPath(); c.ellipse(dx + w / 2, dy + h * 0.6, w * 0.7, h * 0.5, 0, 0, TAU); c.fill(); }); // pedras
+    const corpo = (dx, w, h) => {
+      const g = c.createLinearGradient(dx - w / 2, 0, dx + w / 2, 0); g.addColorStop(0, ru ? '#6a665c' : '#7a8290'); g.addColorStop(0.4, ru ? '#9a948a' : '#c0c6d0'); g.addColorStop(1, ru ? '#4a463e' : '#5a606c');
+      c.fillStyle = g; c.fillRect(dx - w / 2, -h, w, h);
+      c.strokeStyle = 'rgba(30,30,40,.35)'; c.lineWidth = 1; for (let yy = -h + 8; yy < 0; yy += 8) { c.beginPath(); c.moveTo(dx - w / 2, yy); c.lineTo(dx + w / 2, yy); c.stroke(); }
+      for (let q = -w / 2; q < w / 2; q += 8) c.fillRect(dx + q, -h - 5, 5, 5);
+    };
+    corpo(-22, 18, ru ? 36 : 52); corpo(22, 18, ru ? 30 : 48); corpo(0, 30, ru ? 50 : 82);
+    if (!ru) {
+      const tel = (dx, yy, w) => { c.fillStyle = '#f2b830'; c.beginPath(); c.moveTo(dx - w / 2 - 3, yy); c.lineTo(dx, yy - w * 1.1); c.lineTo(dx + w / 2 + 3, yy); c.closePath(); c.fill(); c.fillStyle = 'rgba(255,255,255,.35)'; c.beginPath(); c.moveTo(dx - w / 2 - 3, yy); c.lineTo(dx, yy - w * 1.1); c.lineTo(dx - 2, yy); c.fill(); };
+      tel(-22, -57, 18); tel(22, -53, 18); tel(0, -87, 30);
+      c.strokeStyle = '#5a4020'; c.lineWidth = 1.5; c.beginPath(); c.moveTo(0, -120); c.lineTo(0, -134); c.stroke();
+      c.fillStyle = '#e03a2a'; c.beginPath(); c.moveTo(0, -134); c.lineTo(12 + Math.sin(t * 4) * 2, -130); c.lineTo(0, -126); c.fill();
+      c.fillStyle = '#ffd860'; [[-6, -60], [6, -60], [0, -40]].forEach(([dx, dy]) => { c.beginPath(); c.arc(dx, dy, 3, Math.PI, 0); c.lineTo(dx + 3, dy + 6); c.lineTo(dx - 3, dy + 6); c.fill(); });
+    } else { c.strokeStyle = '#2a2620'; c.lineWidth = 2; c.beginPath(); c.moveTo(-10, -50); c.lineTo(-2, -36); c.lineTo(-8, -22); c.stroke(); }
+    c.fillStyle = '#2a1a10'; c.beginPath(); c.arc(0, -10, 7, Math.PI, 0); c.lineTo(7, 0); c.lineTo(-7, 0); c.fill();
+    c.restore();
+  }
+  function barraca(c, x, y, s, ru) { // Mercado: toldo listrado
+    c.save(); c.translate(x, y); c.scale(s, s);
+    c.fillStyle = ru ? '#5a4a36' : '#8a5a2a'; c.fillRect(-26, -22, 52, 22);
+    c.fillStyle = ru ? '#3a3024' : '#5a3418'; c.fillRect(-28, -2, 56, 4);
+    for (let q = 0; q < 6; q++) { c.fillStyle = q % 2 ? (ru ? '#c8bca8' : '#fff4e0') : (ru ? '#8a5a4a' : '#e0402a'); c.beginPath(); c.moveTo(-30 + q * 10, -40); c.lineTo(-20 + q * 10, -40); c.lineTo(-18 + q * 10, -26); c.quadraticCurveTo(-23 + q * 10, -22, -28 + q * 10, -26); c.closePath(); c.fill(); }
+    c.fillStyle = ru ? '#6a5a40' : '#f0a020'; [[-14, -6], [0, -6], [14, -6]].forEach(([dx, dy]) => { c.beginPath(); c.arc(dx, dy, 5, 0, TAU); c.fill(); });
+    c.restore();
+  }
+  function roleta(c, x, y, s, t, ru) { // Roleta do Enxame
+    c.save(); c.translate(x, y); c.scale(s, s);
+    c.fillStyle = ru ? '#5a2a24' : '#d02a2a'; c.beginPath(); c.ellipse(0, -4, 26, 9, 0, 0, TAU); c.fill();
+    c.fillStyle = ru ? '#6a5a4a' : '#ffd860'; c.fillRect(-3, -40, 6, 34);
+    c.save(); c.translate(0, -50); c.rotate(ru ? 0.3 : t * 1.2);
+    for (let q = 0; q < 9; q++) { c.fillStyle = ru ? (q % 2 ? '#7a7060' : '#5a5448') : NOVE[q]; c.beginPath(); c.moveTo(0, 0); c.arc(0, 0, 22, q / 9 * TAU, (q + 1) / 9 * TAU); c.closePath(); c.fill(); }
+    c.restore();
+    c.strokeStyle = ru ? '#6a5a4a' : '#ffd860'; c.lineWidth = 4; c.beginPath(); c.arc(0, -50, 23, 0, TAU); c.stroke();
+    c.fillStyle = '#fff'; c.beginPath(); c.arc(0, -50, 4, 0, TAU); c.fill();
+    c.restore();
+  }
+  function lab(c, x, y, s, t, ru) { // Laboratório: cúpula de vidro com vapor
+    c.save(); c.translate(x, y); c.scale(s, s);
+    c.fillStyle = ru ? '#4a4038' : '#6a4a3a'; c.fillRect(-22, -14, 44, 14);
+    const g = c.createRadialGradient(-6, -30, 2, 0, -18, 26); g.addColorStop(0, ru ? 'rgba(200,200,190,.5)' : 'rgba(220,250,255,.9)'); g.addColorStop(1, ru ? 'rgba(90,90,80,.6)' : 'rgba(90,160,200,.7)');
+    c.fillStyle = g; c.beginPath(); c.arc(0, -14, 20, Math.PI, 0); c.fill();
+    if (!ru) { c.fillStyle = '#b060ff'; c.beginPath(); c.arc(-6, -20, 4 + Math.sin(t * 3), 0, TAU); c.fill(); c.fillStyle = '#40e0a0'; c.beginPath(); c.arc(6, -18, 3, 0, TAU); c.fill(); for (let q = 0; q < 3; q++) brilho(c, 4 + q * 3, -40 - ((t * 14 + q * 8) % 24), 6, 'rgba(255,255,255,.6)'); }
+    c.restore();
+  }
+  function torreAsc(c, x, y, s, t, ru) { // Torre da Ascensão: plataforma com cristal
+    c.save(); c.translate(x, y); c.scale(s, s);
+    c.fillStyle = ru ? '#6a5a48' : '#e8c070'; c.beginPath(); c.ellipse(0, -3, 24, 8, 0, 0, TAU); c.fill();
+    c.fillStyle = ru ? '#4a3e30' : '#7a4a2a'; c.fillRect(-14, -28, 28, 24);
+    c.fillStyle = ru ? '#3a3026' : '#5a3418'; c.beginPath(); c.moveTo(-17, -28); c.lineTo(0, -38); c.lineTo(17, -28); c.fill();
+    if (!ru) { brilho(c, 0, -50, 20, 'rgba(220,170,255,.7)'); c.fillStyle = '#d0a0ff'; c.beginPath(); c.moveTo(0, -62 + Math.sin(t * 2) * 2); c.lineTo(5, -50); c.lineTo(0, -40); c.lineTo(-5, -50); c.closePath(); c.fill(); }
+    c.restore();
+  }
+  function estatua(c, x, y, s, t, ru) { // estátua dourada da abelha no meio da praça
+    c.save(); c.translate(x, y); c.scale(s, s);
+    if (!ru) brilho(c, 0, -20, 40, 'rgba(255,220,120,.55)');
+    c.fillStyle = ru ? '#7a6040' : '#c88a20'; c.beginPath(); hexPath(c, 0, -4, 18, 0.45); c.fill();
+    c.fillStyle = ru ? '#9a7a50' : '#f6c040'; c.fillRect(-12, -16, 24, 10); c.beginPath(); hexPath(c, 0, -16, 12, 0.45); c.fill();
+    c.restore();
+    abelha(c, x, y - 30 * s, s * 0.42, ru ? 0 : t, { cor: ru ? '#8a7a5a' : '#f6c040', dourada: !ru, asa: ru ? 0 : 0.2 });
+  }
+  // Abelha chibi (como as do jogo): cabeça grande, olhos brilhantes, corpinho redondo listrado.
+  // s=1 ≈ 64 px. o: { cor (listras do tipo), dir (1 ou -1), asa (fase), medalha, dourada }
   function abelha(c, x, y, s, t, o) {
     o = o || {};
-    const cor = o.cor || '#f0b448', dir = o.dir || 1, bat = Math.sin((o.asa != null ? o.asa : t) * 38);
+    const cor = o.cor || '#f6c040', dir = o.dir || 1, bat = Math.sin((o.asa != null ? o.asa : t) * 38), ouro = !!o.dourada;
     c.save(); c.translate(x, y); c.scale(s * dir, s);
-    // asas
-    c.fillStyle = 'rgba(225,245,255,.55)'; c.strokeStyle = 'rgba(255,255,255,.7)'; c.lineWidth = 1;
-    c.save(); c.translate(4, -12); c.scale(1, 0.55 + 0.45 * Math.abs(bat)); c.beginPath(); c.ellipse(-6, -14, 10, 17, -0.5, 0, TAU); c.fill(); c.stroke(); c.restore();
-    c.save(); c.translate(10, -12); c.scale(1, 0.5 + 0.5 * Math.abs(bat)); c.beginPath(); c.ellipse(4, -12, 8, 14, 0.2, 0, TAU); c.fill(); c.stroke(); c.restore();
-    // abdômen listrado
-    c.save(); c.beginPath(); c.ellipse(-10, 2, 22, 15, -0.12, 0, TAU); c.fillStyle = cor; c.fill(); c.clip();
-    c.fillStyle = '#2a1608'; [-22, -10, 2].forEach((sx) => c.fillRect(sx, -20, 6, 40));
-    c.fillStyle = 'rgba(255,255,255,.22)'; c.beginPath(); c.ellipse(-12, -6, 14, 4, -0.1, 0, TAU); c.fill();
+    // asas de trás
+    const asa = (ax, ay, rx, ry, rot, fase) => {
+      c.save(); c.translate(ax, ay); c.rotate(rot - fase * 0.35); c.scale(1, 0.55 + 0.45 * Math.abs(fase));
+      const g = c.createLinearGradient(0, -ry * 2, 0, 0); g.addColorStop(0, 'rgba(255,255,255,.85)'); g.addColorStop(1, 'rgba(190,230,255,.45)');
+      c.fillStyle = g; c.strokeStyle = 'rgba(120,150,190,.7)'; c.lineWidth = 1.2; c.beginPath(); c.ellipse(0, -ry, rx, ry, 0, 0, TAU); c.fill(); c.stroke();
+      c.strokeStyle = 'rgba(150,180,220,.5)'; c.beginPath(); c.moveTo(0, 0); c.quadraticCurveTo(rx * 0.3, -ry, 0, -ry * 1.8); c.stroke();
+      c.restore();
+    };
+    asa(-6, -12, 9, 14, -0.5, bat);
+    // corpinho
+    const gb = c.createRadialGradient(-14, -6, 2, -10, 2, 24); gb.addColorStop(0, ouro ? '#fff2a0' : '#fff6c8'); gb.addColorStop(0.35, cor); gb.addColorStop(1, ouro ? '#9a5a08' : 'rgba(110,60,10,1)');
+    c.save(); c.beginPath(); c.ellipse(-10, 4, 20, 17, -0.1, 0, TAU); c.fillStyle = gb; c.fill(); c.clip();
+    c.fillStyle = ouro ? '#8a5208' : '#3a1e0a'; [[-22, 6], [-11, 7]].forEach(([sx, sw]) => { c.beginPath(); c.ellipse(sx, 4, sw * 0.6, 20, -0.1, 0, TAU); c.fill(); });
+    c.fillStyle = 'rgba(255,255,255,.35)'; c.beginPath(); c.ellipse(-12, -7, 11, 4, -0.15, 0, TAU); c.fill();
     c.restore();
-    c.strokeStyle = '#2a1608'; c.lineWidth = 2; c.beginPath(); c.ellipse(-10, 2, 22, 15, -0.12, 0, TAU); c.stroke();
-    // ferrão
-    c.fillStyle = '#2a1608'; c.beginPath(); c.moveTo(-31, 4); c.lineTo(-40, 7); c.lineTo(-31, 9); c.fill();
-    // tórax e cabeça
-    c.fillStyle = '#5a3418'; c.beginPath(); c.arc(12, -2, 11, 0, TAU); c.fill(); c.stroke();
-    c.fillStyle = '#2a1608'; c.beginPath(); c.arc(25, -5, 9.5, 0, TAU); c.fill();
-    c.fillStyle = '#fff'; c.beginPath(); c.arc(28, -7, 3.2, 0, TAU); c.fill();
-    c.fillStyle = '#2a1608'; c.beginPath(); c.arc(29, -7, 1.6, 0, TAU); c.fill();
-    c.strokeStyle = '#2a1608'; c.lineWidth = 1.8; c.beginPath(); c.moveTo(25, -13); c.quadraticCurveTo(30, -26, 37, -26); c.moveTo(22, -13); c.quadraticCurveTo(22, -26, 28, -30); c.stroke();
-    c.fillStyle = '#2a1608'; c.beginPath(); c.arc(37, -26, 2.4, 0, TAU); c.arc(28, -30, 2.4, 0, TAU); c.fill();
+    c.strokeStyle = ouro ? '#7a4a08' : '#3a1e0a'; c.lineWidth = 2; c.beginPath(); c.ellipse(-10, 4, 20, 17, -0.1, 0, TAU); c.stroke();
+    c.fillStyle = ouro ? '#7a4a08' : '#3a1e0a'; c.beginPath(); c.moveTo(-29, 6); c.lineTo(-37, 9); c.lineTo(-28, 11); c.fill();
     // patinhas
-    c.beginPath(); c.moveTo(6, 8); c.lineTo(2, 16); c.moveTo(12, 9); c.lineTo(12, 17); c.moveTo(17, 7); c.lineTo(21, 15); c.stroke();
-    if (o.medalha) { c.fillStyle = '#ffd36a'; c.strokeStyle = '#7a4a14'; c.lineWidth = 1.2; c.beginPath(); hexPath(c, 12, 3, 4.5); c.fill(); c.stroke(); }
+    c.strokeStyle = ouro ? '#7a4a08' : '#3a1e0a'; c.lineWidth = 2.4; c.lineCap = 'round';
+    c.beginPath(); c.moveTo(-4, 19); c.lineTo(-6, 24); c.moveTo(4, 18); c.lineTo(4, 24); c.stroke();
+    // cabeça grande
+    const gh = c.createRadialGradient(10, -12, 2, 14, -4, 20); gh.addColorStop(0, ouro ? '#fff2a0' : '#fff2c0'); gh.addColorStop(0.5, ouro ? '#f6c040' : '#ffd458'); gh.addColorStop(1, ouro ? '#a86a10' : '#d08a20');
+    c.fillStyle = gh; c.beginPath(); c.arc(14, -4, 17, 0, TAU); c.fill(); c.lineWidth = 2; c.stroke();
+    // antenas
+    c.lineWidth = 1.8; c.beginPath(); c.moveTo(12, -19); c.quadraticCurveTo(10, -32, 4, -34); c.moveTo(20, -18); c.quadraticCurveTo(26, -30, 32, -30); c.stroke();
+    c.fillStyle = ouro ? '#7a4a08' : '#3a1e0a'; c.beginPath(); c.arc(4, -34, 3, 0, TAU); c.arc(32, -30, 3, 0, TAU); c.fill();
+    if (!ouro) {
+      // olhos grandes com brilho
+      [[11, -4], [23, -4]].forEach(([ex, ey], q) => {
+        c.fillStyle = '#2a140a'; c.beginPath(); c.ellipse(ex, ey, q ? 4 : 4.6, 5.6, 0, 0, TAU); c.fill();
+        c.fillStyle = '#fff'; c.beginPath(); c.arc(ex - 1.4, ey - 2.2, 1.9, 0, TAU); c.fill(); c.beginPath(); c.arc(ex + 1.2, ey + 1.8, 0.9, 0, TAU); c.fill();
+      });
+      c.fillStyle = 'rgba(255,120,110,.5)'; c.beginPath(); c.ellipse(7, 5, 3.4, 2, 0, 0, TAU); c.ellipse(27, 5, 2.8, 2, 0, 0, TAU); c.fill();
+      c.strokeStyle = '#5a2a10'; c.lineWidth = 1.5; c.beginPath(); c.arc(17, 4, 2.6, 0.2, Math.PI - 0.2); c.stroke();
+    }
+    // asa da frente
+    asa(2, -14, 8, 13, 0.25, -bat);
+    if (o.medalha) { c.fillStyle = '#ffd36a'; c.strokeStyle = '#7a4a14'; c.lineWidth = 1.2; c.beginPath(); hexPath(c, -2, 12, 4.5); c.fill(); c.stroke(); }
     c.restore();
   }
   // A Vespa Rainha de frente, asas abertas. s = escala (1 ≈ 520 px de envergadura). bate: fase da asa.
@@ -2684,50 +2853,72 @@ body { background: #7a420c; }
     },
     zumbido(c, w, h, t, cena) {
       const rach = cena.rachas || 0.35, sangue = rach > 0.6;
-      ceu(c, w, h, sangue ? ['#1a0610', '#5a1420', '#a03a2a'] : ['#24305a', '#6a5a8a', '#d98a6a']);
-      nuvens(c, w, h, t, sangue ? 'rgba(30,8,14,.7)' : 'rgba(255,220,220,.18)', 6, h * 0.3, 10);
-      const mY = h * 0.66;
+      if (sangue) { ceu(c, w, h, ['#1a0610', '#5a1420', '#a03a2a']); nuvens(c, w, h, t, 'rgba(30,8,14,.7)', 6, h * 0.3, 10); } else fundoMel(c, w, h, t, 'perigo');
+      const mY = ilhaLugar(w, h)[1] - ilhaLugar(w, h)[0] * 0.05;
       // enxame chegando pelo horizonte
       enxame(c, w, h, t, w * 0.8 - t * 6, mY - h * 0.12, sangue ? 140 : 60, clamp((sangue ? 0.5 : 0.15) + t * 0.03, 0, 1), '#1a0608');
       mar(c, w, h, mY, t, sangue ? MEL_SANGUE : MEL_DIA);
-      ilhaFavo(c, w / 2, mY + h * 0.05, larg(w, h, 0.72, 720), t, { ruina: true, perigo: sangue ? 0.7 + 0.3 * Math.sin(t * 3) : 0.15 });
+      ilhaFavo(c, w / 2, ilhaLugar(w, h)[1], ilhaLugar(w, h)[0], t, { ruina: sangue, perigo: sangue ? 0.7 + 0.3 * Math.sin(t * 3) : 0.15 });
       polen(c, w, h, t, 40, sangue ? '#ff7a3a' : 'rgba(230,200,170,.8)', false);
     },
     ovo(c, w, h, t) {
-      paredeFavos(c, w, h, Math.max(28, Math.min(w, h) / 12), 'rgba(0,0,0,.35)', '#3a2010');
-      const g = c.createRadialGradient(w / 2, h * 0.48, 0, w / 2, h * 0.48, Math.max(w, h) * 0.6);
-      g.addColorStop(0, 'rgba(255,170,80,.35)'); g.addColorStop(1, 'rgba(10,4,2,.85)'); c.fillStyle = g; c.fillRect(0, 0, w, h);
-      const s = Math.min(w, h) / 520, cx = w / 2, cy = h * 0.46;
-      // célula da chocadeira
-      c.fillStyle = '#6a3a14'; c.strokeStyle = '#2a1608'; c.lineWidth = 6 * s;
-      c.beginPath(); hexPath(c, cx, cy + 8 * s, 120 * s); c.fill(); c.stroke();
-      c.fillStyle = '#4a240c'; c.beginPath(); hexPath(c, cx, cy + 8 * s, 98 * s); c.fill();
-      brilho(c, cx, cy, 170 * s, 'rgba(255,190,110,.5)');
-      // ovo
-      const bal = Math.sin(t * 2.4) * 0.05;
-      c.save(); c.translate(cx, cy + 40 * s); c.rotate(bal); c.translate(0, -40 * s);
-      const go = c.createRadialGradient(-18 * s, -30 * s, 6 * s, 0, 0, 80 * s);
-      go.addColorStop(0, '#fffaf0'); go.addColorStop(0.55, '#f2dcb8'); go.addColorStop(1, '#b08a5a');
-      c.fillStyle = go; c.beginPath(); c.ellipse(0, 0, 48 * s, 64 * s, 0, 0, TAU); c.fill();
-      c.strokeStyle = '#2a1608'; c.lineWidth = 3 * s; c.stroke();
-      // marca da Tropa: hexágono dourado
-      c.fillStyle = '#e9a640'; c.strokeStyle = '#7a4a14'; c.lineWidth = 2 * s; c.beginPath(); hexPath(c, 0, 4 * s, 14 * s); c.fill(); c.stroke();
-      c.fillStyle = '#fff3c0'; c.beginPath(); hexPath(c, 0, 4 * s, 6 * s); c.fill();
-      c.fillStyle = 'rgba(255,255,255,.45)'; c.beginPath(); c.ellipse(-18 * s, -30 * s, 9 * s, 15 * s, -0.4, 0, TAU); c.fill();
+      // a velha Roleta do Enxame da Tropa (o id 'ovo' ficou da época da chocadeira)
+      fundoMel(c, w, h, t, 'tarde');
+      const s = Math.min(w, h * 1.5) / 640, cx = w / 2, cy = h * 0.34, R = 96 * s, gy = h * 0.62;
+      c.fillStyle = 'rgba(20,6,0,.4)'; c.beginPath(); c.ellipse(cx, gy + R * 0.12, R * 1.2, R * 0.22, 0, 0, TAU); c.fill();
+      // base vermelha com degraus dourados
+      const gb = c.createLinearGradient(0, gy - R * 0.2, 0, gy + R * 0.2); gb.addColorStop(0, '#e83a2a'); gb.addColorStop(1, '#7a1010');
+      c.fillStyle = gb; c.beginPath(); c.ellipse(cx, gy, R * 0.95, R * 0.2, 0, 0, TAU); c.fill();
+      c.fillStyle = '#f6c040'; c.beginPath(); c.ellipse(cx, gy - R * 0.1, R * 0.7, R * 0.14, 0, 0, TAU); c.fill();
+      c.fillStyle = '#c88a20'; c.fillRect(cx - 14 * s, cy, 28 * s, gy - R * 0.1 - cy);
+      c.fillStyle = 'rgba(255,255,255,.35)'; c.fillRect(cx - 10 * s, cy, 6 * s, gy - R * 0.1 - cy);
+      brilho(c, cx, cy, R * 1.8, 'rgba(255,220,140,.45)');
+      // roda girando devagar
+      const gira = t * 0.9 + Math.sin(t * 0.7) * 0.2;
+      c.save(); c.translate(cx, cy); c.rotate(gira);
+      for (let q = 0; q < 9; q++) {
+        const a0 = q / 9 * TAU, a1 = (q + 1) / 9 * TAU, am = (a0 + a1) / 2;
+        const g = c.createRadialGradient(0, 0, R * 0.2, 0, 0, R); g.addColorStop(0, '#fff6dc'); g.addColorStop(0.3, NOVE[q]); g.addColorStop(1, 'rgba(0,0,0,.35)');
+        c.fillStyle = NOVE[q]; c.beginPath(); c.moveTo(0, 0); c.arc(0, 0, R, a0, a1); c.closePath(); c.fill();
+        c.fillStyle = g; c.globalAlpha = 0.55; c.fill(); c.globalAlpha = 1;
+        c.strokeStyle = '#7a4a10'; c.lineWidth = 3 * s; c.stroke();
+        // favo com uma abelhinha dentro de cada fatia
+        const ix = Math.cos(am) * R * 0.66, iy = Math.sin(am) * R * 0.66;
+        c.fillStyle = 'rgba(255,248,224,.85)'; c.strokeStyle = '#7a4a10'; c.lineWidth = 2 * s; c.beginPath(); hexPath(c, ix, iy, 20 * s); c.fill(); c.stroke();
+        c.save(); c.translate(ix, iy); c.rotate(-gira); abelha(c, -2 * s, 4 * s, s * 0.42, t + q, { cor: NOVE[q], asa: 0.3 }); c.restore();
+      }
       c.restore();
-      polen(c, w, h, t, 40, '#ffc880');
+      // aro dourado com luzinhas piscando
+      c.lineWidth = 16 * s; c.strokeStyle = '#c88a20'; c.beginPath(); c.arc(cx, cy, R + 6 * s, 0, TAU); c.stroke();
+      c.lineWidth = 6 * s; c.strokeStyle = '#ffd860'; c.beginPath(); c.arc(cx, cy, R + 4 * s, 0, TAU); c.stroke();
+      for (let q = 0; q < 18; q++) {
+        const a = q / 18 * TAU, on = (Math.floor(t * 6) + q) % 3 === 0, lx = cx + Math.cos(a) * (R + 6 * s), ly = cy + Math.sin(a) * (R + 6 * s);
+        if (on) brilho(c, lx, ly, 14 * s, 'rgba(255,240,180,.9)');
+        c.fillStyle = on ? '#fffbe0' : '#e0a030'; c.beginPath(); c.arc(lx, ly, 4.2 * s, 0, TAU); c.fill();
+      }
+      // miolo e ponteiro
+      const gm = c.createRadialGradient(cx - 8 * s, cy - 8 * s, 2, cx, cy, 30 * s); gm.addColorStop(0, '#fff6c0'); gm.addColorStop(1, '#c88a20');
+      c.fillStyle = gm; c.beginPath(); hexPath(c, cx, cy, 28 * s); c.fill(); c.strokeStyle = '#7a4a10'; c.lineWidth = 3 * s; c.stroke();
+      c.fillStyle = '#e83a2a'; c.strokeStyle = '#6a0a0a'; c.lineWidth = 2 * s;
+      c.beginPath(); c.moveTo(cx - 14 * s, cy - R - 26 * s); c.lineTo(cx + 14 * s, cy - R - 26 * s); c.lineTo(cx, cy - R + 14 * s); c.closePath(); c.fill(); c.stroke();
+      // abelhas saindo da roleta
+      for (let i = 0; i < 4; i++) {
+        const k = ((t * 0.35 + i * 0.25) % 1), ang = -Math.PI / 2 + (i - 1.5) * 0.7;
+        const x = cx + Math.cos(ang) * R * lerp(0.6, 2.4, k), y = cy + Math.sin(ang) * R * lerp(0.4, 1.4, k) - k * 40 * s;
+        c.globalAlpha = Math.min(1, (1 - k) * 3); brilho(c, x, y, 30 * s, NOVE[(i * 2 + 1) % 9], 0.5);
+        abelha(c, x, y, s * lerp(0.4, 0.9, k), t + i, { cor: NOVE[(i * 2 + 1) % 9], dir: Math.cos(ang) < 0 ? -1 : 1 }); c.globalAlpha = 1;
+      }
+      polen(c, w, h, t, 40, '#ffe0a0');
     },
     ilha(c, w, h, t) {
-      ceu(c, w, h, ['#2f6fa8', '#7cc0d8', '#f2d9b0']);
-      brilho(c, w * 0.8, h * 0.4, h * 0.5, 'rgba(255,236,190,.6)');
-      nuvens(c, w, h, t, 'rgba(255,255,255,.75)', 7, h * 0.3, 10);
-      const mY = h * 0.62;
+      fundoMel(c, w, h, t, 'dia');
+      const mY = ilhaLugar(w, h)[1] - ilhaLugar(w, h)[0] * 0.05;
       mar(c, w, h, mY, t, MEL_DIA);
-      ilhaFavo(c, w / 2, mY + h * 0.06, larg(w, h, 0.72, 720), t, { ruina: true });
+      ilhaFavo(c, w / 2, ilhaLugar(w, h)[1], ilhaLugar(w, h)[0], t, {});
       // abelhas voando
-      for (let i = 0; i < 4; i++) {
-        const x = ((t * (40 + i * 10) + i * 190) % (w + 100)) - 50, y = h * (0.16 + i * 0.06) + Math.sin(t * 3 + i) * 8;
-        abelha(c, x, y, Math.min(w, h) / 1800, t + i, { cor: NOVE[i * 2] });
+      for (let i = 0; i < 5; i++) {
+        const x = ((t * (40 + i * 10) + i * 190) % (w + 100)) - 50, y = h * (0.12 + i * 0.06) + Math.sin(t * 3 + i) * 8;
+        abelha(c, x, y, Math.min(w, h) / (1100 - i * 80), t + i, { cor: NOVE[i * 2] });
       }
     },
     titulo(c, w, h, t) {
@@ -2783,8 +2974,8 @@ body { background: #7a420c; }
       polen(c, w, h, t, 50, '#d8c0ff');
     },
     vitoria(c, w, h, t) {
-      ceu(c, w, h, ['#2a3a7a', '#e0906a', '#ffe0b0']);
-      const cx = w / 2, mY = h * 0.68;
+      fundoMel(c, w, h, t, 'tarde');
+      const cx = w / 2, mY = ilhaLugar(w, h)[1] - ilhaLugar(w, h)[0] * 0.05;
       for (let i = 0; i < 12; i++) {
         c.save(); c.translate(cx, mY - 40); c.rotate(-Math.PI / 2 + (i - 5.5) * 0.16 + Math.sin(t * 0.5) * 0.02);
         c.fillStyle = 'rgba(255,240,200,.12)'; c.beginPath(); c.moveTo(0, 0); c.lineTo(-18, -h); c.lineTo(18, -h); c.fill(); c.restore();
@@ -2793,8 +2984,8 @@ body { background: #7a420c; }
       vespa(c, lerp(cx, w * 1.15, foge), lerp(h * 0.34, h * 0.08, foge), Math.min(w, h * 1.25) / 760 * (1 - foge * 0.6), t, { olhos: 1 - foge * 0.6 });
       enxame(c, w, h, t, lerp(cx, w * 1.2, foge), lerp(h * 0.36, h * 0.1, foge), 40, 0.6 * (1 - foge), '#1a0608');
       mar(c, w, h, mY, t, MEL_DIA);
-      const lw = larg(w, h, 0.76, 760);
-      const topo = ilhaFavo(c, cx, mY + h * 0.06, lw, t, {});
+      const [lw, ib] = ilhaLugar(w, h);
+      const topo = ilhaFavo(c, cx, ib, lw, t, {});
       const fecha = ease((t - 0.8) / 2.5);
       if (fecha > 0) anelNove(c, cx, topo, lerp(lw * 0.8, lw * 0.56, fecha), t * 2, 0.3);
       polen(c, w, h, t, 40, '#fff2c8');
@@ -2819,11 +3010,11 @@ body { background: #7a420c; }
     },
     vazio(c, w, h, t) {
       ceu(c, w, h, ['#202432', '#4a4a5a', '#7a6a6a']);
-      const mY = h * 0.68;
+      const mY = ilhaLugar(w, h)[1] - ilhaLugar(w, h)[0] * 0.05;
       mar(c, w, h, mY, t, ['#5a3e24', '#1a1208', 'rgba(220,200,170,.18)']);
-      ilhaFavo(c, w / 2, mY + h * 0.06, larg(w, h, 0.72, 720), t, { ruina: true, vazia: true });
+      ilhaFavo(c, w / 2, ilhaLugar(w, h)[1], ilhaLugar(w, h)[0], t, { ruina: true, vazia: true });
       const x = lerp(-w * 0.2, w * 1.2, (t / 7) % 1);
-      vespa(c, x, h * 0.26, Math.min(w, h) / 1600, t, { olhos: 1 });
+      vespa(c, x, h * 0.12, Math.min(w, h) / 1600, t, { olhos: 1 });
     },
   };
 
