@@ -1001,6 +1001,8 @@ body { background: #7a420c; }
 .bstage .stand { margin-top: 26px; animation: idlebob 1.8s ease-in-out infinite; }
 .bstage .side[data-side="foe"] .stand { animation-delay: .6s; }
 .bstage .stand::before { background: radial-gradient(ellipse at 50% 35%, #fff3c4, #f6b733 55%, #c2740e); border-color: var(--ink); height: 34px; box-shadow: 0 5px 0 var(--ink), 0 0 22px rgba(255,200,80,.6); }
+.bstage .stand.bossy > .dic { transform: scale(1.65); transform-origin: 50% 82%; filter: drop-shadow(0 0 16px rgba(200, 30, 60, .5)); }
+.bstage .stand.bossy::before { left: -12%; right: -12%; }
 .bstage .stand.down { animation: none; opacity: .45; filter: grayscale(.8); transform: rotate(-12deg) translateY(10px); }
 @keyframes idlebob { 50% { transform: translateY(-8px); } }
 .bstage .vs { align-self: center; margin-top: 60px; }
@@ -7757,12 +7759,14 @@ const M3 = (() => {
     parts.legs = [];
     [-0.15, 0.15, 0.42].forEach((dx, k) => [1, -1].forEach(z => {
       const g = new T.Group(); g.position.set(0.2 + dx, 1.72, z * 0.3); body.add(g);
-      const l = taper([[0, 0, 0], [0.1, -0.25, z * 0.25], [0.28 - k * 0.12, -0.55, z * 0.35], [0.4 - k * 0.15, -0.82, z * 0.3]], 0.06, 0.02, 8, 12);
+      // v8.1: pernas mais grossas, com joelho e uma garra no pé (antes eram fininhas como de aranha)
+      const l = taper([[0, 0, 0], [0.1, -0.25, z * 0.25], [0.28 - k * 0.12, -0.55, z * 0.35], [0.4 - k * 0.15, -0.82, z * 0.3]], 0.1, 0.045, 8, 12);
       mesh(l.geo, M.leg, g, [0, 0, 0], [1, 1, 1], [0, 0, 0]);
-      mesh(CONE, M.leg, g, [0.12, -0.32, z * 0.3], [0.02, 0.1, 0.02], [0, 0, -0.9], false);
+      mesh(SPH_LO, M.leg, g, [0.1, -0.25, z * 0.25], [0.09, 0.09, 0.09], [0, 0, 0], false);
+      mesh(CONE, M.claw, g, [0.42 - k * 0.15, -0.86, z * 0.3], [0.05, 0.12, 0.05], [0, 0, -1.9], false);
       parts.legs.push(g);
     }));
-    const { head, ants } = bossHead(M, 1.5, eyeM); head.position.set(1.05, 2.45, 0); root.add(head); parts.head = head; parts.ants = ants;
+    const { head, ants } = bossHead(M, 1.75, eyeM); head.position.set(1.12, 2.5, 0); root.add(head); parts.head = head; parts.ants = ants;
     if (kind === 'general') {
       // elmo de metal com crista de espinhos, ombreiras e uma cicatriz
       const hg = new T.Group(); hg.scale.setScalar(1.5); head.add(hg);
@@ -7785,8 +7789,9 @@ const M3 = (() => {
       for (let i = 0; i < 10; i++) { const a = i / 10 * Math.PI * 2; mesh(CONE, M.dark, body, [0.55, 2.2 + Math.sin(a) * 0.45, Math.cos(a) * 0.45], [0.06, 0.34, 0.06], [a, 0, -Math.PI / 2]); }
       [0.7, 1.4].forEach(x => mesh(new T.TorusGeometry(0.55, 0.035, 6, 30), gold, parts.abd, [-x, 0, 0], [1, 1, 1], [0, Math.PI / 2, 0], false));
     }
-    [parts.wingN, parts.wingF] = beeWings(root, M, [-0.05, 2.62, 0.3], kind === 'imperatriz' ? 2.1 : 1.85);
-    return { root, parts, kind: 'chefe', M };
+    // asas mais para trás e inclinadas para longe da cabeça, para não cobrirem o rosto
+    [parts.wingN, parts.wingF] = beeWings(root, M, [-0.4, 2.7, 0.32], kind === 'imperatriz' ? 1.9 : 1.7);
+    return { root, parts, kind: 'chefe', M, wingZ: -0.6 };
   }
   const BODY_OF = { C: buildOperaria, R: buildGuardia, E: buildGuerreira, L: buildSoberana };
   const isVespa = (els, rar) => rar === 'L' && els[0] === 'trevas' && els[1] === 'fogo';
@@ -7816,8 +7821,9 @@ const M3 = (() => {
     const P = d.parts, s = Math.sin(t * Math.PI * 2), c = Math.cos(t * Math.PI * 2);
     const buzz = Math.abs(Math.sin(t * Math.PI * 4)); // duas batidas por ciclo
     const open = 0.15 + 0.85 * buzz;
-    P.wingN.rotation.set(-open, 0.35, 0.15);
-    P.wingF.rotation.set(open, -0.35, 0.15);
+    const wz = d.wingZ === undefined ? 0.15 : d.wingZ;
+    P.wingN.rotation.set(-open, 0.35, wz);
+    P.wingF.rotation.set(open, -0.35, wz);
     d.root.position.y = 0.12 * s;
     if (P.abd) P.abd.rotation.y = 0.12 * c;
     P.head.rotation.set(0.05 * c, 0, 0.05 * s);
@@ -12095,7 +12101,7 @@ function fighterView(f, side, bench, active, B) {
       <span class="muted" style="font-size:.8rem">${f.boss ? 'Ataca com elementos aleatórios' : elTags(f.els)}</span>
       <div class="hpw"><div class="bar hp ${f.hp / f.hpMax < 0.3 ? 'low' : ''}"><i style="width:${pct(f.hp, f.hpMax)}%"></i></div><span class="hpn num">❤️ ${f.hp} / ${f.hpMax}</span></div>
     </div>
-    <div class="stand${f.hp <= 0 ? ' down' : ''}">${dIcon(disp, f.boss ? 'B' : f.rar, 'xl', side === 'foe' ? 'flip' : '', f.did || 3, f.skin)}</div>
+    <div class="stand${f.hp <= 0 ? ' down' : ''}${f.boss ? ' bossy' : ''}">${dIcon(disp, f.boss ? 'B' : f.rar, 'xl', side === 'foe' ? 'flip' : '', f.did || 3, f.skin)}</div>
     <div class="bench">${bench.map((x, i) => i === active ? '' : `<span class="${x.hp <= 0 ? 'ko' : ''}">${dIcon(x.disp || x.els, x.rar, 's')}</span>`).join('')}</div>
   </div>`;
 }
