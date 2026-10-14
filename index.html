@@ -10005,7 +10005,7 @@ function bossTeam(final) {
     if (!final) { hp = Math.round(hp * 0.8); atk = Math.round(atk * 0.8); }
     else if (S.weakened) hp = Math.round(hp * 0.7);
     if (final && S.necroBoss && S.act === 2) hp = Math.round(hp * S.necroBoss);
-    const pk = powerK(0.7); hp = Math.round(hp * pk); atk = Math.round(atk * pk);
+    // v8.2: o chefe não olha mais para as abelhas fora da luta (o powerK geral saiu daqui), só para o time abaixo
     // v8.1: o chefe cresce com o time que entra na luta: +40% de vida por abelha ascendida, +20% por ataque comprado, +10% por mutação do Laboratório
     const tk = 1 + teamDragons().reduce((a, d) => a + (d.asc ? 0.4 : 0) + (d.move && ATTACKS[d.move] ? 0.2 : 0) + (d.mut && MUTS[d.mut] && MUTS[d.mut].lab ? 0.1 : 0), 0);
     hp = Math.round(hp * tk); atk = Math.round(atk * (1 + (tk - 1) * 0.35));
