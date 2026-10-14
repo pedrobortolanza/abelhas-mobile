@@ -502,3 +502,9 @@ Clique/toque em tudo. Teclas: `1`–`9` abrem os painéis do dock (1 = Ilha), `E
 - Ordem: as duas falas da Vovó (girar a Roleta do Enxame; 3 atos de 12 minutos com os três chefes) e depois as 8 dicas do `TUTOR`.
 - Cada fala destaca o que explica (`TIP_ALVO`): escurece o resto da tela, acende uma moldura piscando no alvo e mostra uma seta balançando. Toque em qualquer lugar completa o texto ou passa para a próxima.
 - No celular deitado a barra de abas fica na lateral: a caixa se desloca para o lado e a seta aponta para a esquerda.
+
+## v8.7 (14/10/2026): avisos mais legíveis
+
+- `toast()` ganhou visual próprio: painel chocolate com textura de favo, selo hexagonal com o ícone do assunto (`TOAST_IC` escolhe pelo texto: conquista, rainha, roleta, néctar, geleia, cristal, batalha, nível, relíquia, missão, torre, estação, loja, mel), título em Lilita One amarelo e texto creme bem contrastado.
+- Conquistas brilham em dourado e o selo pula; erros ficam vermelhos com "!" e tremem.
+- Barrinha embaixo mostra o tempo que falta; avisos com texto ficam 4,6 s (sem texto, 3,4 s). Tocar no aviso fecha.
