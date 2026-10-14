@@ -495,3 +495,10 @@ Clique/toque em tudo. Teclas: `1`–`9` abrem os painéis do dock (1 = Ilha), `E
 - As falas das cutscenes não explicam mais o jogo (tempo, "escolha três abelhas", lotes e ligas). Viraram lore: a Roleta que fez a velha Tropa, o General e a Imperatriz por trás da Rainha, a Ilha Favo como lar dos heróis, o sono da Rainha no Ninho de Papel.
 - As dicas saíram para um cartão da Vovó Melina (`renderMelina`, `S.tutor = -1`) que abre logo depois de escolher o prado e a rainha, antes das dicas normais: girar a Roleta do Enxame e a partida em 3 atos de 12 minutos com os três chefes.
 - lore/cutscene.js agora é cópia do bloco entre CUTSCENE-START/END do index.html.
+
+## v8.6 (14/10/2026): dicas no estilo das cutscenes
+
+- O cartão no meio da tela saiu. As dicas agora são falas da Vovó Melina numa caixa embaixo da tela (mesmo visual da caixa de fala das cutscenes: retrato, nome, texto aparecendo letra por letra, setinha de "continua", pontinhos de progresso e botão Pular dicas). A ilha continua visível, com o relógio parado.
+- Ordem: as duas falas da Vovó (girar a Roleta do Enxame; 3 atos de 12 minutos com os três chefes) e depois as 8 dicas do `TUTOR`.
+- Cada fala destaca o que explica (`TIP_ALVO`): escurece o resto da tela, acende uma moldura piscando no alvo e mostra uma seta balançando. Toque em qualquer lugar completa o texto ou passa para a próxima.
+- No celular deitado a barra de abas fica na lateral: a caixa se desloca para o lado e a seta aponta para a esquerda.
