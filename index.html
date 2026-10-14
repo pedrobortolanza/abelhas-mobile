@@ -10497,8 +10497,15 @@ function score() {
 function rankFor(total) {
   const f = modeFactor();
   const T = [['S', 60000], ['A', 35000], ['B', 18000], ['C', 8000]];
-  for (const [r, v] of T) if (total >= v * f) return r;
-  return 'D';
+  let r = 'D';
+  for (const [k, v] of T) if (total >= v * f) { r = k; break; }
+  // v8.2: perder limita a nota. Nos atos: cair no Ato I dá no máximo C, no II no máximo B, no III no máximo A; S só vencendo tudo
+  const lost = S && S.finalResult && !S.finalResult.win, ended = S && S.ended && !(S.finalResult && S.finalResult.win);
+  if (lost || (isActs() && ended)) {
+    const cap = isActs() ? ['C', 'B', 'A'][Math.min(S.act || 0, 2)] : 'B', ord = 'SABCD';
+    if (ord.indexOf(r) < ord.indexOf(cap)) r = cap;
+  }
+  return r;
 }
 
 // ============================================================
