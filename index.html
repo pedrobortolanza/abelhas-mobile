@@ -7737,61 +7737,101 @@ const M3 = (() => {
     head.userData.s = s;
     return { head, ants };
   }
+  // v8.2: chefes refeitos no mesmo estilo chibi das abelhas do jogador, mas malvados: cabeça grande e redonda
+  // com máscara escura de vespa, olhos vermelhos brilhando sob pálpebras bravas, sorriso de dentes,
+  // mandíbulas, cintura fina, abdômen listrado com ferrão grande, braços com arma e armadura própria.
+  function villainHead(M, s, C) {
+    const head = new T.Group();
+    mesh(SPH, M.face, head, [0, 0, 0], [0.82 * s, 0.78 * s, 0.82 * s]);
+    // máscara escura no alto da cabeça, descendo em ponta entre os olhos
+    mesh(new T.SphereGeometry(1, 28, 14, 0, Math.PI * 2, 0, Math.PI / 2.3), M.body, head, [-0.02 * s, 0.03 * s, 0], [0.84 * s, 0.8 * s, 0.84 * s], [0, 0, 0.28], false);
+    mesh(CONE, M.body, head, [0.7 * s, 0.12 * s, 0], [0.09 * s, 0.3 * s, 0.07 * s], [0, 0, Math.PI * 0.62], false);
+    const eyeM = mat(C.eye, { roughness: 0.15, emissive: col(C.eye), emissiveIntensity: 1.1 });
+    [1, -1].forEach(z => {
+      const g = new T.Group(); g.position.set(0.6 * s, 0.02 * s, z * 0.34 * s); head.add(g);
+      g.lookAt(new T.Vector3(3, 0.1, z * 1.5).add(head.position));
+      mesh(SPH, M.eyeD, g, [0, 0, 0], [0.3 * s, 0.3 * s, 0.14 * s]);
+      mesh(SPH, eyeM, g, [0, -0.06 * s, 0.07 * s], [0.19 * s, 0.16 * s, 0.08 * s], [0, 0, 0], false);
+      mesh(SPH_LO, M.eyeD, g, [0, -0.06 * s, 0.13 * s], [0.045 * s, 0.1 * s, 0.03 * s], [0, 0, 0], false);
+      mesh(SPH_LO, M.shine, g, [0.08 * s, 0.03 * s, 0.13 * s], [0.055 * s, 0.055 * s, 0.02 * s], [0, 0, 0], false);
+      // pálpebra brava: tampa o alto do olho, inclinada para dentro
+      const lid = new T.Group(); lid.position.set(0, 0.05 * s, 0.02 * s); lid.rotation.z = -z * 0.42; g.add(lid);
+      mesh(new T.SphereGeometry(1, 20, 10, 0, Math.PI * 2, 0, Math.PI / 2), M.body, lid, [0, 0, 0], [0.33 * s, 0.26 * s, 0.17 * s], [0, 0, 0], false);
+      mesh(BOX, M.dark, lid, [0, 0.17 * s, 0.05 * s], [0.44 * s, 0.08 * s, 0.09 * s], [0, 0, 0], false);
+    });
+    // sorriso malvado com dentes
+    const grin = new T.Group(); grin.position.set(0.74 * s, -0.3 * s, 0); head.add(grin);
+    mesh(new T.SphereGeometry(1, 16, 10, 0, Math.PI * 2, Math.PI / 2, Math.PI / 2), M.mouth, grin, [0, 0.03 * s, 0], [0.05 * s, 0.08 * s, 0.22 * s], [0, 0, 0], false);
+    for (let i = 0; i < 6; i++) mesh(CONE, M.shine, grin, [0.03 * s, 0.0, (-0.17 + i * 0.068) * s], [0.026 * s, 0.06 * s, 0.026 * s], [Math.PI, 0, 0], false);
+    // mandíbulas curvas dos lados da boca
+    [1, -1].forEach(z => {
+      const m = taper([[0.55 * s, -0.36 * s, z * 0.3 * s], [0.78 * s, -0.5 * s, z * 0.3 * s], [0.92 * s, -0.46 * s, z * 0.16 * s]], 0.07 * s, 0.02 * s, 8, 10);
+      mesh(m.geo, M.claw, head, [0, 0, 0], [1, 1, 1], [0, 0, 0]);
+    });
+    // antenas em cotovelo, finas e pontudas
+    const ants = [1, -1].map(z => {
+      const a = new T.Group(); a.position.set(0.25 * s, 0.6 * s, z * 0.24 * s); head.add(a);
+      const tb = taper([[0, 0, 0], [0.1 * s, 0.32 * s, z * 0.06 * s], [0.02 * s, 0.6 * s, z * 0.16 * s], [-0.22 * s, 0.74 * s, z * 0.26 * s]], 0.05 * s, 0.015 * s, 8, 14);
+      mesh(tb.geo, M.dark, a, [0, 0, 0], [1, 1, 1], [0, 0, 0], false);
+      return a;
+    });
+    head.userData.s = s;
+    return { head, ants };
+  }
   function buildBoss(els) {
     const kind = BOSS_OF(els);
-    const C = { general: ['#ff7a1a', '#1a1214', '#ff2a1a'], rainha: ['#ff8a1f', '#2b1a33', '#ff1a3a'], imperatriz: ['#f4f0ff', '#1c1030', '#c23cff'] }[kind];
+    const C = {
+      general:    { face: '#e89a1c', body: '#2a1a14', stripe: '#1a100c', eye: '#ff2a1a', wing: '#ffb07a', armor: '#4e5868' },
+      rainha:     { face: '#e0741a', body: '#3a1f48', stripe: '#2a1236', eye: '#ff1a3a', wing: '#e0a0ff', armor: '#7a2a8a' },
+      imperatriz: { face: '#cfc4ea', body: '#1c1030', stripe: '#120a20', eye: '#d04cff', wing: '#c99cff', armor: '#ffcc33' },
+    }[kind];
     const M = bMats(kind === 'imperatriz' ? ['trevas', 'luz'] : ['trevas', 'fogo'], 'L');
-    M.body = mat(C[1], { roughness: 0.35 }); M.face = mat(C[0], { roughness: 0.4 });
-    M.fuzz = mat(mix(C[1], '#000000', 0.1), { roughness: 0.55 }); M.leg = mat('#14080c', { roughness: 0.5 });
-    M.claw = mat('#0e0608', { roughness: 0.3 }); M.dark = mat('#0e0608', { roughness: 0.5 });
-    M.bwing = mat(kind === 'imperatriz' ? '#7a4aa8' : '#8a4a2a', { transparent: true, opacity: 0.62, roughness: 0.1, side: T.DoubleSide, emissive: col(kind === 'imperatriz' ? '#3a0a5a' : '#5a1a00'), emissiveIntensity: 0.5, depthWrite: false });
-    M.vein = mat('#3a1408'); M.has = () => false;
-    const eyeM = mat(C[2], { roughness: 0.15, emissive: col(C[2]), emissiveIntensity: 0.8 });
-    const metal = mat('#5a6478', { metalness: 0.4, roughness: 0.35 }), gold = mat('#ffcc33', { metalness: 0.5, roughness: 0.25, emissive: col('#5a3a00'), emissiveIntensity: 0.3 });
+    M.body = mat(C.body, { roughness: 0.4 }); M.face = mat(C.face, { roughness: 0.45 });
+    M.fuzz = mat(mix(C.body, '#000000', 0.15), { roughness: 0.9 }); M.leg = mat(C.stripe, { roughness: 0.55 });
+    M.claw = mat('#120608', { roughness: 0.3 }); M.dark = mat('#0e0608', { roughness: 0.5 }); M.stripe = M.dark;
+    M.mouth = mat('#3a0610', { roughness: 0.5 });
+    M.bwing = mat(C.wing, { transparent: true, opacity: 0.55, roughness: 0.15, side: T.DoubleSide, emissive: col(C.wing).multiplyScalar(0.25), depthWrite: false });
+    M.vein = mat(mix(C.body, '#000000', 0.2)); M.has = () => false;
+    const armor = mat(C.armor, { metalness: 0.45, roughness: 0.3, emissive: col(C.armor).multiplyScalar(0.12) });
+    const gold = mat('#ffcc33', { metalness: 0.5, roughness: 0.25, emissive: col('#5a3a00'), emissiveIntensity: 0.35 });
     const root = new T.Group(), parts = {};
     const body = new T.Group(); root.add(body); parts.body = body;
-    // tórax em armadura e cintura fininha
-    mesh(SPH, M.body, body, [0.2, 2.05, 0], [0.62, 0.55, 0.52]);
-    mesh(SPH, M.face, body, [0.38, 2.2, 0], [0.34, 0.26, 0.42], [0, 0, -0.3], false);
-    mesh(CYL, M.dark, body, [-0.38, 1.88, 0], [0.11, 0.42, 0.11], [0, 0, 1.25]);
-    beeAbdomen(body, M, parts, [-0.55, 1.78, 0], 2.6, 0.62, 8, { c1: C[0], c2: '#14080c', taper: 0.75, sting: 2.6, tilt: 0.5, stingMat: kind === 'general' ? metal : M.claw, noTip: true });
-    // pernas longas e espinhosas
-    parts.legs = [];
-    [-0.15, 0.15, 0.42].forEach((dx, k) => [1, -1].forEach(z => {
-      const g = new T.Group(); g.position.set(0.2 + dx, 1.72, z * 0.3); body.add(g);
-      // v8.1: pernas mais grossas, com joelho e uma garra no pé (antes eram fininhas como de aranha)
-      const l = taper([[0, 0, 0], [0.1, -0.25, z * 0.25], [0.28 - k * 0.12, -0.55, z * 0.35], [0.4 - k * 0.15, -0.82, z * 0.3]], 0.1, 0.045, 8, 12);
-      mesh(l.geo, M.leg, g, [0, 0, 0], [1, 1, 1], [0, 0, 0]);
-      mesh(SPH_LO, M.leg, g, [0.1, -0.25, z * 0.25], [0.09, 0.09, 0.09], [0, 0, 0], false);
-      mesh(CONE, M.claw, g, [0.42 - k * 0.15, -0.86, z * 0.3], [0.05, 0.12, 0.05], [0, 0, -1.9], false);
-      parts.legs.push(g);
-    }));
-    const { head, ants } = bossHead(M, 1.75, eyeM); head.position.set(1.12, 2.5, 0); root.add(head); parts.head = head; parts.ants = ants;
+    thorax(body, M, [0.2, 2.0, 0], 0.62);
+    mesh(SPH, M.dark, body, [-0.3, 1.9, 0], [0.16, 0.14, 0.14], [0, 0, 0], false); // cintura fina
+    beeAbdomen(body, M, parts, [-0.42, 1.86, 0], 2.4, 0.7, 7, { c1: C.face, c2: C.stripe, taper: 0.6, sting: 2.3, tilt: 0.42, stingMat: kind === 'general' ? armor : M.claw, noTip: true });
+    parts.legs = beeLegs(body, M, 0.2, 1.5, 1.05);
+    // bracinhos em garra
+    parts.arms = [1, -1].map(z => {
+      const a = new T.Group(); a.position.set(0.6, 1.85, z * 0.62); body.add(a);
+      mesh(CYL, M.leg, a, [0.12, -0.12, 0], [0.08, 0.36, 0.08], [0, 0, 0.9], false);
+      mesh(SPH_LO, M.leg, a, [0.28, -0.22, 0], [0.11, 0.11, 0.11], [0, 0, 0], false);
+      return a;
+    });
+    const { head, ants } = villainHead(M, 1.3, C); head.position.set(1.05, 2.55, 0); root.add(head); parts.head = head; parts.ants = ants;
     if (kind === 'general') {
-      // elmo de metal com crista de espinhos, ombreiras e uma cicatriz
-      const hg = new T.Group(); hg.scale.setScalar(1.5); head.add(hg);
-      mesh(new T.SphereGeometry(1, 24, 12, 0, Math.PI * 2, 0, Math.PI / 2.1), metal, hg, [-0.06, 0.06, 0], [0.64, 0.56, 0.62], [0, 0, 0.3]);
-      for (let i = 0; i < 5; i++) mesh(CONE, mat('#c23a1a', { roughness: 0.4 }), hg, [-0.1 - i * 0.14, 0.6 - i * 0.1, 0], [0.06, 0.26, 0.04], [0, 0, 0.5 + i * 0.25]);
-      [1, -1].forEach(z => mesh(SPH, metal, body, [0.25, 2.3, z * 0.42], [0.3, 0.16, 0.24], [z * 0.4, 0, 0]));
-      mesh(BOX, mat('#5a0a0a'), head, [0.62, 0.32, 0.34], [0.05, 0.4, 0.04], [0.3, 0.5, 0.4], false);
+      // elmo de metal com crista vermelha, ombreiras e cicatriz
+      mesh(new T.SphereGeometry(1, 24, 12, 0, Math.PI * 2, 0, Math.PI / 2.3), armor, head, [-0.06, 0.12, 0], [1.34, 1.28, 1.34], [0, 0, 0.32]);
+      for (let i = 0; i < 6; i++) mesh(CONE, mat('#d8341c', { roughness: 0.4 }), head, [-0.05 - i * 0.2, 1.22 - i * 0.16, 0], [0.09, 0.36, 0.05], [0, 0, 0.55 + i * 0.22]);
+      [1, -1].forEach(z => { mesh(SPH, armor, body, [0.3, 2.42, z * 0.55], [0.32, 0.18, 0.28], [z * 0.35, 0, 0]); mesh(CONE, armor, body, [0.3, 2.6, z * 0.62], [0.06, 0.2, 0.06], [z * 0.6, 0, 0]); });
+      mesh(BOX, mat('#7a1010'), head, [1.0, 0.38, 0.46], [0.05, 0.42, 0.05], [0.3, 0.6, 0.45], false);
     } else if (kind === 'rainha') {
-      const crown = new T.Group(); crown.position.set(-0.05, 0.72, 0); crown.scale.setScalar(1.5); head.add(crown);
-      const cm = mat('#7a2a8a', { metalness: 0.3, roughness: 0.3, emissive: col('#3a0040') });
-      mesh(CYL, cm, crown, [0, 0, 0], [0.32, 0.12, 0.32]);
-      for (let i = 0; i < 7; i++) { const a = i / 7 * Math.PI * 2; mesh(CONE, cm, crown, [Math.cos(a) * 0.28, 0.24, Math.sin(a) * 0.28], [0.07, 0.42, 0.07], [Math.sin(a) * 0.35, 0, -Math.cos(a) * 0.35]); }
-      mesh(OCTA, mat('#ff3b3b', { emissive: col('#a00000') }), crown, [0.33, 0.03, 0], [0.09, 0.12, 0.09], [0, 0, 0], false);
+      // coroa de espinhos roxa com rubi e gola de espinhos
+      const crown = new T.Group(); crown.position.set(-0.05, 1.12, 0); crown.scale.setScalar(1.55); head.add(crown);
+      mesh(CYL, armor, crown, [0, 0, 0], [0.34, 0.12, 0.34]);
+      for (let i = 0; i < 7; i++) { const ang = i / 7 * Math.PI * 2; mesh(CONE, armor, crown, [Math.cos(ang) * 0.3, 0.26, Math.sin(ang) * 0.3], [0.07, 0.44, 0.07], [Math.sin(ang) * 0.3, 0, -Math.cos(ang) * 0.3]); }
+      mesh(OCTA, mat('#ff2a3a', { emissive: col('#a00010'), emissiveIntensity: 0.9 }), crown, [0.34, 0.05, 0], [0.1, 0.13, 0.1], [0, 0, 0], false);
+      for (let i = 0; i < 9; i++) { const ang = i / 9 * Math.PI * 2; mesh(CONE, M.dark, body, [0.62, 2.1 + Math.sin(ang) * 0.5, Math.cos(ang) * 0.5], [0.06, 0.3, 0.06], [ang, 0, -Math.PI / 2]); }
     } else {
-      // Imperatriz: coroa alta de ouro com joias, gola de espinhos e brilho roxo
-      const crown = new T.Group(); crown.position.set(-0.05, 0.74, 0); crown.scale.setScalar(1.55); head.add(crown);
-      mesh(CYL, gold, crown, [0, 0, 0], [0.34, 0.16, 0.34]);
-      for (let i = 0; i < 8; i++) { const a = i / 8 * Math.PI * 2, h = i % 2 ? 0.36 : 0.58; mesh(CONE, gold, crown, [Math.cos(a) * 0.3, h / 2 + 0.06, Math.sin(a) * 0.3], [0.08, h, 0.08]); }
-      [0, 2, 4, 6].forEach(i => { const a = i / 8 * Math.PI * 2; mesh(OCTA, mat('#c23cff', { emissive: col('#6a00a0'), emissiveIntensity: 0.8 }), crown, [Math.cos(a) * 0.35, 0.06, Math.sin(a) * 0.35], [0.06, 0.08, 0.06], [0, 0, 0], false); });
-      for (let i = 0; i < 10; i++) { const a = i / 10 * Math.PI * 2; mesh(CONE, M.dark, body, [0.55, 2.2 + Math.sin(a) * 0.45, Math.cos(a) * 0.45], [0.06, 0.34, 0.06], [a, 0, -Math.PI / 2]); }
-      [0.7, 1.4].forEach(x => mesh(new T.TorusGeometry(0.55, 0.035, 6, 30), gold, parts.abd, [-x, 0, 0], [1, 1, 1], [0, Math.PI / 2, 0], false));
+      // Imperatriz: coroa alta de ouro com joias, gola de espinhos e anéis de ouro no abdômen
+      const crown = new T.Group(); crown.position.set(-0.05, 1.14, 0); crown.scale.setScalar(1.6); head.add(crown);
+      mesh(CYL, gold, crown, [0, 0, 0], [0.36, 0.16, 0.36]);
+      for (let i = 0; i < 8; i++) { const ang = i / 8 * Math.PI * 2, h = i % 2 ? 0.36 : 0.6; mesh(CONE, gold, crown, [Math.cos(ang) * 0.32, h / 2 + 0.06, Math.sin(ang) * 0.32], [0.08, h, 0.08]); }
+      [0, 2, 4, 6].forEach(i => { const ang = i / 8 * Math.PI * 2; mesh(OCTA, mat('#c23cff', { emissive: col('#6a00a0'), emissiveIntensity: 0.9 }), crown, [Math.cos(ang) * 0.37, 0.06, Math.sin(ang) * 0.37], [0.07, 0.09, 0.07], [0, 0, 0], false); });
+      for (let i = 0; i < 10; i++) { const ang = i / 10 * Math.PI * 2; mesh(CONE, M.dark, body, [0.62, 2.1 + Math.sin(ang) * 0.52, Math.cos(ang) * 0.52], [0.06, 0.34, 0.06], [ang, 0, -Math.PI / 2]); }
+      [0.7, 1.4].forEach(x => mesh(new T.TorusGeometry(0.62, 0.04, 6, 30), gold, parts.abd, [-x, 0, 0], [1, 1, 1], [0, Math.PI / 2, 0], false));
     }
-    // asas mais para trás e inclinadas para longe da cabeça, para não cobrirem o rosto
-    [parts.wingN, parts.wingF] = beeWings(root, M, [-0.4, 2.7, 0.32], kind === 'imperatriz' ? 1.9 : 1.7);
-    return { root, parts, kind: 'chefe', M, wingZ: -0.6 };
+    [parts.wingN, parts.wingF] = beeWings(root, M, [-0.35, 2.85, 0.34], kind === 'imperatriz' ? 1.8 : 1.6);
+    return { root, parts, kind: 'chefe', M, wingZ: -0.45 };
   }
   const BODY_OF = { C: buildOperaria, R: buildGuardia, E: buildGuerreira, L: buildSoberana };
   const isVespa = (els, rar) => rar === 'L' && els[0] === 'trevas' && els[1] === 'fogo';
@@ -7896,7 +7936,7 @@ const M3 = (() => {
     OUT = 0.045;
     const d = buildBee(els, rar);
     dressBee(d, skin);
-    const sc = { operaria: 1.22, guardia: 1.1, guerreira: 1.05, soberana: 0.96, vespa: 0.98, chefe: 0.9 }[d.kind];
+    const sc = { operaria: 1.22, guardia: 1.1, guerreira: 1.05, soberana: 0.96, vespa: 0.98, chefe: 1.0 }[d.kind];
     d.root.scale.setScalar(sc);
     const holder = new T.Group(); holder.add(d.root); holder.rotation.y = -0.62;
     toonBee(holder);
