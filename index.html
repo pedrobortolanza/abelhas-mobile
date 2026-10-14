@@ -9143,10 +9143,10 @@ const SPIN_PRIZES = [
 const BETMEL = { key: 'X:betmel', name: 'BetMel', els: ['eletrico', 'luz'], rar: 'L' };
 // Ataques vendidos na loja: a abelha aprende um golpe e ganha ataque permanente
 const ATTACKS = {
-  tripla:  { n: 'Ferroada Tripla', i: '🗡️', d: 'Golpe forte do tipo da abelha (x2,4), recarga de 4 turnos.', pow: 2.4, cd: 4, el: 'own', up: 0.10, gold: 2500, lvl: 3 },
-  polen:   { n: 'Chuva de Pólen',  i: '💫', d: 'Golpe neutro (x1,6) que ignora fraquezas, recarga de 2 turnos.', pow: 1.6, cd: 2, el: null, up: 0.08, gold: 1800, lvl: 2 },
-  pegajoso:{ n: 'Mel Pegajoso',    i: '❤️', d: 'Golpe x1,3 que cura 20% da vida da abelha, recarga de 3 turnos.', pow: 1.3, cd: 3, el: 'own', heal: 0.2, up: 0.06, gold: 3200, lvl: 4 },
-  cometa:  { n: 'Mergulho Cometa', i: '☄️', d: 'Golpe x3 do 2º tipo da abelha com +25% de crítico, recarga de 5 turnos.', pow: 3.0, cd: 5, el: 'second', crit: 0.25, up: 0.15, gems: 30, lvl: 6 },
+  tripla:  { n: 'Ferroada Tripla', i: '🗡️', d: 'Golpe forte do tipo da abelha (x2,4), recarga de 4 turnos.', pow: 2.4, cd: 4, el: 'own', up: 0.10, gold: 7500, lvl: 3 },
+  polen:   { n: 'Chuva de Pólen',  i: '💫', d: 'Golpe neutro (x1,6) que ignora fraquezas, recarga de 2 turnos.', pow: 1.6, cd: 2, el: null, up: 0.08, gold: 5400, lvl: 2 },
+  pegajoso:{ n: 'Mel Pegajoso',    i: '❤️', d: 'Golpe x1,3 que cura 20% da vida da abelha, recarga de 3 turnos.', pow: 1.3, cd: 3, el: 'own', heal: 0.2, up: 0.06, gold: 9600, lvl: 4 },
+  cometa:  { n: 'Mergulho Cometa', i: '☄️', d: 'Golpe x3 do 2º tipo da abelha com +25% de crítico, recarga de 5 turnos.', pow: 3.0, cd: 5, el: 'second', crit: 0.25, up: 0.15, gems: 75, lvl: 6 },
 };
 // Visual das abelhas: chapéus e asas comprados com geleia real
 const SKINS = {
@@ -9991,6 +9991,9 @@ function bossTeam(final) {
     else if (S.weakened) hp = Math.round(hp * 0.7);
     if (final && S.necroBoss && S.act === 2) hp = Math.round(hp * S.necroBoss);
     const pk = powerK(0.7); hp = Math.round(hp * pk); atk = Math.round(atk * pk);
+    // v8.1: o chefe cresce com o time que entra na luta: +40% de vida por abelha ascendida, +20% por ataque comprado, +10% por mutação do Laboratório
+    const tk = 1 + teamDragons().reduce((a, d) => a + (d.asc ? 0.4 : 0) + (d.move && ATTACKS[d.move] ? 0.2 : 0) + (d.mut && MUTS[d.mut] && MUTS[d.mut].lab ? 0.1 : 0), 0);
+    hp = Math.round(hp * tk); atk = Math.round(atk * (1 + (tk - 1) * 0.35));
     return [{ name: final ? A.boss : A.boss + ' no ninho', els: [], disp: A.disp, rar: 'L', lvl: 99, hpMax: hp, hp, atk, cd: 0, boss: true }];
   }
   const b = MODES[S.mode].boss, k = S.mode === 'infinito' ? Math.pow(1.35, S.wave) : 1;
