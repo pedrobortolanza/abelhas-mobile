@@ -2100,7 +2100,33 @@ body { background: #7a420c; }
   .cs-skip{top:calc(var(--bar) + 6px);font-size:.88rem;padding:5px 12px 5px 10px;border-radius:10px}
   .cs-dots{display:none}
 }
-@media (prefers-reduced-motion:reduce){.cs-flash.go{animation:none}.cs-more{animation:none}}
+/* v8.2: acabamento de cinema na caixa de fala, no retrato e no título */
+.cs-bar{background:linear-gradient(180deg,#000,#0a0503)}
+.cs-bar.b{background:linear-gradient(0deg,#000,#0a0503)}
+.cs-panel{background:
+  url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='28' height='48' viewBox='0 0 28 48'%3E%3Cpath d='M14 1 L27 8.5 L27 23.5 L14 31 L1 23.5 L1 8.5 Z M14 31 L14 48' fill='none' stroke='%23ffd27a' stroke-opacity='.07' stroke-width='1.5'/%3E%3C/svg%3E"),
+  linear-gradient(180deg,rgba(104,62,32,.95) 0%,rgba(54,30,16,.97) 100%);
+  border-color:#2a1608;box-shadow:inset 0 0 0 2px rgba(255,200,110,.28),inset 0 2px 0 rgba(255,255,255,.18),inset 0 -6px 14px rgba(0,0,0,.35),0 6px 0 var(--ink),0 16px 34px rgba(0,0,0,.6),0 0 40px rgba(255,170,60,.12);
+  backdrop-filter:blur(3px)}
+.cs-panel.vespa{background:
+  url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='28' height='48' viewBox='0 0 28 48'%3E%3Cpath d='M14 1 L27 8.5 L27 23.5 L14 31 L1 23.5 L1 8.5 Z M14 31 L14 48' fill='none' stroke='%23ff6a5a' stroke-opacity='.08' stroke-width='1.5'/%3E%3C/svg%3E"),
+  linear-gradient(180deg,rgba(84,16,24,.95),rgba(36,6,12,.97));box-shadow:inset 0 0 0 2px rgba(255,90,80,.3),0 6px 0 var(--ink),0 16px 34px rgba(0,0,0,.6),0 0 46px rgba(255,40,40,.22)}
+.cs-panel.melina{box-shadow:inset 0 0 0 2px rgba(127,240,208,.3),inset 0 2px 0 rgba(255,255,255,.18),0 6px 0 var(--ink),0 16px 34px rgba(0,0,0,.6),0 0 40px rgba(80,220,190,.14)}
+.cs-panel.narr{background:linear-gradient(180deg,rgba(14,8,4,.55),rgba(14,8,4,.78));border:0;border-top:1px solid rgba(233,166,64,.5);border-bottom:1px solid rgba(233,166,64,.5);border-radius:0;backdrop-filter:blur(4px)}
+.cs-panel.narr .cs-text{font-family:"Lilita One","Trebuchet MS",sans-serif;font-style:normal;font-weight:400;letter-spacing:.3px;color:#ffe9c4;text-shadow:0 2px 8px rgba(0,0,0,.7)}
+.cs-port{animation:csport 2.4s ease-in-out infinite}
+.cs-panel.vespa ~ .cs-port,.cs-box:has(.vespa) .cs-port{box-shadow:0 0 0 3px #ff5a4a,0 6px 0 var(--ink),0 0 26px rgba(255,50,40,.6)}
+.cs-box:has(.melina) .cs-port{box-shadow:0 0 0 3px #7ff0d0,0 6px 0 var(--ink),0 0 22px rgba(80,230,190,.5)}
+@keyframes csport{50%{transform:translateY(-3px) rotate(-1.5deg)}}
+.cs-box.on .cs-port{animation:csportin .5s cubic-bezier(.2,1.4,.4,1) both, csport 2.4s ease-in-out .5s infinite}
+@keyframes csportin{from{transform:scale(.4) rotate(-20deg);opacity:0}}
+.cs-name{transform-origin:left bottom;animation:csname .45s cubic-bezier(.2,1.5,.4,1) both}
+@keyframes csname{from{transform:scale(.3) rotate(-8deg);opacity:0}}
+.cs-title.on h1{animation:cstitle 3.2s ease-in-out infinite}
+@keyframes cstitle{50%{transform:scale(1.03);text-shadow:0 5px 0 #2a1608,3px 0 0 #2a1608,-3px 0 0 #2a1608,0 -3px 0 #2a1608,0 0 60px rgba(255,190,80,.85)}}
+.cs-title::before{content:"";position:absolute;width:min(70vw,520px);height:min(70vw,520px);border-radius:50%;background:radial-gradient(circle,rgba(255,190,80,.35),rgba(255,190,80,0) 65%);z-index:-1;animation:cspulse 3s ease-in-out infinite}
+@keyframes cspulse{50%{transform:scale(1.08);opacity:.8}}
+@media (prefers-reduced-motion:reduce){.cs-flash.go{animation:none}.cs-more{animation:none}.cs-port,.cs-name,.cs-title h1,.cs-title::before{animation:none!important}}
 `;
 
   // ---------- Retratos (SVG desenhado, sem imagem externa) ----------
@@ -2703,7 +2729,10 @@ body { background: #7a420c; }
       nome = $('.cs-name'), txt = $('.cs-text'), more = $('.cs-more'), fade = $('.cs-fade'), flash = $('.cs-flash'),
       tit = $('.cs-title'), dots = [...root.querySelectorAll('.cs-dots b')], btn = $('.cs-skip');
 
-    let W = 0, H = 0, dpr = 1;
+    let W = 0, H = 0, dpr = 1, prevA = 0, prevT = 0;
+    const prevCv = document.createElement('canvas'), glowCv = document.createElement('canvas'), gc = glowCv.getContext('2d');
+    const motes = Array.from({ length: 46 }, (_, k) => ({ x: Math.random(), y: Math.random(), r: 0.6 + Math.random() * 2.4, v: 0.008 + Math.random() * 0.02, ph: Math.random() * 6.3, a: 0.25 + Math.random() * 0.5 }));
+    const DARK = { olhos: 1, sombra: 1, vespa: 1, derrota: 1, ninho: 1, zumbido: 0.5, vazio: 0.6 };
     function tamanho() { dpr = Math.min(2, global.devicePixelRatio || 1); W = root.clientWidth; H = root.clientHeight; cv.width = W * dpr; cv.height = H * dpr; }
     tamanho(); global.addEventListener('resize', tamanho);
 
@@ -2734,8 +2763,10 @@ body { background: #7a420c; }
     function proxima() {
       if (trocando || encerrado) return;
       if (i >= cenas.length - 1) { fim(false); return; }
-      trocando = true; fade.style.opacity = '1'; box.classList.remove('on');
-      setTimeout(() => { if (encerrado) return; mostra(i + 1); fade.style.opacity = '0'; trocando = false; }, 450);
+      // v8.2: troca de cena com dissolve (a cena anterior some por cima da nova), sem piscar preto
+      trocando = true; box.classList.remove('on');
+      try { prevCv.width = cv.width; prevCv.height = cv.height; prevCv.getContext('2d').drawImage(cv, 0, 0); prevA = 1; prevT = performance.now(); } catch (e) { prevA = 0; }
+      setTimeout(() => { if (encerrado) return; mostra(i + 1); trocando = false; }, 260);
     }
     function avancar() {
       if (trocando || encerrado || !cena) return;
@@ -2782,11 +2813,54 @@ body { background: #7a420c; }
       c.save();
       const tr = reduz ? 0 : (cena.tremor || 0);
       if (tr) { const k = tr * (0.6 + 0.4 * Math.sin(t * 7)) * 9; c.translate((Math.random() - 0.5) * k, (Math.random() - 0.5) * k); c.scale(1.02, 1.02); }
+      // v8.2: câmera de cinema, aproximando devagar e deslizando um pouco (cada cena vai para um lado)
+      if (!reduz && !cena.titulo) {
+        const e = 1 - Math.exp(-t / 7), zz = 1 + 0.07 * e, dir = i % 2 ? 1 : -1;
+        c.translate(W / 2 + dir * W * 0.012 * e, H / 2 - H * 0.008 * e); c.scale(zz, zz); c.translate(-W / 2, -H / 2);
+      }
       try { (PALCOS[cena.palco] || PALCOS.ilha)(c, W, H, t, cena); } catch (e) { console.warn('[Cutscene]', e); }
       c.restore();
+      const dark = DARK[cena.palco] || 0;
+      // brilho suave (bloom barato): a cena em miniatura, ampliada por cima em modo "screen"
+      try {
+        const gw = Math.max(1, Math.round(W / 6)), gh = Math.max(1, Math.round(H / 6));
+        if (glowCv.width !== gw || glowCv.height !== gh) { glowCv.width = gw; glowCv.height = gh; }
+        gc.globalCompositeOperation = 'copy'; gc.drawImage(cv, 0, 0, gw, gh);
+        c.save(); c.globalCompositeOperation = 'screen'; c.globalAlpha = dark ? 0.26 : 0.16; c.imageSmoothingQuality = 'high';
+        c.drawImage(glowCv, -W * 0.01, -H * 0.01, W * 1.02, H * 1.02); c.restore();
+      } catch (e) { /* sem bloom */ }
+      // luz quente vinda de cima nas cenas claras, brasas avermelhadas nas escuras
+      c.save(); c.globalCompositeOperation = dark ? 'lighter' : 'soft-light';
+      const lg = c.createLinearGradient(0, 0, 0, H);
+      if (dark) { lg.addColorStop(0, 'rgba(0,0,0,0)'); lg.addColorStop(1, 'rgba(120,20,10,.18)'); }
+      else { lg.addColorStop(0, 'rgba(255,214,140,.55)'); lg.addColorStop(0.6, 'rgba(255,170,80,.12)'); lg.addColorStop(1, 'rgba(90,40,10,.35)'); }
+      c.fillStyle = lg; c.fillRect(0, 0, W, H); c.restore();
+      if (!dark && !reduz) { // raios de luz
+        c.save(); c.globalCompositeOperation = 'lighter';
+        for (let k = 0; k < 4; k++) {
+          const x0 = W * (0.15 + k * 0.24) + Math.sin(t * 0.3 + k) * W * 0.02, a = 0.035 + 0.02 * Math.sin(t * 0.7 + k * 2);
+          const rg = c.createLinearGradient(x0, 0, x0 + W * 0.12, H * 0.85); rg.addColorStop(0, `rgba(255,236,180,${a})`); rg.addColorStop(1, 'rgba(255,236,180,0)');
+          c.fillStyle = rg; c.beginPath(); c.moveTo(x0 - W * 0.03, 0); c.lineTo(x0 + W * 0.05, 0); c.lineTo(x0 + W * 0.2, H * 0.9); c.lineTo(x0 + W * 0.06, H * 0.9); c.closePath(); c.fill();
+        }
+        c.restore();
+      }
+      // partículas de pólen (ou brasas) flutuando na frente de tudo
+      if (!reduz) {
+        c.save(); c.globalCompositeOperation = 'lighter';
+        motes.forEach(m => {
+          const y = ((m.y - t * m.v) % 1 + 1) % 1, x = m.x + Math.sin(t * 0.6 + m.ph) * 0.015, al = m.a * (0.5 + 0.5 * Math.sin(t * 1.3 + m.ph));
+          const gx = x * W, gy = y * H, rr = m.r * (W / 900 + 0.4);
+          const g2 = c.createRadialGradient(gx, gy, 0, gx, gy, rr * 4);
+          g2.addColorStop(0, dark ? `rgba(255,120,70,${al})` : `rgba(255,236,170,${al})`); g2.addColorStop(1, 'rgba(0,0,0,0)');
+          c.fillStyle = g2; c.fillRect(gx - rr * 4, gy - rr * 4, rr * 8, rr * 8);
+        });
+        c.restore();
+      }
       // vinheta
-      const v = c.createRadialGradient(W / 2, H / 2, Math.min(W, H) * 0.35, W / 2, H / 2, Math.max(W, H) * 0.75);
-      v.addColorStop(0, 'rgba(0,0,0,0)'); v.addColorStop(1, 'rgba(0,0,0,.55)'); c.fillStyle = v; c.fillRect(0, 0, W, H);
+      const v = c.createRadialGradient(W / 2, H / 2, Math.min(W, H) * 0.32, W / 2, H / 2, Math.max(W, H) * 0.75);
+      v.addColorStop(0, 'rgba(0,0,0,0)'); v.addColorStop(1, `rgba(10,4,0,${dark ? 0.7 : 0.5})`); c.fillStyle = v; c.fillRect(0, 0, W, H);
+      // dissolve da cena anterior
+      if (prevA > 0) { c.save(); c.setTransform(1, 0, 0, 1, 0, 0); c.globalAlpha = prevA; c.drawImage(prevCv, 0, 0); c.restore(); prevA = Math.max(0, 1 - (now - prevT) / 700); }
     }
 
     if (rot.musica !== undefined && som) try { som.musica(rot.musica); } catch (e) { /* opcional */ }
