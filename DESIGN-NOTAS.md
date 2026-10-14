@@ -459,3 +459,12 @@ Clique/toque em tudo. Teclas: `1`–`9` abrem os painéis do dock (1 = Ilha), `E
 - Geleia real: lutas de liga dão metade (`ceil(liga/2)`), nível do jogador dá `1 + nível/6`, crises `3 + ato`, conquistas 40% menos, prêmio dos atos 15 e 20.
 - Chefes dos atos: Ato I 2.600 de vida e 58 de ataque (antes 1.300/50, uma Épica Nv 20 sozinha vencia), Ato II 4.600/92, Ato III 7.000/112.
 - Lentidão com o tempo: 8 min de partida acelerada em teste (compras, giros, troca de abelhas) não mostraram vazamento: memória JS estável (~45 MB), DOM estável, malhas, texturas e shaders do 3D estáveis, e `render()` sem ficar mais lento. O suspeito mais provável era o voo das abelhas grandes, que chamava `beginElement()` nas animações SMIL; ele foi desligado nesta versão.
+
+## v8.1 (14/10/2026): Upgrade, resumo final, chefes e conquistas
+
+- Upgrade: o botão travava em "Sorteando…" depois de recarregar a página, porque o sorteio salvo usava o relógio da página anterior. Agora `resumeRun()` limpa `S.upRoll`. Custo bem menor: 1, 2,5 e 6 giros (antes 3, 8 e 20).
+- Resumo do fim da partida: cada linha mostra o valor real ao lado dos pontos (por exemplo "Nível do jogador · nível 19" com 3.800 pontos).
+- Chefes dos atos crescem com o time que entra na luta: +40% de vida por abelha ascendida, +20% por ataque comprado, +10% por mutação do Laboratório (o ataque sobe 35% desse valor). Ataques da loja custam 3 vezes mais (7.500, 5.400, 9.600 de mel e 75 de geleia).
+- Flores rendem 75% do néctar no Ato II e 60% no Ato III (`actFood`).
+- Conquista "Ferrão na Rainha" saiu (ficou impossível desde que perder o chefe encerra a partida). Novas: Jardim perfeito, Cidade das abelhas (9 colmeias), Mutação de ouro, Lenda mutante, Trio ascendido, Time de elite (3 abelhas no nível máximo) e Promoção lendária (Épica vira Lendária no Upgrade).
+- Chefes: cabeça maior, pernas mais grossas com garra, asas para trás (`wingZ`) e 1,65x maiores na batalha.
