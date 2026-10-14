@@ -18,7 +18,7 @@ jobs:
         with:
           distribution: temurin
           java-version: 21
-      - uses: android-actions/setup-android@v3
+      # o runner do GitHub já vem com o Android SDK (ANDROID_HOME)
       - run: npm ci
       - run: npm run build
       - run: npx cap sync android
