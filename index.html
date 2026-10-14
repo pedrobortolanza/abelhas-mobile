@@ -1868,68 +1868,86 @@ body { background: #7a420c; }
           mel: [[72, _, 76, 79], [77, _, 76, 77], [74, _, 77, 81], [79, _, _, _]] },
       },
       alias: { amanhecer: 'vitoria', derrota: 'sombra', vazio: 'sombra', olhos: 'zumbido', vespa: 'zumbido' },
+      // v8.8b: mais fluida. Cada clima toca no seu próprio ganho; na troca, o antigo some e o novo entra juntos
+      // (crossfade de ~3 s, os dois tocando ao mesmo tempo), e uma cama de pad contínua liga um quadro ao outro.
       passo(s, at, out, sem) {
-        const nome = this.alias[st.cena] || st.cena, C = this.climas[nome] || this.climas.marDeMel, k = this.climas[nome] ? nome : 'marDeMel';
-        if (this._k !== k) { this._k = k; this._s0 = s - (s % 4); } // clima novo começa do primeiro compasso, no próximo tempo
-        const ls = s - this._s0, c = Math.floor(ls / 16), p = ls % 16, ac = c % 4, notas = C.ac[ac], r = C.r[ac];
+        const nome = this.alias[st.cena] || st.cena, k = this.climas[nome] ? nome : 'marDeMel';
+        if (this._out !== out) { this._out = out; this._g = {}; this._vivos = {}; this._k = null; }
+        const gan = (kk) => { if (!this._g[kk]) { const g = ctx.createGain(); g.gain.value = 0; g.connect(out); this._g[kk] = g; } return this._g[kk]; };
+        if (this._k !== k) {
+          const X = 3.2;
+          if (this._k) { const g = gan(this._k).gain; g.cancelScheduledValues(at); g.setValueAtTime(g.value, at); g.linearRampToValueAtTime(0, at + X); this._vivos[this._k].ate = at + X + 0.2; }
+          const g = gan(k).gain; g.cancelScheduledValues(at); g.setValueAtTime(g.value, at); g.linearRampToValueAtTime(1, at + (this._k ? X * 0.8 : 1.5));
+          this._vivos[k] = { s0: s - (s % 4), ate: Infinity };
+          this._k = k;
+        }
+        // cama: pad bem suave que nunca para, seguindo os acordes do clima atual
+        const C0 = this.climas[k], ls0 = s - this._vivos[k].s0;
+        if (ls0 % 32 === 0) I.pad(C0.ac[Math.floor(ls0 / 16) % 4].map((m) => m - 12), at, sem * 36, 0.006, out, 650);
+        for (const kk in this._vivos) {
+          const v = this._vivos[kk];
+          if (at > v.ate) { delete this._vivos[kk]; continue; }
+          this.clima(kk, s - v.s0, at, gan(kk), sem);
+        }
+      },
+      clima(k, ls, at, out, sem) {
+        const C = this.climas[k], c = Math.floor(ls / 16), p = ls % 16, ac = c % 4, notas = C.ac[ac], r = C.r[ac];
         const novo = ls === 0;
         if (k === 'marDeMel') { // calmo: harpa lenta sobre o mar de mel
           if (p === 0 || novo) I.pad(notas.map((m) => m - 12), at, sem * 16, 0.014, out, 700);
           if (p === 0) I.baixoSuave(m2f(r), at, sem * 12, 0.1, out);
-          if (p % 4 === 0) I.pluck(m2f(notas[(p / 4) % 3] + 12), at, sem * 6, 0.04, out);
+          if (p % 4 === 0) I.sino(m2f(notas[(p / 4) % 3] + 12), at, sem * 8, 0.035, out);
           if (p === 10 && c % 2) I.sino(m2f(notas[2] + 24), at, sem * 8, 0.03, out);
         } else if (k === 'florada') { // maravilha: arpejo que sobe e sinos brilhando
           if (p === 0 || novo) I.pad(notas, at, sem * 16, 0.013, out, 1400);
           if (p === 0) I.baixoSuave(m2f(r), at, sem * 14, 0.12, out);
           const sob = [0, 1, 2, 3, 0, 1, 2, 3].map((q, j) => notas[q % notas.length] + (j < 4 ? 12 : 24));
-          if (p % 2 === 0) I.pluck(m2f(sob[(p / 2) % 8]), at, sem * 3, 0.04, out);
+          if (p % 2 === 0) I.sino(m2f(sob[(p / 2) % 8]), at, sem * 5, 0.03, out);
           if (p === 0 || p === 12) I.sino(m2f(notas[3] + 24), at, sem * 6, 0.05, out);
-          if (p === 0) I.bumbo(at, 0.1, out);
+          
         } else if (k === 'tropa') { // lembrança heroica: trompas e marcha
           if (p === 0 || novo) I.pad(notas, at, sem * 16, 0.012, out, 1100);
-          if (p % 4 === 0) I.baixo(m2f(r), at, sem * 3, 0.09, out, 600);
+          if (p % 8 === 0) I.baixoSuave(m2f(r), at, sem * 7, 0.12, out);
           if (p % 4 === 0) { const m = C.mel[ac][p / 4]; if (m) I.trompa(m2f(m), at, sem * (C.mel[ac][p / 4 + 1] === _ ? 7.5 : 3.8), 0.05, out); }
-          if (p === 0 || p === 8) I.bumbo(at, 0.22, out);
-          if (p === 4 || p === 12) I.caixa(at, 0.07, out);
-          if (c % 4 === 3 && p >= 12) I.caixa(at, 0.04 + (p - 12) * 0.015, out);
+          if (p === 0 || p === 8) I.bumbo(at, 0.13, out);
+          if (p === 4 || p === 12) I.caixa(at, 0.035, out);
         } else if (k === 'sombra') { // a Vespa: grave, tambor distante
           if (p === 0 || novo) { I.pad(notas.map((m) => m + 12), at, sem * 16, 0.011, out, 800); tom({ at, f: m2f(r - 12), dur: sem * 16, vol: 0.09, tipo: 'sine', dest: out, curva: 'sustenta', a: 0.3 }); }
-          if (p === 0 || p === 10) I.taiko(at, p ? 0.2 : 0.4, out);
+          if (p === 0) I.taiko(at, 0.28, out);
           if (p % 4 === 0) { const m = C.mel[ac][p / 4]; if (m) I.trompa(m2f(m), at, sem * 7.5, 0.04, out); }
         } else if (k === 'zumbido') { // tensão: coração, cordas tremendo e o zumbido do enxame
           if (p === 0 || novo) tom({ at, f: m2f(r), dur: sem * 16, vol: 0.07, tipo: 'sawtooth', filtro: 'lowpass', ff: 300, q: 3, dest: out, curva: 'sustenta', a: 0.3 });
           if (p === 0 || p === 3 || p === 8 || p === 11) I.coracao(at, 0.3, out);
-          tom({ at, f: m2f(notas[p % 2 ? 1 : 2] + 12), dur: sem * 0.9, vol: 0.016, tipo: 'sawtooth', filtro: 'lowpass', ff: 1800, dest: out });
+          if (p % 2 === 0) tom({ at, f: m2f(notas[p % 4 ? 1 : 2] + 12), dur: sem * 2.2, vol: 0.014, a: 0.04, tipo: 'sawtooth', filtro: 'lowpass', ff: 1800, dest: out });
           if (p === 0 && c % 2 === 0) tom({ at, f: 118, dur: sem * 16, vol: 0.02, tipo: 'sawtooth', filtro: 'bandpass', ff: 700, q: 6, vib: [26, 18], dest: out, curva: 'sustenta', a: 0.8 });
         } else if (k === 'ovo') { // a Roleta: caixinha de música brincalhona
           if (p % 8 === 0) I.baixoSuave(m2f(r), at, sem * 3, 0.12, out);
           if (p % 8 === 4) notas.forEach((m) => I.pluck(m2f(m), at, sem * 2, 0.022, out));
           if (p % 2 === 0) { const m = C.mel[ac][p / 2]; if (m) I.sino(m2f(m), at, sem * 2.5, 0.06, out); }
-          if (p % 4 === 2) I.chimbal(at, 0.025, out);
+          if (p % 8 === 6) I.chimbal(at, 0.015, out);
         } else if (k === 'ilha') { // tema da ilha, quente e cheio
           if (p === 0 || novo) I.pad(notas.map((m) => m - 12), at, sem * 16, 0.015, out, 1000);
           if (p % 8 === 0) I.baixoSuave(m2f(r), at, sem * 6, 0.14, out);
-          if (p % 2 === 0) I.pluck(m2f(notas[[0, 1, 2, 1][(p / 2) % 4]] + 12), at, sem * 2, 0.035, out);
-          if (p % 2 === 0) { const m = C.mel[ac][p / 2]; if (m) I.epiano(m2f(m), at, sem * 3, 0.06, out); }
-          if (p === 0 || p === 10) I.bumbo(at, 0.14, out);
-          if (p % 4 === 2) I.chimbal(at, 0.022, out);
+          if (p % 2 === 0) I.pluck(m2f(notas[[0, 1, 2, 1][(p / 2) % 4]] + 12), at, sem * 4, 0.03, out);
+          if (p % 2 === 0) { const m = C.mel[ac][p / 2]; if (m) I.epiano(m2f(m), at, sem * (C.mel[ac][p / 2 + 1] === _ ? 5 : 3), 0.055, out); }
+          if (p === 0) I.bumbo(at, 0.1, out);
         } else if (k === 'titulo') { // título: acorde grande e o tema nas trompas
           if (novo) { tom({ at, f: 65, f2: 40, dur: 0.7, vol: 0.4, dest: out }); I.taiko(at, 0.45, out); }
           if (p === 0 || novo) I.pad(notas, at, sem * 16, 0.016, out, 1800);
           if (p % 8 === 0) I.baixoSuave(m2f(r), at, sem * 7, 0.15, out);
           if (p % 4 === 0) { const m = C.mel[ac][p / 4]; if (m) { I.trompa(m2f(m), at, sem * 3.8, 0.05, out); I.sino(m2f(m + 12), at, sem * 4, 0.03, out); } }
-          if (p % 2 === 0) I.pluck(m2f(notas[(p / 2) % 4] + 12), at, sem * 2, 0.03, out);
+          if (p % 2 === 0) I.sino(m2f(notas[(p / 2) % 4] + 12), at, sem * 4, 0.022, out);
         } else if (k === 'ninho') { // Ninho de Papel: mistério, sinos soltos no escuro
           if (p === 0 || novo) { I.pad(notas.map((m) => m - 12), at, sem * 16, 0.012, out, 600); tom({ at, f: m2f(r - 12), dur: sem * 16, vol: 0.07, tipo: 'sine', dest: out, curva: 'sustenta', a: 0.5 }); }
           if (p % 4 === 0 && Math.random() < 0.5) I.sino(m2f(escolha(notas) + 24), at, sem * 6, 0.03, out);
           if (p === 8 && c % 2) I.coracao(at, 0.15, out);
         } else if (k === 'vitoria') { // vitória: fanfarra
           if (p === 0 || novo) I.pad(notas, at, sem * 16, 0.015, out, 1800);
-          if (p % 4 === 0) I.baixo(m2f(r), at, sem * 3, 0.1, out, 800);
+          if (p % 8 === 0) I.baixoSuave(m2f(r), at, sem * 7, 0.13, out);
           if (p % 4 === 0) { const m = C.mel[ac][p / 4]; if (m) I.trompa(m2f(m), at, sem * (C.mel[ac][p / 4 + 1] === _ ? 7.5 : 3.8), 0.055, out); }
           if (p % 2 === 0) I.pluck(m2f(notas[[0, 1, 2, 1][(p / 2) % 4]] + 24), at, sem * 2, 0.03, out);
-          if (p === 0 || p === 8 || p === 10) I.bumbo(at, 0.25, out);
-          if (p === 4 || p === 12) I.caixa(at, 0.1, out);
+          if (p === 0 || p === 8) I.bumbo(at, 0.16, out);
+          if (p === 4 || p === 12) I.caixa(at, 0.05, out);
           if (p === 0 && c % 2 === 0) [0, 4, 7, 12, 16, 19].forEach((d, q) => I.sino(m2f(84 + d), at + q * 0.05, sem * 3, 0.022, out));
         }
       },
