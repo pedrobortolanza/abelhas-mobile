@@ -481,3 +481,11 @@ Clique/toque em tudo. Teclas: `1`–`9` abrem os painéis do dock (1 = Ilha), `E
 
 - Vespa das cutscenes (`vespa()` no módulo de cutscenes, exportada como `Cutscene.vespa`) redesenhada à mão em canvas: quitina com brilho, asas com nervuras e reflexo, pernas em segmentos com espinhos, abdômen em placas com ferrão e gota de veneno, olhos compostos com facetas e ocelos, sobrancelhas em V e mandíbulas serrilhadas. Três visuais (`VESPA_PAL`): Rainha (vermelha, coroa dourada), General (laranja, elmo com crista, ombreiras e cicatriz), Imperatriz (branca e roxa, coroa alta e aura). A cena recebe o chefe do ato em `vars.tipo`; o retrato da fala também usa o desenho.
 - Chefes da batalha (raridade B) deixaram o modelo 3D chibi: `bossStrip()` desenha a mesma vespa em 8 quadros batendo as asas. Escala na arena 1,3x (era 1,65x).
+
+## v8.4 (14/10/2026): cenários das cutscenes repaginados
+
+- `ilhaFavo()` agora desenha a ilha como ela é no jogo: borda de cera dourada pingando mel, chão de favos marrom, caminhos de pedra creme saindo da praça com a estátua dourada, gramado da fazenda com rio de mel, Arena, Mercado, Roleta, Laboratório, Torre da Ascensão, colmeias, velas e moitas. `ruina` deixa tudo apagado e rachado; `vazia` tira as construções. Fica acima da caixa de fala (`ilhaLugar`).
+- `fundoMel()`: fundo de dentro da colmeia (luz de mel, favos gigantes apagados, raios de luz e bolhas de luz) no lugar do céu azul com nuvens. Tons dia, tarde e perigo.
+- `abelha()` virou chibi como as do jogo (cabeça grande, olhos brilhando, bochechas, corpinho listrado).
+- Cena `ovo` agora mostra a Roleta do Enxame girando, com as nove cores e abelhas saindo dela (a fala já falava da roleta).
+- A cena vermelha da vespa ficou como estava, só com a ilha nova atrás.
