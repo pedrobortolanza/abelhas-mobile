@@ -1,4 +1,6 @@
-# Honey Troop
+# Honey Troop Mobile
+
+> Cópia do [Honey Troop](https://github.com/pedrobortolanza/honey-troop) (congelado em https://honey-troop.vercel.app) que vai virar uma versão mobile first com banco de dados. Site: https://abelhas-mobile.vercel.app
 
 Jogo de navegador sobre abelhas, feito para caber numa sessão. Você cria, cruza, alimenta e treina um enxame até a Vespa Rainha atacar a colmeia. As abelhas que defenderem bem o seu lar viram uma nova Tropa do Mel. Não há salvamento: se fechar a aba, a partida acaba.
 
