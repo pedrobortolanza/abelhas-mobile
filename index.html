@@ -10718,7 +10718,7 @@ function resumeRun() {
   const o = loadSave(); if (!o) { renderStart(); return; }
   S = o.s;
   // estados passageiros não voltam: giro da roleta, batalha no meio, cutscene
-  S.wheel = null; S.spin = null; S.idleReel = null; S.swRes = null; S.tutor = null; S.ficha = null; S.battle = null;
+  S.wheel = null; S.spin = null; S.idleReel = null; S.swRes = null; S.tutor = null; S.ficha = null; S.battle = null; S.upRoll = null;
   S.running = true; S.paused = false;
   lastTop = lastTabs = lastView = lastMap = lastHud = ''; mapCentered = false; last = performance.now();
   landscapeLock(); music(S.finalPhase ? 'invasao' : 'ilha');
@@ -11156,14 +11156,14 @@ function eggSVG(sp, id, ready) {
 }
 // Upgrade (aba da Roleta): paga mel e tenta subir a abelha para a próxima raridade.
 // Deu certo: vira uma abelha da raridade nova, mantendo nível, mutação, visual e histórico. Deu errado: só perde o mel.
-const UPG = { C: { to: 'R', p: 0.5, k: 3 }, R: { to: 'E', p: 0.3, k: 8 }, E: { to: 'L', p: 0.15, k: 20 } };
+const UPG = { C: { to: 'R', p: 0.5, k: 1 }, R: { to: 'E', p: 0.3, k: 2.5 }, E: { to: 'L', p: 0.15, k: 6 } }; // v8.1: bem mais barato (era 3, 8 e 20 giros)
 const upgCost = d => Math.round(spinCost() * UPG[d.rar].k / 5) * 5;
 function swTabs() {
   return `<div class="stabs"><button class="stab" aria-pressed="${S.swTab !== 'up'}" data-a="swTab" data-k="roleta">🎯 Roleta</button><button class="stab" aria-pressed="${S.swTab === 'up'}" data-a="swTab" data-k="up">⬆️ Upgrade</button></div>`;
 }
 function tryUpgrade(id) {
   const d = S.dragons.find(x => x.id === id), U = d && UPG[d.rar];
-  if (!U || (S.upRoll && S.upRoll.until > performance.now())) return;
+  if (!U || (S.upRoll && S.upRoll.until > performance.now() && S.upRoll.until - performance.now() < 3000)) return;
   const pool = swarmPool().filter(sp => sp.rar === U.to);
   if (!pool.length) { toast('Ainda não dá', `Nenhuma abelha ${RARITY[U.to].n} liberada para o seu nível.`, 'bad'); return; }
   if (!spendGold(upgCost(d))) return;
@@ -11187,7 +11187,8 @@ function viewUpgrade() {
   const d = S.dragons.find(x => x.id === S.upSel && UPG[x.rar]);
   const bees = S.dragons.filter(x => UPG[x.rar]).sort((a, b) => RARITY[b.rar].rv - RARITY[a.rar].rv || b.lvl - a.lvl);
   const chips = bees.length ? bees.map(x => `<button class="chip" aria-pressed="${d && x.id === d.id}" data-a="upSel" data-id="${x.id}">${dIcon(x.els, x.rar, 's', '', x.id, x.skin)}${x.name} · <span class="rar-${x.rar}">${RARITY[x.rar].n}</span> · Nv ${x.lvl}</button>`).join('') : '<p class="hint">Todas as suas abelhas já são Lendárias.</p>';
-  const R = S.upRoll, rolling = R && R.until > performance.now();
+  // o relógio (performance.now) recomeça ao recarregar a página: um sorteio salvo antes não pode travar o botão
+  const R = S.upRoll, rolling = R && R.until > performance.now() && R.until - performance.now() < 3000;
   let box = '<p class="hint">Escolha uma abelha abaixo.</p>';
   if (d) {
     const U = UPG[d.rar], c = upgCost(d), ok = S.gold >= c;
