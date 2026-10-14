@@ -468,3 +468,11 @@ Clique/toque em tudo. Teclas: `1`–`9` abrem os painéis do dock (1 = Ilha), `E
 - Flores rendem 75% do néctar no Ato II e 60% no Ato III (`actFood`).
 - Conquista "Ferrão na Rainha" saiu (ficou impossível desde que perder o chefe encerra a partida). Novas: Jardim perfeito, Cidade das abelhas (9 colmeias), Mutação de ouro, Lenda mutante, Trio ascendido, Time de elite (3 abelhas no nível máximo) e Promoção lendária (Épica vira Lendária no Upgrade).
 - Chefes: cabeça maior, pernas mais grossas com garra, asas para trás (`wingZ`) e 1,65x maiores na batalha.
+
+## v8.2 (14/10/2026): nota justa, Ato I mais leve, chefes e cutscenes novos
+
+- Nota limitada ao perder (`rankFor`): cair no Ato I dá no máximo C, no Ato II no máximo B, no Ato III no máximo A. S só vencendo os três atos. Encerrar antes do fim conta como perder no ato atual.
+- Chefe do Ato I: 1.700 de vida e 52 de ataque (era 2.600/58). Em 20 lutas simuladas, 3 Épicas Nv 15 vencem 13 e Nv 18 vencem todas. Atos II e III seguem 4.600 e 7.000.
+- Os chefes dos atos crescem só com as abelhas que entram na luta (o `powerK` geral saiu dos chefes). Ataque comprado numa abelha que ficou fora não deixa o chefe mais forte.
+- Modelo novo dos chefes (`buildBoss` + `villainHead`): mesmo estilo chibi das abelhas do jogador, mas malvados. Máscara escura de vespa, olhos vermelhos brilhando sob pálpebras bravas, dentes, mandíbulas, abdômen listrado com ferrão grande. General com elmo, crista vermelha e ombreiras; Rainha roxa com coroa de espinhos e rubi; Imperatriz branca e roxa com coroa alta de ouro e anéis.
+- Cutscenes: câmera que aproxima e desliza devagar, dissolve entre as cenas (sem piscar preto), brilho suave (bloom), luz quente e raios de luz nas cenas claras, brasas nas escuras, pólen flutuando, vinheta mais forte. Caixa de fala com textura de favo e brilho na cor de quem fala, retrato e nome entram com um pulinho, narração em faixa de cinema e título pulsando.
