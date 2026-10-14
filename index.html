@@ -9083,7 +9083,14 @@ const ACH = [
   { cat: 'Jogador', id: 'clicks500', i: '👆', n: 'Dedo nervoso',          d: 'Faça 500 cliques.',                        g: 2, c: s => s.clicks >= 500 },
   { cat: 'Ataque final', id: 'defend',   i: '🛡️', n: 'Tropa do Mel',      d: 'Vença o ataque da Vespa Rainha.',                   g: 10, c: s => s.finalWins >= 1 },
   { cat: 'Ataque final', id: 'defend0',  i: '🏰', n: 'Favo intocável',        d: 'Vença o ataque final sem perder nenhuma abelha.', g: 15, c: s => s.finalPerfect >= 1 },
-  { cat: 'Ataque final', id: 'half',     i: '🩸', n: 'Ferrão na Rainha', d: 'Tire metade da vida da Vespa Rainha no ataque final.', g: 5, c: s => s.finalDmgPct >= 0.5 },
+  // v8.1: "Ferrão na Rainha" saiu (perder o chefe encerra a partida, então ficou impossível)
+  { cat: 'Jardim', id: 'farmsMax', i: '🌻', n: 'Jardim perfeito',      d: 'Deixe todos os canteiros no nível máximo (no mínimo 6).', g: 10, c: () => S.farms.length >= 6 && S.farms.every(f => (f.lvl || 1) >= FARM_MAX) },
+  { cat: 'Colmeia', id: 'hives9',   i: '🏘️', n: 'Cidade das abelhas',  d: 'Tenha 9 colmeias na ilha.',                       g: 8, c: () => S.habitats.length >= 9 },
+  { cat: 'Evolução', id: 'mutTop', i: '🧬', n: 'Mutação de ouro',    d: 'Tenha uma abelha com uma mutação exclusiva do Laboratório.', g: 8, c: () => S.dragons.some(d => d.mut && MUTS[d.mut] && MUTS[d.mut].lab) },
+  { cat: 'Evolução', id: 'mutL',   i: '🌟', n: 'Lenda mutante',      d: 'Tenha uma Lendária com mutação do Laboratório.',  g: 12, c: () => S.dragons.some(d => d.rar === 'L' && d.mut && MUTS[d.mut] && MUTS[d.mut].lab) },
+  { cat: 'Evolução', id: 'asc3',        i: '🗼', n: 'Trio ascendido',      d: 'Ascenda 3 abelhas na Torre da Ascensão.',          g: 15, c: () => S.dragons.filter(d => d.asc).length >= 3 },
+  { cat: 'Evolução', id: 'lvlAll',    i: '💪', n: 'Time de elite',       d: 'Tenha 3 abelhas no nível máximo ao mesmo tempo.',   g: 10, c: () => S.dragons.filter(d => d.lvl >= MAX_DLVL).length >= 3 },
+  { cat: 'Coleção', id: 'upL',        i: '⬆️', n: 'Promoção lendária',   d: 'Transforme uma Épica em Lendária no Upgrade.',      g: 8, c: () => S.stats.upLegend >= 1 },
 ];
 // ---------- Roguelite: cada partida sorteia o prado, as rainhas e as relíquias ----------
 // Prado: 3 dos 6 tipos básicos nascem no prado da partida. Eles ficam liberados no nível 1, suas abelhas
@@ -11189,6 +11196,7 @@ function tryUpgrade(id) {
     d.lvl = Math.min(d.lvl, MAX_DLVL);
     if (!S.dex[sp.key]) S.dex[sp.key] = S.t || 0.01;
     S.stats.upWins = (S.stats.upWins || 0) + 1;
+    if (sp.rar === 'L') S.stats.upLegend = (S.stats.upLegend || 0) + 1;
     if (sp.rar === 'L' && S.stats.firstLegendT === null) S.stats.firstLegendT = S.t;
   }
   S.upRoll = { id, ok, pos, p: U.p, from, to: U.to, until: performance.now() + 1700, n: (S.upRoll ? S.upRoll.n : 0) + 1 };
