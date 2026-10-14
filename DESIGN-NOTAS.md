@@ -489,3 +489,9 @@ Clique/toque em tudo. Teclas: `1`–`9` abrem os painéis do dock (1 = Ilha), `E
 - `abelha()` virou chibi como as do jogo (cabeça grande, olhos brilhando, bochechas, corpinho listrado).
 - Cena `ovo` agora mostra a Roleta do Enxame girando, com as nove cores e abelhas saindo dela (a fala já falava da roleta).
 - A cena vermelha da vespa ficou como estava, só com a ilha nova atrás.
+
+## v8.5 (14/10/2026): cutscenes só com lore
+
+- As falas das cutscenes não explicam mais o jogo (tempo, "escolha três abelhas", lotes e ligas). Viraram lore: a Roleta que fez a velha Tropa, o General e a Imperatriz por trás da Rainha, a Ilha Favo como lar dos heróis, o sono da Rainha no Ninho de Papel.
+- As dicas saíram para um cartão da Vovó Melina (`renderMelina`, `S.tutor = -1`) que abre logo depois de escolher o prado e a rainha, antes das dicas normais: girar a Roleta do Enxame e a partida em 3 atos de 12 minutos com os três chefes.
+- lore/cutscene.js agora é cópia do bloco entre CUTSCENE-START/END do index.html.
