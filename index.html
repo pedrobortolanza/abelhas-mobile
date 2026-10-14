@@ -8908,12 +8908,12 @@ const MODES = {
   rapido: { n: 'Rápida', dur: 600,  d: 'A Vespa Rainha ataca em 10 minutos.', boss: { hp: 1200, atk: 48 } },
   padrao: { n: 'Padrão', dur: 1200, d: 'A Vespa Rainha ataca em 20 minutos.', boss: { hp: 2400, atk: 70 } },
   longa:  { n: 'Longa',  dur: 1800, d: 'A Vespa Rainha ataca em 30 minutos.', boss: { hp: 3600, atk: 88 } },
-  atos: { n: 'Atos', dur: 0, d: 'Três atos de 12 minutos, cada um com seu chefe.', boss: { hp: 2600, atk: 58 } },
+  atos: { n: 'Atos', dur: 0, d: 'Três atos de 12 minutos, cada um com seu chefe.', boss: { hp: 1700, atk: 52 } },
   infinito: { n: 'Infinito', dur: 0, wave: 900, d: 'A Vespa Rainha ataca a cada 15 minutos, mais forte a cada vez. Acaba na primeira derrota.', boss: { hp: 1800, atk: 60 } },
 };
 // Partida em atos: cada ato termina com um chefe; vencer leva ao próximo ato com tudo o que foi construído
 const ACTS = [
-  { n: 'Ato I', boss: 'General Vespa', disp: ['fogo', 'metal'], dur: 720, hp: 2600, atk: 58, reward: { gold: 4000, gems: 15, xp: 300 }, pts: 4000, hab: 4, farm: 6, lg: 3 },
+  { n: 'Ato I', boss: 'General Vespa', disp: ['fogo', 'metal'], dur: 720, hp: 1700, atk: 52, reward: { gold: 4000, gems: 15, xp: 300 }, pts: 4000, hab: 4, farm: 6, lg: 3 },
   { n: 'Ato II', boss: 'Vespa Rainha', disp: ['trevas', 'fogo'], dur: 720, hp: 4600, atk: 92, reward: { gold: 12000, gems: 20, xp: 600 }, pts: 8000, hab: 7, farm: 9, lg: 6 },
   { n: 'Ato III', boss: 'Imperatriz do Ninho', disp: ['trevas', 'luz'], dur: 720, hp: 7000, atk: 112, pts: 12000, hab: 9, farm: 12, lg: 8 },
 ];
